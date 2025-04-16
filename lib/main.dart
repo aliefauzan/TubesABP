@@ -1,41 +1,47 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
-import 'screens/login_screen.dart';
-import 'screens/register_screen.dart';
-import 'screens/schedule_screen.dart';
-import 'screens/passenger_data_screen.dart';
-import 'screens/payment_confirmation_screen.dart';
-import 'screens/booking_history_screen.dart';
-import 'screens/payment_success_screen.dart';
+import 'package:keretaxpress/screens/home_screen.dart';
+import 'package:keretaxpress/screens/login_screen.dart';
+import 'package:keretaxpress/screens/register_screen.dart';
+import 'package:keretaxpress/screens/schedule_screen.dart';
+import 'package:keretaxpress/screens/passenger_data_screen.dart';
+import 'package:keretaxpress/screens/payment_confirmation_screen.dart';
+import 'package:keretaxpress/screens/payment_success_screen.dart';
+import 'package:keretaxpress/screens/booking_history_screen.dart';
+import 'package:keretaxpress/utils/theme.dart';
+import 'package:keretaxpress/models/train.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const KeretaXpressApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class KeretaXpressApp extends StatelessWidget {
+  const KeretaXpressApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'KeretaXpress',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Roboto',
-      ),
+      theme: AppTheme.theme,
       initialRoute: '/',
       routes: {
         '/': (context) => const HomeScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/schedule': (context) => const ScheduleScreen(),
-        '/passenger-data': (context) => const PassengerDataScreen(),
         '/payment-confirmation': (context) => const PaymentConfirmationScreen(),
         '/payment-success': (context) => const PaymentSuccessScreen(),
         '/booking-history': (context) => const BookingHistoryScreen(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/passenger-data') {
+          final Train train = settings.arguments as Train;
+          return MaterialPageRoute(
+            builder: (context) => PassengerDataScreen(train: train),
+          );
+        }
+        return null;
       },
       debugShowCheckedModeBanner: false,
     );
   }
 }
-
