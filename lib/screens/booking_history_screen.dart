@@ -1,35 +1,31 @@
 import 'package:flutter/material.dart';
-import '../widgets/app_bar.dart';
-import '../models/booking.dart';
+import 'package:keretaxpress/models/booking.dart';
+import 'package:keretaxpress/utils/theme.dart';
+import 'package:keretaxpress/widgets/app_bar.dart';
 
 class BookingHistoryScreen extends StatelessWidget {
   const BookingHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Sample booking data
-    List<Booking> bookings = [
-      Booking(
-        transactionId: '35151859256378',
-        trainName: 'Serayu 255',
-        operator: 'PT.KAI',
-        date: 'Nov 16',
-        time: '00:15',
-        departure: 'Kiaracondong',
-        arrival: 'Jatinegara',
-        status: 'Sudah dibayar',
-        price: 'Rp.150.000',
-      ),
+    // Dummy booking data
+    final List<Booking> bookings = [
+      Booking.dummy(),
       Booking(
         transactionId: '35151859256379',
-        trainName: 'Argo Parahyangan',
-        operator: 'PT.KAI',
-        date: 'Nov 17',
+        trainName: 'Argo Parahyangan 43A',
+        operator: 'PT. KAI',
+        date: '17 Nov 2024',
         time: '08:00',
         departure: 'Bandung',
         arrival: 'Jakarta',
         status: 'Sudah dibayar',
-        price: 'Rp.350.000',
+        price: 'Rp350.000',
+        passengerName: 'Budi Santoso',
+        passengerId: '77773023030043044',
+        passengerDob: '15 Jan 1990',
+        passengerGender: 'Laki-laki',
+        seatClass: 'Eksekutif',
       ),
     ];
 
@@ -42,7 +38,10 @@ class BookingHistoryScreen extends StatelessWidget {
           children: [
             const Text(
               'Riwayat Pemesanan',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 20),
             ListView.builder(
@@ -51,17 +50,28 @@ class BookingHistoryScreen extends StatelessWidget {
               itemCount: bookings.length,
               itemBuilder: (context, index) {
                 return Card(
+                  elevation: 2,
                   margin: const EdgeInsets.only(bottom: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Transaction ID : ${bookings[index].transactionId}'),
+                        Text(
+                          'Transaction ID: ${bookings[index].transactionId}',
+                          style: const TextStyle(
+                            color: Colors.grey,
+                          ),
+                        ),
                         const SizedBox(height: 10),
                         Text(
                           bookings[index].trainName,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         Text(bookings[index].operator),
                         const SizedBox(height: 10),
@@ -76,16 +86,19 @@ class BookingHistoryScreen extends StatelessWidget {
                                 Text(bookings[index].departure),
                               ],
                             ),
-                            const Column(
+                            Column(
                               children: [
-                                Text('3h 40m'),
+                                Text(
+                                  '${bookings[index].passengerName} (${bookings[index].passengerGender})',
+                                ),
+                                Text(bookings[index].seatClass),
                               ],
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(bookings[index].date),
-                                Text('03:55'),
+                                const Text('--:--'),
                                 Text(bookings[index].arrival),
                               ],
                             ),
@@ -97,9 +110,16 @@ class BookingHistoryScreen extends StatelessWidget {
                           children: [
                             const Text('Status Pembayaran'),
                             Chip(
-                              label: Text(bookings[index].status),
-                              backgroundColor: Colors.green,
-                              labelStyle: const TextStyle(color: Colors.white),
+                              label: Text(
+                                bookings[index].status,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                              backgroundColor: bookings[index].status ==
+                                      'Sudah dibayar'
+                                  ? AppTheme.successColor
+                                  : AppTheme.warningColor,
                             ),
                           ],
                         ),
@@ -107,10 +127,18 @@ class BookingHistoryScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Total Biaya'),
+                            const Text(
+                              'Total Biaya',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             Text(
                               bookings[index].price,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primaryColor,
+                              ),
                             ),
                           ],
                         ),
@@ -119,18 +147,45 @@ class BookingHistoryScreen extends StatelessWidget {
                           width: double.infinity,
                           child: OutlinedButton(
                             onPressed: () {
-                              // Upload payment proof
+                              // Upload payment proof functionality
                             },
-                            child: const Text('Upload bukti pembayaran'),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              side: const BorderSide(
+                                  color: AppTheme.primaryColor),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text(
+                              'UPLOAD BUKTI PEMBAYARAN',
+                              style: TextStyle(
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
                           ),
                         ),
+                        const SizedBox(height: 10),
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton(
                             onPressed: () {
-                              // Download ticket
+                              // Download ticket functionality
                             },
-                            child: const Text('Download tiket'),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              side: const BorderSide(
+                                  color: AppTheme.primaryColor),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text(
+                              'DOWNLOAD TIKET',
+                              style: TextStyle(
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
                           ),
                         ),
                       ],

@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
-import '../widgets/app_bar.dart';
+import 'package:keretaxpress/models/train.dart';
+import 'package:keretaxpress/utils/theme.dart';
+import 'package:keretaxpress/widgets/app_bar.dart';
 
 class PassengerDataScreen extends StatelessWidget {
-  const PassengerDataScreen({super.key});
+  final Train train;
+
+  const PassengerDataScreen({
+    super.key,
+    required this.train,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,21 +22,27 @@ class PassengerDataScreen extends StatelessWidget {
           children: [
             const Text(
               'Isi Data Penumpang',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 20),
             const Text(
               'Data Penumpang',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 10),
             const Text('1. Penumpang 1'),
             const SizedBox(height: 20),
-            const Text('Traveller Details'),
+            const Text('Detail Penumpang'),
             const SizedBox(height: 10),
             TextFormField(
-              initialValue: 'Alif Lohen',
               decoration: InputDecoration(
+                labelText: 'Nama Lengkap',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -40,8 +53,8 @@ class PassengerDataScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: 'Laki - Laki',
-                    items: ['Laki - Laki', 'Perempuan']
+                    value: 'Laki-laki',
+                    items: ['Laki-laki', 'Perempuan']
                         .map((gender) => DropdownMenuItem(
                               value: gender,
                               child: Text(gender),
@@ -49,6 +62,7 @@ class PassengerDataScreen extends StatelessWidget {
                         .toList(),
                     onChanged: (value) {},
                     decoration: InputDecoration(
+                      labelText: 'Jenis Kelamin',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -59,9 +73,8 @@ class PassengerDataScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             TextFormField(
-              initialValue: '77773023030043043',
               decoration: InputDecoration(
-                labelText: 'Nomor Identitas',
+                labelText: 'Nomor Identitas (KTP/Paspor)',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -69,9 +82,9 @@ class PassengerDataScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             TextFormField(
-              initialValue: '30 Mar 2003',
               decoration: InputDecoration(
                 labelText: 'Tanggal Lahir',
+                suffixIcon: const Icon(Icons.calendar_today),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -82,26 +95,47 @@ class PassengerDataScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {},
-                child: const Text('Simpan'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'SIMPAN',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 30),
             const Text(
               'Detail Keberangkatan',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 10),
             Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Serayu 255 Ekonomi',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    Text(
+                      '${train.name} ${train.classType}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    const Text('PT.KAI'),
+                    Text(train.operator),
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -109,22 +143,22 @@ class PassengerDataScreen extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Nov 16'),
-                            const Text('00:15'),
-                            const Text('Kiaracondong'),
+                            Text(train.date),
+                            Text(train.time),
+                            Text(train.departure),
                           ],
                         ),
-                        const Column(
+                        Column(
                           children: [
-                            Text('3h 40m'),
+                            Text(train.duration),
                           ],
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            const Text('Nov 16'),
-                            const Text('03:55'),
-                            const Text('Jatinegara'),
+                            Text(train.date),
+                            Text(train.arrivalTime),
+                            Text(train.arrival),
                           ],
                         ),
                       ],
@@ -136,10 +170,17 @@ class PassengerDataScreen extends StatelessWidget {
             const SizedBox(height: 20),
             const Text(
               'Detail Pembayaran',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 10),
             Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -148,7 +189,7 @@ class PassengerDataScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Harga tiket'),
-                        const Text('Rp.150.000'),
+                        Text(train.price),
                       ],
                     ),
                     const SizedBox(height: 10),
@@ -165,11 +206,15 @@ class PassengerDataScreen extends StatelessWidget {
                       children: [
                         const Text(
                           'Total Harga',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        const Text(
-                          'Rp.150.000',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Text(
+                          train.price,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -185,7 +230,19 @@ class PassengerDataScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: const Text('Batalkan'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      side: const BorderSide(color: AppTheme.primaryColor),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'BATALKAN',
+                      style: TextStyle(
+                        color: AppTheme.primaryColor,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -194,7 +251,19 @@ class PassengerDataScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.pushNamed(context, '/payment-confirmation');
                     },
-                    child: const Text('Bayar Sekarang'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'BAYAR SEKARANG',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ],

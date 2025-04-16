@@ -1,44 +1,58 @@
 import 'package:flutter/material.dart';
-import '../widgets/app_bar.dart';
-import '../widgets/train_card.dart';
-import '../models/train.dart';
+import 'package:keretaxpress/models/train.dart';
+import 'package:keretaxpress/utils/theme.dart';
+import 'package:keretaxpress/widgets/app_bar.dart';
+import 'package:keretaxpress/widgets/train_card.dart';
+import 'package:keretaxpress/screens/passenger_data_screen.dart';
 
 class ScheduleScreen extends StatelessWidget {
   const ScheduleScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Sample train data
-    List<Train> trains = [
+    // Dummy train data
+    final List<Train> trains = [
       Train(
+        id: '1',
         name: 'Serayu 255',
         operator: 'PT. KAI',
         date: '16 Nov 2024',
-        time: '03:15',
+        time: '00:15',
         departure: 'Kiaracondong',
+        arrival: 'Jatinegara',
+        arrivalTime: '03:55',
+        duration: '3h 40m',
         classType: 'Ekonomi',
-        price: 'Rp.150.000',
+        price: 'Rp150.000',
         seatsLeft: 50,
       ),
       Train(
+        id: '2',
         name: 'Argo Parahyangan 43A',
         operator: 'PT. KAI',
         date: '16 Nov 2024',
-        time: '03:55',
-        departure: 'Jatinegara',
+        time: '08:00',
+        departure: 'Bandung',
+        arrival: 'Jakarta',
+        arrivalTime: '11:30',
+        duration: '3h 30m',
         classType: 'Eksekutif',
-        price: 'Rp.350.000',
-        seatsLeft: 50,
+        price: 'Rp350.000',
+        seatsLeft: 20,
       ),
       Train(
+        id: '3',
         name: 'Cikuray 267',
         operator: 'PT. KAI',
         date: '16 Nov 2024',
-        time: '03:55',
+        time: '14:00',
         departure: 'Pasar Senen',
+        arrival: 'Kiaracondong',
+        arrivalTime: '17:30',
+        duration: '3h 30m',
         classType: 'Bisnis',
-        price: 'Rp.250.000',
-        seatsLeft: 50,
+        price: 'Rp250.000',
+        seatsLeft: 35,
       ),
     ];
 
@@ -51,31 +65,40 @@ class ScheduleScreen extends StatelessWidget {
           children: [
             const Text(
               'Pilih Jadwal Keberangkatan',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 10),
             Row(
               children: [
-                const Icon(Icons.location_on),
+                const Icon(Icons.location_on, color: AppTheme.primaryColor),
                 const SizedBox(width: 5),
-                const Text('Bandung, Indonesia'),
-                const Icon(Icons.arrow_right_alt),
-                const Icon(Icons.location_on),
+                const Text('Bandung'),
+                const Icon(Icons.arrow_right_alt, color: AppTheme.primaryColor),
+                const Icon(Icons.location_on, color: AppTheme.primaryColor),
                 const SizedBox(width: 5),
-                const Text('Jakarta, Indonesia'),
+                const Text('Jakarta'),
                 const Spacer(),
                 TextButton(
                   onPressed: () {
-                    // Show date picker
+                    _selectDate(context);
                   },
-                  child: const Text('16 Nov 2024'),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.calendar_today, size: 16),
+                      SizedBox(width: 5),
+                      Text('16 Nov 2024'),
+                    ],
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 20),
             TextField(
               decoration: InputDecoration(
-                hintText: 'Cari Kereta',
+                hintText: 'Cari Kereta...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -85,7 +108,10 @@ class ScheduleScreen extends StatelessWidget {
             const SizedBox(height: 20),
             const Text(
               'Kereta Yang Tersedia',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 10),
             Expanded(
@@ -95,7 +121,11 @@ class ScheduleScreen extends StatelessWidget {
                   return TrainCard(
                     train: trains[index],
                     onTap: () {
-                      Navigator.pushNamed(context, '/passenger-data');
+                      Navigator.pushNamed(
+                        context,
+                        '/passenger-data',
+                        arguments: trains[index],
+                      );
                     },
                   );
                 },
@@ -105,5 +135,17 @@ class ScheduleScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (picked != null) {
+      // Handle date selection
+    }
   }
 }
