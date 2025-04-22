@@ -1,0 +1,31 @@
+<?php
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Booking extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'transaction_id', 'user_id', 'train_id', 'travel_date',
+        'passenger_name', 'passenger_id_number', 'passenger_dob',
+        'passenger_gender', 'status', 'total_price', 'payment_proof'
+    ];
+    
+    protected $casts = [
+        'travel_date' => 'date',
+        'passenger_dob' => 'date'
+    ];
+    
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    
+    public function train()
+    {
+        return $this->belongsTo(Train::class);
+    }
+}
