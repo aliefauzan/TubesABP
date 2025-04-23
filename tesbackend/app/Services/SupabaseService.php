@@ -1,39 +1,55 @@
 <?php
+
 namespace App\Services;
 
-use Supabase\Postgrest\PostgrestClient;
-use Supabase\Storage\StorageClient;
+use Illuminate\Support\Facades\Http;
 
 class SupabaseService
 {
-    protected $postgrest;
-    protected $storage;
-    
+    protected $baseUrl;
+    protected $apiKey;
+    protected $bucket;
+
     public function __construct()
     {
-        $this->postgrest = app('supabase.postgrest');
-        $this->storage = app('supabase.storage');
+        $this->baseUrl = rtrim(config('services.supabase.url'), '/');
+        $this->apiKey = config('services.supabase.key');
+        $this->bucket = config('services.supabase.bucket');
     }
-    
-    public function subscribeToRealtime($table, $event, $callback)
+
+    protected function headers()
     {
-        return $this->postgrest
-            ->from($table)
-            ->on($event, $callback)
-            ->subscribe();
+        return [
+            'apikey' => $this->apiKey,
+            'Authorization' => 'Bearer ' . $this->apiKey,
+            'Content-Type' => 'application/json',
+        ];
     }
-    
-    public function uploadFile($bucket, $path, $file)
+
+    public function getAll($table)
     {
-        return $this->storage
-            ->from($bucket)
-            ->upload($path, $file);
+        $url = "{$this->baseUrl}/rest/v1/{$table}";
+        return Http::withHeaders($this->headers())->get($url)->json();
     }
-    
-    public function getPublicUrl($bucket, $path)
+
+    public function insert($table, array $data)
     {
-        return $this->storage
-            ->from($bucket)
-            ->getPublicUrl($path);
+        $url = "{$this->baseUrl}/rest/v1/{$table}";
+        return Http::withHeaders($this->headers())->post($url, $data)->json();
+    }
+
+    public function uploadFile($path, $file)
+    {
+        $url = "{$this->baseUrl}/storage/v1/object/{$this->bucket}/{$path}";
+        return Http::withHeaders([
+            'apikey' => $this->apiKey,
+            'Authorization' => 'Bearer ' . $this->apiKey,
+            'Content-Type' => 'application/octet-stream',
+        ])->put($url, fopen($file, 'r'))->json();
+    }
+
+    public function getPublicUrl($path)
+    {
+        return "{$this->baseUrl}/storage/v1/object/public/{$this->bucket}/{$path}";
     }
 }
