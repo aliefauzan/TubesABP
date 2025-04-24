@@ -14,11 +14,14 @@ class TrainTest extends TestCase
 
     public function test_can_create_train()
     {
+        $departureStation = Station::factory()->create();
+        $arrivalStation = Station::factory()->create();
+
         $trainData = [
             'name' => 'Test Train',
             'operator' => 'Test Operator',
-            'departure_station_id' => 1,
-            'arrival_station_id' => 2,
+            'departure_station_id' => $departureStation->id,
+            'arrival_station_id' => $arrivalStation->id,
             'departure_time' => now(),
             'arrival_time' => now()->addHours(2),
             'duration_minutes' => 120,
@@ -32,8 +35,8 @@ class TrainTest extends TestCase
         $this->assertInstanceOf(Train::class, $train);
         $this->assertEquals('Test Train', $train->name);
         $this->assertEquals('Test Operator', $train->operator);
-        $this->assertEquals(1, $train->departure_station_id);
-        $this->assertEquals(2, $train->arrival_station_id);
+        $this->assertEquals($departureStation->id, $train->departure_station_id);
+        $this->assertEquals($arrivalStation->id, $train->arrival_station_id);
         $this->assertEquals('Economy', $train->class_type);
         $this->assertEquals(100.50, $train->price);
         $this->assertEquals(50, $train->available_seats);
