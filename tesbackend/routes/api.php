@@ -2,19 +2,20 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TrainController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\PaymentController;
 
-Route::prefix('auth')->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/logout', [AuthController::class, 'logout'])
-         ->middleware(['auth:sanctum', 'auth.supabase']);
-    Route::get('/user', [AuthController::class, 'user'])
-         ->middleware(['auth:sanctum', 'auth.supabase']);
-});
+// Auth routes without middleware
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+// Authenticated routes
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    // Auth routes
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', [AuthController::class, 'user']);
     
     // Train routes
     Route::get('/trains/search', [TrainController::class, 'search']);

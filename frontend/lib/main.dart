@@ -9,8 +9,13 @@ import 'package:keretaxpress/screens/payment_success_screen.dart';
 import 'package:keretaxpress/screens/booking_history_screen.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/models/train.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await dotenv.load(fileName: '.env');
+  
   runApp(const KeretaXpressApp());
 }
 
@@ -25,6 +30,7 @@ class KeretaXpressApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const HomeScreen(),
+        '/home': (context) => const HomeScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/schedule': (context) => const ScheduleScreen(),
