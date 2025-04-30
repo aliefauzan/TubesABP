@@ -15,6 +15,7 @@ class StationFactory extends Factory
             'name' => $this->faker->city . ' Station',
             'city' => $this->faker->city,
             'address' => $this->faker->address,
+            'code' => strtoupper($this->faker->lexify('???')),
         ];
     }
 }

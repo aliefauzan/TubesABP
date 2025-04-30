@@ -15,8 +15,8 @@ class ApiTest extends TestCase
     public function test_user_can_register()
     {
         $response = $this->postJson('/api/register', [
-            'name' => 'Test User',
-            'email' => 'testuser@example.com',
+            'name' => 'Test User Terbaru',
+            'email' => 'testuserterbaru@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);
@@ -37,7 +37,7 @@ class ApiTest extends TestCase
         $this->test_user_can_register();
 
         $response = $this->postJson('/api/login', [
-            'email' => 'testuser@example.com',
+            'email' => 'testuserterbaru@example.com',
             'password' => 'password',
         ]);
 
@@ -56,7 +56,7 @@ class ApiTest extends TestCase
         $this->test_user_can_register();
 
         $loginResponse = $this->postJson('/api/login', [
-            'email' => 'testuser@example.com',
+            'email' => 'testuserterbaru@example.com',
             'password' => 'password',
         ]);
 
