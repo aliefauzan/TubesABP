@@ -10,6 +10,10 @@ class ApiService {
   final String _baseUrl = dotenv.env['LARAVEL_API_URL']!;
   String? _token;
 
+  void setToken(String token) {
+    _token = token;
+  }
+
   Future<Map<String, String>> _getHeaders() async {
     return {
       'Content-Type': 'application/json',
@@ -19,16 +23,24 @@ class ApiService {
   }
 
   Future<dynamic> get(String endpoint) async {
+    final cleanBaseUrl = _baseUrl.endsWith('/') ? _baseUrl.substring(0, _baseUrl.length - 1) : _baseUrl;
+    final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+    final url = '$cleanBaseUrl/$cleanEndpoint';
+
     final response = await http.get(
-      Uri.parse('$_baseUrl/$endpoint'),
+      Uri.parse(url),
       headers: await _getHeaders(),
     );
     return _handleResponse(response);
   }
 
   Future<dynamic> post(String endpoint, dynamic data) async {
+    final cleanBaseUrl = _baseUrl.endsWith('/') ? _baseUrl.substring(0, _baseUrl.length - 1) : _baseUrl;
+    final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+    final url = '$cleanBaseUrl/$cleanEndpoint';
+
     final response = await http.post(
-      Uri.parse('$_baseUrl/$endpoint'),
+      Uri.parse(url),
       headers: await _getHeaders(),
       body: jsonEncode(data),
     );
