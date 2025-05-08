@@ -10,12 +10,14 @@ use App\Http\Controllers\PaymentController;
 // Auth routes without middleware
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
+Route::get('/user/{id?}', [AuthController::class, 'user']);
 
 // Authenticated routes
 Route::middleware('auth:sanctum')->group(function () {
     // Auth routes
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', [AuthController::class, 'user']);
+    Route::get('/user/{id?}', [AuthController::class, 'user']);
     
     // Train routes
     Route::get('/trains/search', [TrainController::class, 'search']);
