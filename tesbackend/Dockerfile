@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy existing application directory contents
+# Copy existing application directory contents including .env
 COPY . /var/www/html
 
 # Copy existing application directory permissions
@@ -30,7 +30,6 @@ RUN rm -rf /var/www/html/vendor/theseer/tokenizer /var/www/html/vendor/symfony/y
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Expose port 9000 and start php-fpm server
-EXPOSE 9000
+EXPOSE 8080
 
 CMD ["php-fpm"]
