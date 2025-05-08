@@ -1,9 +1,96 @@
 import 'package:flutter/material.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
+
+  @override
+  _RegisterScreenState createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordConfirmController = TextEditingController();
+
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  Future<void> _register() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final String name = _nameController.text.trim();
+    final String email = _emailController.text.trim();
+    final String password = _passwordController.text;
+    final String passwordConfirmation = _passwordConfirmController.text;
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty || passwordConfirmation.isEmpty) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Semua field harus diisi.';
+      });
+      return;
+    }
+
+    if (password != passwordConfirmation) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Password dan konfirmasi password tidak cocok.';
+      });
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://localhost:8000/api/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'name': name,
+          'email': email,
+          'password': password,
+          'password_confirmation': passwordConfirmation,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        // Registration successful, navigate to login screen or home
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/login');
+        }
+      } else {
+        final responseData = jsonDecode(response.body);
+        setState(() {
+          _errorMessage = responseData['message'] ?? 'Gagal mendaftar. Silakan coba lagi.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Terjadi kesalahan jaringan. Silakan coba lagi.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _passwordConfirmController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +99,6 @@ class RegisterScreen extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-          //image: AssetImage('assets/images/station.jpg'),
             image: AssetImage('assets/images/train_illustration.png'),
             fit: BoxFit.cover,
             opacity: 0.2,
@@ -40,6 +126,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 30),
                     TextField(
+                      controller: _nameController,
                       decoration: InputDecoration(
                         labelText: 'Nama Lengkap',
                         prefixIcon: const Icon(Icons.person),
@@ -50,6 +137,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     TextField(
+                      controller: _emailController,
                       decoration: InputDecoration(
                         labelText: 'Email',
                         prefixIcon: const Icon(Icons.email),
@@ -61,6 +149,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     TextField(
+                      controller: _passwordController,
                       decoration: InputDecoration(
                         labelText: 'Kata Sandi',
                         prefixIcon: const Icon(Icons.lock),
@@ -72,6 +161,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     TextField(
+                      controller: _passwordConfirmController,
                       decoration: InputDecoration(
                         labelText: 'Konfirmasi Kata Sandi',
                         prefixIcon: const Icon(Icons.lock_outline),
@@ -81,24 +171,35 @@ class RegisterScreen extends StatelessWidget {
                       ),
                       obscureText: true,
                     ),
+                    if (_errorMessage != null) ...[
+                      const SizedBox(height: 20),
+                      Text(
+                        _errorMessage!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ],
                     const SizedBox(height: 20),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: _isLoading ? null : _register,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 15),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text(
-                          'DAFTAR',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: _isLoading
+                            ? const CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              )
+                            : const Text(
+                                'DAFTAR',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 20),
