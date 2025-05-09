@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
-
-import 'package:flutter/material.dart';
-import 'package:keretaxpress/utils/theme.dart';
-import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/core/services/api_service.dart';
 
 class HomeScreen extends StatefulWidget {

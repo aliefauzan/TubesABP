@@ -38,6 +38,22 @@ class ApiService {
     return _handleResponse(response);
   }
 
+  Future<dynamic> getStations() async {
+    try {
+      return await get('/stations');
+    } catch (e) {
+      throw Exception('Failed to fetch stations: $e');
+    }
+  }
+
+  Future<dynamic> getAllTrains() async {
+    try {
+      return await get('/trains/all');
+    } catch (e) {
+      throw Exception('Failed to fetch all trains: $e');
+    }
+  }
+
   Future<dynamic> getUserInfo(String userId) async {
     try {
       return await get('/user/$userId');
