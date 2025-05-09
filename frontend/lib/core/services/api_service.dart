@@ -38,6 +38,14 @@ class ApiService {
     return _handleResponse(response);
   }
 
+  Future<dynamic> getUserInfo(String userId) async {
+    try {
+      return await get('/user/$userId');
+    } catch (e) {
+      throw Exception('Failed to fetch user info: $e');
+    }
+  }
+
   Future<dynamic> post(String endpoint, dynamic data) async {
     final cleanBaseUrl = _baseUrl.endsWith('/') ? _baseUrl.substring(0, _baseUrl.length - 1) : _baseUrl;
     final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;

@@ -18,7 +18,7 @@ class BookingTest extends TestCase
         $train = Train::factory()->create();
 
         $booking = Booking::factory()->create([
-            'user_id' => $user->id,
+            'user_uuid' => $user->uuid,
             'train_id' => $train->id,
             'seat_number' => 'A1',
             'status' => 'confirmed',
@@ -26,7 +26,7 @@ class BookingTest extends TestCase
         ]);
 
         $this->assertInstanceOf(Booking::class, $booking);
-        $this->assertEquals($user->id, $booking->user_id);
+        $this->assertEquals($user->uuid, $booking->user_uuid);
         $this->assertEquals($train->id, $booking->train_id);
         $this->assertEquals('A1', $booking->seat_number);
         $this->assertEquals('confirmed', $booking->status);
@@ -37,7 +37,7 @@ class BookingTest extends TestCase
     {
         $booking = new Booking();
         $relation = $booking->user();
-        $this->assertEquals('user_id', $relation->getForeignKeyName());
+        $this->assertEquals('user_uuid', $relation->getForeignKeyName());
         $this->assertEquals(User::class, $relation->getRelated()::class);
     }
 
