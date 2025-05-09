@@ -23,5 +23,6 @@ RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage /var/www/bootstrap/cache
 
 EXPOSE 8080
+RUN php artisan route:list
 
 CMD ["php", "-S", "0.0.0.0:8080", "-t", "public"]

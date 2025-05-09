@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
-import 'package:http/http.dart' as http;
+import 'package:keretaxpress/core/services/api_service.dart';
+import 'package:flutter/material.dart';
+import 'package:keretaxpress/utils/theme.dart';
+import 'package:keretaxpress/widgets/app_bar.dart';
 import 'dart:convert';
 
 class RegisterScreen extends StatefulWidget {
@@ -19,6 +22,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool _isLoading = false;
   String? _errorMessage;
+
+  final ApiService _apiService = ApiService();
 
   Future<void> _register() async {
     setState(() {
@@ -48,26 +53,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     try {
-      final response = await http.post(
-        Uri.parse('http://localhost:8000/api/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'name': name,
-          'email': email,
-          'password': password,
-          'password_confirmation': passwordConfirmation,
-        }),
-      );
+      final response = await _apiService.post('/register', {
+        'name': name,
+        'email': email,
+        'password': password,
+        'password_confirmation': passwordConfirmation,
+      });
 
-      if (response.statusCode == 201) {
+      if (response != null) {
         // Registration successful, navigate to login screen or home
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/login');
         }
       } else {
-        final responseData = jsonDecode(response.body);
         setState(() {
-          _errorMessage = responseData['message'] ?? 'Gagal mendaftar. Silakan coba lagi.';
+          _errorMessage = 'Gagal mendaftar. Silakan coba lagi.';
         });
       }
     } catch (e) {

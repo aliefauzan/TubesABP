@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log; // Add Log facade
+use Illuminate\Validation\ValidationException;
 use Exception;
 
 class AuthController extends Controller
@@ -35,6 +36,9 @@ class AuthController extends Controller
                 'user' => $user,
                 'token' => $token,
             ], 201);
+        } catch (ValidationException $ve) {
+            // Return validation errors with 422 status
+            return response()->json(['errors' => $ve->errors()], 422);
         } catch (Exception $e) {
             // Log the exception with detailed information
             Log::error('Register error: ' . $e->getMessage(), [
