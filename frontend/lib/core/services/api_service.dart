@@ -14,6 +14,10 @@ class ApiService {
     _token = token;
   }
 
+  bool isLoggedIn() {
+    return _token != null && _token!.isNotEmpty;
+  }
+
   Future<Map<String, String>> _getHeaders() async {
     return {
       'Content-Type': 'application/json',

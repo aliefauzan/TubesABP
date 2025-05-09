@@ -2,8 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 
-class HomeScreen extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:keretaxpress/utils/theme.dart';
+import 'package:keretaxpress/widgets/app_bar.dart';
+import 'package:keretaxpress/core/services/api_service.dart';
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  void _checkLoginStatus() {
+    final apiService = ApiService();
+    setState(() {
+      _isLoggedIn = apiService.isLoggedIn();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +54,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          _buildAuthButtons(context),
+          if (!_isLoggedIn) _buildAuthButtons(context),
         ],
       ),
     );

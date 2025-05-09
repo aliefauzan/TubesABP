@@ -44,6 +44,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
+    if (password.length < 8) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Kata sandi minimal 8 karakter';
+      });
+      return;
+    }
+
     if (password != passwordConfirmation) {
       setState(() {
         _isLoading = false;
@@ -67,7 +75,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
       } else {
         setState(() {
-          _errorMessage = 'Gagal mendaftar. Silakan coba lagi.';
+          if (response is Map && response.containsKey('errors')) {
+            final errors = response['errors'];
+            if (errors.containsKey('password')) {
+              _errorMessage = errors['password'][0];
+            } else if (errors.containsKey('email')) {
+              _errorMessage = errors['email'][0];
+            } else {
+              _errorMessage = 'Gagal mendaftar. Silakan coba lagi.';
+            }
+          } else {
+            _errorMessage = 'Gagal mendaftar. Silakan coba lagi.';
+          }
         });
       }
     } catch (e) {
