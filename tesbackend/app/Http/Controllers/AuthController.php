@@ -6,69 +6,109 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log; // Add Log facade
+use Exception;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-    
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-    
-        $token = $user->createToken('auth_token')->plainTextToken;
-    
-        return response()->json([
-            'user' => $user,
-            'token' => $token,
-        ], 201);
+        try {
+            // Validate input
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8|confirmed',
+            ]);
+        
+            // Create new user
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+        
+            // Create token
+            $token = $user->createToken('auth_token')->plainTextToken;
+        
+            return response()->json([
+                'user' => $user,
+                'token' => $token,
+            ], 201);
+        } catch (Exception $e) {
+            // Log the exception with detailed information
+            Log::error('Register error: ' . $e->getMessage(), [
+                'stack' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+            return response()->json(['message' => 'Internal server error'], 500);
+        }
     }
-    
+
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
-    
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        try {
+            // Validate input
+            $request->validate([
+                'email' => 'required|string|email',
+                'password' => 'required|string',
+            ]);
+        
+            if (!Auth::attempt($request->only('email', 'password'))) {
+                return response()->json([
+                    'message' => 'Invalid credentials'
+                ], 401);
+            }
+        
+            $user = User::where('email', $request->email)->first();
+            $token = $user->createToken('auth_token')->plainTextToken;
+        
             return response()->json([
-                'message' => 'Invalid credentials'
-            ], 401);
+                'user' => $user,
+                'token' => $token,
+            ]);
+        } catch (Exception $e) {
+            // Log the exception with detailed information
+            Log::error('Login error: ' . $e->getMessage(), [
+                'stack' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+            return response()->json(['message' => 'Internal server error'], 500);
         }
-    
-        $user = User::where('email', $request->email)->first();
-        $token = $user->createToken('auth_token')->plainTextToken;
-    
-        return response()->json([
-            'user' => $user,
-            'token' => $token,
-        ]);
     }
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Successfully logged out']);
+        try {
+            $request->user()->currentAccessToken()->delete();
+            return response()->json(['message' => 'Successfully logged out']);
+        } catch (Exception $e) {
+            // Log any error during logout
+            Log::error('Logout error: ' . $e->getMessage(), [
+                'stack' => $e->getTraceAsString()
+            ]);
+            return response()->json(['message' => 'Internal server error'], 500);
+        }
     }
 
     public function user(Request $request, $id = null)
     {
-        if ($id) {
-            $user = User::find($id);
-            if (!$user) {
-                return response()->json(['message' => 'User not found'], 404);
+        try {
+            if ($id) {
+                $user = User::find($id);
+                if (!$user) {
+                    return response()->json(['message' => 'User not found'], 404);
+                }
+                return response()->json(['user' => $user]);
             }
-            return response()->json(['user' => $user]);
+            return response()->json(['user' => $request->user()]);
+        } catch (Exception $e) {
+            // Log the exception with detailed information
+            Log::error('User fetching error: ' . $e->getMessage(), [
+                'stack' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+            return response()->json(['message' => 'Internal server error'], 500);
         }
-        return response()->json(['user' => $request->user()]);
     }
 }
