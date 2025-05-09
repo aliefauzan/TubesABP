@@ -29,8 +29,25 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       } catch (e) {
         if (mounted) {
+          String errorMessage = 'Terjadi kesalahan jaringan. Silakan coba lagi.';
+          if (e is Map && e.containsKey('errors')) {
+            final errors = e['errors'];
+            if (errors.containsKey('password')) {
+              errorMessage = errors['password'][0];
+            } else if (errors.containsKey('email')) {
+              errorMessage = errors['email'][0];
+            }
+          } else if (e is Map && e.containsKey('message')) {
+            if (e['message'] == 'Account not found' || e['message'] == 'User not found') {
+              errorMessage = 'Akun tidak ditemukan';
+            } else {
+              errorMessage = e['message'];
+            }
+          } else if (e is Exception) {
+            errorMessage = e.toString();
+          }
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(e.toString())),
+            SnackBar(content: Text(errorMessage)),
           );
         }
       } finally {
@@ -118,8 +135,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Kata sandi tidak boleh kosong';
                           }
-                          if (value.length < 6) {
-                            return 'Kata sandi minimal 6 karakter';
+                          if (value.length < 8) {
+                            return 'Kata sandi minimal 8 karakter';
                           }
                           return null;
                         },
