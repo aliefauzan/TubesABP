@@ -9,7 +9,7 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'transaction_id', 'user_id', 'train_id', 'travel_date',
+        'transaction_id', 'user_uuid', 'train_id', 'travel_date',
         'passenger_name', 'passenger_id_number', 'passenger_dob',
         'passenger_gender', 'status', 'total_price', 'payment_proof'
     ];
@@ -21,7 +21,7 @@ class Booking extends Model
     
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_uuid', 'uuid');
     }
     
     public function train()

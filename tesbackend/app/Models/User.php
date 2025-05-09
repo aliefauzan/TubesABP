@@ -22,7 +22,8 @@ class User extends Authenticatable
         'email',
         'password',
         'supabase_uid',
-        'api_token'
+        'api_token',
+        'uuid',
     ];
 
     /**
@@ -43,6 +44,20 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Boot function from Laravel.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
 
     /**
      * Get the bookings for the user.

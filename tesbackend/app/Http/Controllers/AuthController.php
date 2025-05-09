@@ -67,6 +67,9 @@ class AuthController extends Controller
             $user = User::where('email', $request->email)->first();
             $token = $user->createToken('auth_token')->plainTextToken;
         
+            // Add UUID to user object
+            $user->uuid = $user->uuid ?? null;
+        
             return response()->json([
                 'user' => $user,
                 'token' => $token,
@@ -95,11 +98,11 @@ class AuthController extends Controller
         }
     }
 
-    public function user(Request $request, $id = null)
+    public function user(Request $request, $uuid = null)
     {
         try {
-            if ($id) {
-                $user = User::find($id);
+            if ($uuid) {
+                $user = User::where('uuid', $uuid)->first();
                 if (!$user) {
                     return response()->json(['message' => 'User not found'], 404);
                 }

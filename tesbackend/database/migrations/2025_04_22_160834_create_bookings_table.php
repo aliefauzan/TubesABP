@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
             $table->string('transaction_id')->unique();
-            $table->foreignId('user_id')->constrained();
+            $table->uuid('user_uuid')->constrained('users', 'uuid');
             $table->foreignId('train_id')->constrained();
             $table->date('travel_date');
             $table->string('passenger_name');

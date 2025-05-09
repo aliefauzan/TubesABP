@@ -15,7 +15,7 @@ class BookingFactory extends Factory
     {
         return [
             'transaction_id' => $this->faker->unique()->uuid,
-            'user_id' => User::factory(),
+            'user_uuid' => User::factory(),
             'train_id' => Train::factory(),
             'seat_number' => $this->faker->bothify('??#'),
             'status' => $this->faker->randomElement(['pending', 'confirmed', 'cancelled']),
