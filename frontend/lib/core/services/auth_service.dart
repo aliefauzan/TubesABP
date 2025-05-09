@@ -1,6 +1,4 @@
 import 'package:keretaxpress/core/services/api_service.dart';
-
-import 'package:keretaxpress/core/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {

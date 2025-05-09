@@ -43,4 +43,21 @@ class Train {
       seatsLeft: 50,
     );
   }
+
+  factory Train.fromJson(Map<String, dynamic> json) {
+    return Train(
+      id: json['id'].toString(),
+      name: json['name'] ?? '',
+      operator: json['operator'] ?? '',
+      date: json['departure_time'] != null ? DateTime.parse(json['departure_time']).toLocal().toString().split(' ')[0] : '',
+      time: json['departure_time'] != null ? DateTime.parse(json['departure_time']).toLocal().toString().split(' ')[1].substring(0,5) : '',
+      departure: json['departure_station_id'] != null ? json['departure_station_id'].toString() : '',
+      arrival: json['arrival_station_id'] != null ? json['arrival_station_id'].toString() : '',
+      arrivalTime: json['arrival_time'] != null ? DateTime.parse(json['arrival_time']).toLocal().toString().split(' ')[1].substring(0,5) : '',
+      duration: json['duration_minutes'] != null ? '${json['duration_minutes']}m' : '',
+      classType: json['class_type'] ?? '',
+      price: json['price'] != null ? 'Rp${json['price'].toString()}' : '',
+      seatsLeft: json['available_seats'] ?? 0,
+    );
+  }
 }
