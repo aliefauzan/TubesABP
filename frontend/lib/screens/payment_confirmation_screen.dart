@@ -116,17 +116,18 @@ class PaymentConfirmationScreen extends StatelessWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: const [
                     Text('Tanggal Lahir: 30 Mar 2003'),
                     Text('Jenis Kelamin: Laki-laki'),
+                    Text('Kursi: A1'),
                   ],
                 ),
                 const Spacer(),
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: const [
                     Text('Status Tiket: Menunggu pembayaran'),
                     Text('Kelas: Ekonomi'),
                   ],

@@ -42,7 +42,7 @@ class KeretaXpressApp extends StatelessWidget {
         if (settings.name == '/passenger-data') {
           final Train train = settings.arguments as Train;
           return MaterialPageRoute(
-            builder: (context) => PassengerDataScreen(train: train),
+            builder: (context) => PassengerDataScreen(train: train, selectedSeat: '',),
           );
         }
         return null;
