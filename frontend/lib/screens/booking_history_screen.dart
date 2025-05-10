@@ -26,6 +26,7 @@ class BookingHistoryScreen extends StatelessWidget {
         passengerDob: '15 Jan 1990',
         passengerGender: 'Laki-laki',
         seatClass: 'Eksekutif',
+        seatNumber: 'A2',
       ),
     ];
 
@@ -91,6 +92,7 @@ class BookingHistoryScreen extends StatelessWidget {
                                 Text(
                                   '${bookings[index].passengerName} (${bookings[index].passengerGender})',
                                 ),
+                                Text('Kursi: ${bookings[index].seatNumber}'),
                                 Text(bookings[index].seatClass),
                               ],
                             ),

@@ -26,20 +26,18 @@ class BookingController extends Controller
             'passenger_dob' => 'required|date',
             'passenger_gender' => 'required|in:male,female',
             'payment_method' => 'required|in:transfer',
+            'seat_number' => 'required|string',
         ]);
         
         $train = Train::findOrFail($request->train_id);
-        
-        // Use Supabase RPC to decrement seats atomically
-        $response = $this->supabase->rpc('decrement_train_seats', ['train_id' => $train->id]);
-        \Log::error('Supabase RPC response', [
-            'status' => $response->status(),
-            'body' => $response->body()
-        ]);
-        if ($response->status() !== 200) {
-            return response()->json(['message' => 'Failed to book'], 400);
+
+        if ($train->available_seats <= 0) {
+            return response()->json(['message' => 'No available seats for this train'], 400);
         }
-        
+        // Decrement available seats locally
+        $train->available_seats -= 1;
+        $train->save();
+
         $booking = Booking::create([
             'transaction_id' => 'KX-' . Str::random(10),
             'user_uuid' => auth()->user()->uuid,
@@ -49,6 +47,7 @@ class BookingController extends Controller
             'passenger_id_number' => $request->passenger_id_number,
             'passenger_dob' => $request->passenger_dob,
             'passenger_gender' => $request->passenger_gender,
+            'seat_number' => $request->seat_number,
             'payment_method' => $request->payment_method,
             'status' => 'pending',
             'total_price' => $train->price,

@@ -13,6 +13,7 @@ class Booking {
   final String passengerDob;
   final String passengerGender;
   final String seatClass;
+  final String seatNumber;
 
   Booking({
     required this.transactionId,
@@ -29,6 +30,7 @@ class Booking {
     required this.passengerDob,
     required this.passengerGender,
     required this.seatClass,
+    required this.seatNumber,
   });
 
   factory Booking.dummy() {
@@ -47,6 +49,7 @@ class Booking {
       passengerDob: '30 Mar 2003',
       passengerGender: 'Laki-laki',
       seatClass: 'Ekonomi',
+      seatNumber: 'A1',
     );
   }
 }

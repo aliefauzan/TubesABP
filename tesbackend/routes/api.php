@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Train routes
     Route::get('/trains/search', [TrainController::class, 'search']);
     Route::get('/trains/promo', [TrainController::class, 'getPromoTrains']);
+    Route::get('/trains/{id}/available-seats', [TrainController::class, 'availableSeats']);
     
     // Station routes
     Route::get('/stations', [StationController::class, 'index']);

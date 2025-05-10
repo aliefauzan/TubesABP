@@ -37,6 +37,18 @@ class TrainService {
       throw TrainException('Failed to fetch all trains: ${e.toString()}');
     }
   }
+
+  Future<List<String>> getAvailableSeats({required String trainId, required String date}) async {
+    try {
+      final response = await _api.get('/trains/$trainId/available-seats?date=$date');
+      if (response != null && response['available_seats'] is List) {
+        return List<String>.from(response['available_seats']);
+      }
+      return [];
+    } catch (e) {
+      throw TrainException('Failed to fetch available seats: \\${e.toString()}');
+    }
+  }
 }
 
 class TrainException implements Exception {

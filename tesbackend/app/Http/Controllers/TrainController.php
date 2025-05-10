@@ -107,4 +107,22 @@ class TrainController extends Controller
             return response()->json(['error' => 'An error occurred while fetching trains'], 500);
         }
     }
+
+    public function availableSeats(Request $request, $id)
+    {
+        $train = Train::findOrFail($id);
+        $date = $request->query('date');
+        if (!$date) {
+            return response()->json(['error' => 'Date is required'], 400);
+        }
+        // Example: 40 seats, A1-A40
+        $allSeats = collect(range(1, 40))->map(fn(
+          $n) => 'A' . $n)->toArray();
+        $bookedSeats = \App\Models\Booking::where('train_id', $id)
+            ->where('travel_date', $date)
+            ->pluck('seat_number')
+            ->toArray();
+        $availableSeats = array_values(array_diff($allSeats, $bookedSeats));
+        return response()->json(['available_seats' => $availableSeats]);
+    }
 }

@@ -7,10 +7,12 @@ import 'package:intl/intl.dart';
 
 class PassengerDataScreen extends StatefulWidget {
   final Train train;
+  final String selectedSeat;
 
   const PassengerDataScreen({
     super.key,
     required this.train,
+    required this.selectedSeat,
   });
 
   @override
@@ -91,6 +93,7 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
         'passenger_id_number': _idNumberController.text,
         'passenger_dob': DateFormat('yyyy-MM-dd').format(_birthDate!),
         'payment_method': _paymentMethod,
+        'seat_number': widget.selectedSeat,
       };
 
       final response = await _bookingService.book(bookingData);

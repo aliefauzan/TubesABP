@@ -7,6 +7,7 @@ import 'package:keretaxpress/screens/passenger_data_screen.dart';
 import 'package:keretaxpress/core/services/train_service.dart';
 import 'package:keretaxpress/core/services/station_service.dart';
 import 'package:keretaxpress/models/station.dart';
+import 'package:keretaxpress/screens/seat_selection_screen.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -402,13 +403,42 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       padding: const EdgeInsets.only(bottom: 16.0),
                       child: TrainCard(
                         train: train,
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async {
+                          // Fetch available seats from backend
+                          List<String> availableSeats = [];
+                          try {
+                            availableSeats = await _trainService.getAvailableSeats(
+                              trainId: train.id,
+                              date: train.date,
+                            );
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Gagal memuat kursi: $e')),
+                            );
+                            return;
+                          }
+                          if (availableSeats.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Tidak ada kursi tersedia untuk kereta ini.')),
+                            );
+                            return;
+                          }
+                          // Navigate to seat selection screen
+                          final selectedSeat = await Navigator.push<String>(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PassengerDataScreen(train: train),
+                              builder: (context) => SeatSelectionScreen(availableSeats: availableSeats),
                             ),
                           );
+                          if (selectedSeat != null) {
+                            // Navigate to passenger data screen with selected seat
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PassengerDataScreen(train: train, selectedSeat: selectedSeat),
+                              ),
+                            );
+                          }
                         },
                       ),
                     );
