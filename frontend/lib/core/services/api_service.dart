@@ -14,6 +14,10 @@ class ApiService {
     _token = token;
   }
 
+  void clearToken() {
+    _token = null;
+  }
+
   bool isLoggedIn() {
     return _token != null && _token!.isNotEmpty;
   }
@@ -27,15 +31,19 @@ class ApiService {
   }
 
   Future<dynamic> get(String endpoint) async {
-    final cleanBaseUrl = _baseUrl.endsWith('/') ? _baseUrl.substring(0, _baseUrl.length - 1) : _baseUrl;
-    final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
-    final url = '$cleanBaseUrl/$cleanEndpoint';
+    try {
+      final cleanBaseUrl = _baseUrl.endsWith('/') ? _baseUrl.substring(0, _baseUrl.length - 1) : _baseUrl;
+      final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+      final url = '$cleanBaseUrl/$cleanEndpoint';
 
-    final response = await http.get(
-      Uri.parse(url),
-      headers: await _getHeaders(),
-    );
-    return _handleResponse(response);
+      final response = await http.get(
+        Uri.parse(url),
+        headers: await _getHeaders(),
+      );
+      return _handleResponse(response);
+    } catch (e) {
+      throw _handleError(e);
+    }
   }
 
   Future<dynamic> getStations() async {
@@ -63,16 +71,53 @@ class ApiService {
   }
 
   Future<dynamic> post(String endpoint, dynamic data) async {
-    final cleanBaseUrl = _baseUrl.endsWith('/') ? _baseUrl.substring(0, _baseUrl.length - 1) : _baseUrl;
-    final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
-    final url = '$cleanBaseUrl/$cleanEndpoint';
+    try {
+      final cleanBaseUrl = _baseUrl.endsWith('/') ? _baseUrl.substring(0, _baseUrl.length - 1) : _baseUrl;
+      final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+      final url = '$cleanBaseUrl/$cleanEndpoint';
 
-    final response = await http.post(
-      Uri.parse(url),
-      headers: await _getHeaders(),
-      body: jsonEncode(data),
-    );
-    return _handleResponse(response);
+      final response = await http.post(
+        Uri.parse(url),
+        headers: await _getHeaders(),
+        body: jsonEncode(data),
+      );
+      return _handleResponse(response);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<dynamic> put(String endpoint, dynamic data) async {
+    try {
+      final cleanBaseUrl = _baseUrl.endsWith('/') ? _baseUrl.substring(0, _baseUrl.length - 1) : _baseUrl;
+      final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+      final url = '$cleanBaseUrl/$cleanEndpoint';
+
+      final response = await http.put(
+        Uri.parse(url),
+        headers: await _getHeaders(),
+        body: jsonEncode(data),
+      );
+      return _handleResponse(response);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<dynamic> delete(String endpoint) async {
+    try {
+      final cleanBaseUrl = _baseUrl.endsWith('/') ? _baseUrl.substring(0, _baseUrl.length - 1) : _baseUrl;
+      final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+      final url = '$cleanBaseUrl/$cleanEndpoint';
+
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: await _getHeaders(),
+      );
+      return _handleResponse(response);
+    } catch (e) {
+      throw _handleError(e);
+    }
   }
 
   dynamic _handleResponse(http.Response response) {
@@ -80,7 +125,36 @@ class ApiService {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return responseData;
     } else {
-      throw Exception(responseData['message'] ?? 'Request failed');
+      throw ApiException(
+        message: responseData['message'] ?? 'Request failed',
+        statusCode: response.statusCode,
+        errors: responseData['errors'],
+      );
     }
   }
+
+  Exception _handleError(dynamic error) {
+    if (error is ApiException) {
+      return error;
+    }
+    return ApiException(
+      message: error.toString(),
+      statusCode: 500,
+    );
+  }
+}
+
+class ApiException implements Exception {
+  final String message;
+  final int statusCode;
+  final Map<String, dynamic>? errors;
+
+  ApiException({
+    required this.message,
+    required this.statusCode,
+    this.errors,
+  });
+
+  @override
+  String toString() => message;
 }
