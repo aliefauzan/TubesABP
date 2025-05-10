@@ -15,7 +15,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  bool _obscurePassword = true;
   final AuthService _authService = AuthService();
+
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
@@ -40,6 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
           } else if (e is Map && e.containsKey('message')) {
             if (e['message'] == 'Account not found' || e['message'] == 'User not found') {
               errorMessage = 'Akun tidak ditemukan';
+            } else if (e['message'] == 'Invalid credentials') {
+              errorMessage = 'Email atau kata sandi salah';
             } else {
               errorMessage = e['message'];
             }
@@ -47,7 +51,15 @@ class _LoginScreenState extends State<LoginScreen> {
             errorMessage = e.toString();
           }
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(errorMessage)),
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
           );
         }
       } finally {
@@ -87,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
               margin: const EdgeInsets.all(20),
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
-                child: Form(  // Added Form widget
+                child: Form(
                   key: _formKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -100,37 +112,78 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 30),
-                      TextFormField(  // Changed to TextFormField
+                      TextFormField(
                         controller: _emailController,
                         decoration: InputDecoration(
                           labelText: 'Email',
+                          hintText: 'Masukkan email Anda',
                           prefixIcon: const Icon(Icons.email),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).primaryColor,
+                              width: 2,
+                            ),
+                          ),
                         ),
                         keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Email tidak boleh kosong';
                           }
-                          if (!value.contains('@')) {
+                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
                             return 'Email tidak valid';
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 20),
-                      TextFormField(  // Changed to TextFormField
+                      TextFormField(
                         controller: _passwordController,
                         decoration: InputDecoration(
                           labelText: 'Kata Sandi',
+                          hintText: 'Masukkan kata sandi Anda',
                           prefixIcon: const Icon(Icons.lock),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).primaryColor,
+                              width: 2,
+                            ),
+                          ),
                         ),
-                        obscureText: true,
+                        obscureText: _obscurePassword,
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (_) => _login(),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Kata sandi tidak boleh kosong';
@@ -154,16 +207,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 20),
                       SizedBox(
                         width: double.infinity,
+                        height: 50,
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _login,
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 15),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
+                            elevation: 2,
                           ),
                           child: _isLoading
-                              ? const CircularProgressIndicator()
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
                               : const Text(
                                   'MASUK',
                                   style: TextStyle(
@@ -179,10 +239,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           const Text('Belum punya akun?'),
                           TextButton(
-                            onPressed: () {
-                              Navigator.pushReplacementNamed(
-                                context, '/register');
-                            },
+                            onPressed: _isLoading
+                                ? null
+                                : () {
+                                    Navigator.pushReplacementNamed(
+                                      context, '/register');
+                                  },
                             child: const Text('Daftar sekarang'),
                           ),
                         ],

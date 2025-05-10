@@ -13,7 +13,6 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/user/{id?}', [AuthController::class, 'user']);
-Route::get('/trains/search', [TrainController::class, 'search']);
 Route::get('/trains/all', [TrainController::class, 'allTrains']);
 Route::get('/stations', [StationController::class, 'index']);
 
@@ -24,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/{id?}', [AuthController::class, 'user']);
     
     // Train routes
+    Route::get('/trains/search', [TrainController::class, 'search']);
     Route::get('/trains/promo', [TrainController::class, 'getPromoTrains']);
     
     // Station routes
