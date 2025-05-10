@@ -1,4 +1,15 @@
 steps:
+  # STEP 1: Fetch .env from Secret Manager
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'create-env-from-secret'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Fetching .env from Secret Manager..."
+        gcloud secrets versions access latest --secret=env > .env
+
+  # STEP 2: Prepare Docker --build-arg from .env
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'prepare-build-args'
     entrypoint: 'bash'
@@ -19,6 +30,7 @@ steps:
         done < .env
         echo "$BUILD_ARGS" > build_args.txt
 
+  # STEP 3: Build Docker Image
   - name: 'gcr.io/cloud-builders/docker'
     id: 'build-backend-image'
     entrypoint: 'bash'
@@ -28,12 +40,14 @@ steps:
         BUILD_ARGS=$(cat build_args.txt)
         docker build $BUILD_ARGS -t asia-southeast2-docker.pkg.dev/tubesabp-459213/cloud-run-source-deploy/tubesabp/backend-api:$COMMIT_SHA -f tesbackend/Dockerfile tesbackend
 
+  # STEP 4: Push Docker Image
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-backend-image'
     args:
       - push
       - asia-southeast2-docker.pkg.dev/tubesabp-459213/cloud-run-source-deploy/tubesabp/backend-api:$COMMIT_SHA
 
+  # STEP 5: Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
     id: 'deploy'
     entrypoint: gcloud
