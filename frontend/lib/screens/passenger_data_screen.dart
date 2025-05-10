@@ -26,6 +26,7 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
   String _gender = 'Laki-laki';
   bool _isLoading = false;
   String? _errorMessage;
+  String _paymentMethod = 'transfer';
 
   @override
   void dispose() {
@@ -84,28 +85,40 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
     try {
       final bookingData = {
         'train_id': widget.train.id,
-        'passengers': [
-          {
-            'name': _nameController.text,
-            'gender': _gender,
-            'id_number': _idNumberController.text,
-            'birth_date': _birthDate!.toIso8601String(),
-          }
-        ],
-        'payment_method': 'transfer', // Default payment method
+        'travel_date': widget.train.date,
+        'passenger_name': _nameController.text,
+        'passenger_gender': _gender == 'Laki-laki' ? 'male' : 'female',
+        'passenger_id_number': _idNumberController.text,
+        'passenger_dob': DateFormat('yyyy-MM-dd').format(_birthDate!),
+        'payment_method': _paymentMethod,
       };
 
-      final response = await _bookingService.book(
-        trainId: widget.train.id,
-        passengers: bookingData['passengers'] as List<Map<String, dynamic>>,
-        paymentMethod: bookingData['payment_method'] as String,
-      );
+      final response = await _bookingService.book(bookingData);
 
       if (mounted) {
-        Navigator.pushReplacementNamed(
-          context,
-          '/payment-confirmation',
-          arguments: response,
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: const Text('Pemesanan Berhasil'),
+            content: const Text('Apa yang ingin Anda lakukan selanjutnya?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                  Navigator.pushReplacementNamed(context, '/booking-history');
+                },
+                child: const Text('Lihat Riwayat Pemesanan'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                  Navigator.pushReplacementNamed(context, '/payment-confirmation', arguments: response);
+                },
+                child: const Text('Konfirmasi Pembayaran'),
+              ),
+            ],
+          ),
         );
       }
     } catch (e) {
@@ -136,6 +149,12 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
       symbol: 'Rp ',
       decimalDigits: 0,
     );
+
+    num parsePrice(String priceStr) {
+      // Remove 'Rp', dots, commas, and whitespace
+      final cleaned = priceStr.replaceAll(RegExp(r'[^0-9]'), '');
+      return num.tryParse(cleaned) ?? 0;
+    }
 
     return Scaffold(
       appBar: const CustomAppBar(),
@@ -356,7 +375,7 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text('Harga tiket'),
-                          Text(currencyFormat.format(widget.train.price)),
+                          Text(currencyFormat.format(parsePrice(widget.train.price))),
                         ],
                       ),
                       const SizedBox(height: 10),
@@ -378,7 +397,7 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
                             ),
                           ),
                           Text(
-                            currencyFormat.format(widget.train.price),
+                            currencyFormat.format(parsePrice(widget.train.price)),
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
@@ -388,6 +407,28 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
                     ],
                   ),
                 ),
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _paymentMethod,
+                decoration: InputDecoration(
+                  labelText: 'Metode Pembayaran',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  prefixIcon: const Icon(Icons.payment),
+                ),
+                items: [
+                  DropdownMenuItem(value: 'transfer', child: Text('Transfer Bank')),
+                  // Add more payment methods here if needed
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _paymentMethod = value;
+                    });
+                  }
+                },
               ),
               const SizedBox(height: 20),
               Row(

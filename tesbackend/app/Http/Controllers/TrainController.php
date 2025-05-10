@@ -6,6 +6,7 @@ use App\Models\Train;
 use App\Services\SupabaseService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Http;
 
 class TrainController extends Controller
 {
@@ -63,24 +64,17 @@ class TrainController extends Controller
     public function getPromoTrains()
     {
         try {
-            // Use Supabase directly for complex queries
-            $response = $this->supabase->postgrest
-                ->from('trains')
-                ->select('*,departure_station_id(*),arrival_station_id(*)')
-                ->gt('available_seats', 10)
-                ->where('is_promo', true)
-                ->order('price')
-                ->limit(3)
-                ->execute();
-                
-            if (empty($response->getData())) {
+            // Use Supabase REST API directly for promo trains
+            $url = $this->supabase->baseUrl . "/rest/v1/trains?select=*,departure_station_id(*),arrival_station_id(*)&available_seats=gt.10&is_promo=eq.true&order=price.asc&limit=3";
+            $response = Http::withHeaders($this->supabase->headers())->get($url);
+            $data = $response->json();
+            if (empty($data)) {
                 return response()->json([
                     'message' => 'No promotional trains available',
                     'trains' => []
                 ], 200);
             }
-                
-            return response()->json($response->getData());
+            return response()->json($data);
         } catch (\Exception $e) {
             Log::error('Promo trains fetch error', [
                 'message' => $e->getMessage(),

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/core/services/api_service.dart';
+import 'package:keretaxpress/core/services/station_service.dart';
+import 'package:keretaxpress/models/station.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,11 +15,18 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _isLoggedIn = false;
+  final StationService _stationService = StationService();
+  List<Station> _stations = [];
+  Station? _selectedDepartureStation;
+  Station? _selectedArrivalStation;
+  DateTime _selectedDate = DateTime.now();
+  bool _isLoadingStations = true;
 
   @override
   void initState() {
     super.initState();
     _checkLoginStatus();
+    _fetchStations();
   }
 
   void _checkLoginStatus() {
@@ -24,6 +34,56 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _isLoggedIn = apiService.isLoggedIn();
     });
+  }
+
+  Future<void> _fetchStations() async {
+    setState(() {
+      _isLoadingStations = true;
+    });
+    try {
+      final response = await _stationService.getAllStations();
+      if (response != null && response is List) {
+        setState(() {
+          _stations = response.map((data) => Station.fromJson(data)).toList();
+          if (_stations.isNotEmpty) {
+            _selectedDepartureStation = _stations.first;
+            _selectedArrivalStation = _stations.length > 1 ? _stations[1] : _stations.first;
+          }
+          _isLoadingStations = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoadingStations = false;
+      });
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppTheme.primaryColor,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
   }
 
   @override
@@ -115,35 +175,77 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Stasiun Asal',
-                prefixIcon: const Icon(Icons.train),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-            const SizedBox(height: 15),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Stasiun Tujuan',
-                prefixIcon: const Icon(Icons.train),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-            const SizedBox(height: 15),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Tanggal Berangkat',
-                prefixIcon: const Icon(Icons.calendar_today),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
+            _isLoadingStations
+                ? const CircularProgressIndicator()
+                : Column(
+                    children: [
+                      DropdownButtonFormField<Station>(
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          labelText: 'Stasiun Asal',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          prefixIcon: const Icon(Icons.train),
+                        ),
+                        value: _selectedDepartureStation,
+                        items: _stations.map((station) {
+                          return DropdownMenuItem<Station>(
+                            value: station,
+                            child: Text(station.toString()),
+                          );
+                        }).toList(),
+                        onChanged: (Station? newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              _selectedDepartureStation = newValue;
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 15),
+                      DropdownButtonFormField<Station>(
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          labelText: 'Stasiun Tujuan',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          prefixIcon: const Icon(Icons.train),
+                        ),
+                        value: _selectedArrivalStation,
+                        items: _stations.map((station) {
+                          return DropdownMenuItem<Station>(
+                            value: station,
+                            child: Text(station.toString()),
+                          );
+                        }).toList(),
+                        onChanged: (Station? newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              _selectedArrivalStation = newValue;
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 15),
+                      InkWell(
+                        onTap: () => _selectDate(context),
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: 'Tanggal Berangkat',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            prefixIcon: const Icon(Icons.calendar_today),
+                          ),
+                          child: Text(
+                            DateFormat('dd/MM/yyyy').format(_selectedDate),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {

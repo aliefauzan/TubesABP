@@ -52,4 +52,10 @@ class SupabaseService
     {
         return "{$this->baseUrl}/storage/v1/object/public/{$this->bucket}/{$path}";
     }
+
+    public function rpc($function, array $params = [])
+    {
+        $url = "{$this->baseUrl}/rest/v1/rpc/{$function}";
+        return \Illuminate\Support\Facades\Http::withHeaders($this->headers())->post($url, $params);
+    }
 }

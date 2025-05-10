@@ -3,17 +3,8 @@ import 'package:keretaxpress/core/services/api_service.dart';
 class BookingService {
   final ApiService _api = ApiService();
 
-  Future<dynamic> book({
-    required String trainId,
-    required List<Map<String, dynamic>> passengers,
-    required String paymentMethod,
-  }) async {
+  Future<dynamic> book(Map<String, dynamic> bookingData) async {
     try {
-      final bookingData = {
-        'train_id': trainId,
-        'passengers': passengers,
-        'payment_method': paymentMethod,
-      };
       return await _api.post('/bookings', bookingData);
     } catch (e) {
       throw BookingException('Failed to create booking: ${e.toString()}');
