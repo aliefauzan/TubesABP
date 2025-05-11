@@ -9,30 +9,45 @@ steps:
         echo "Fetching .env from Secret Manager..."
         gcloud secrets versions access latest --secret=env > .env
 
-  # STEP 2: Build Docker Image with environment variables
+  # STEP 2: Prepare Docker --build-arg from .env
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'prepare-build-args'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [ ! -f .env ]; then
+          echo ".env file not found!"
+          exit 1
+        fi
+        BUILD_ARGS=""
+        while IFS= read -r line || [ -n "$line" ]; do
+          if [[ ! "$line" =~ ^# && "$line" =~ .*=.* ]]; then
+            key=$(echo "$line" | cut -d '=' -f 1)
+            value=$(echo "$line" | cut -d '=' -f 2-)
+            BUILD_ARGS+="--build-arg $key=$value "
+          fi
+        done < .env
+        echo "$BUILD_ARGS" > build_args.txt
+
+  # STEP 3: Build Docker Image
   - name: 'gcr.io/cloud-builders/docker'
     id: 'build-backend-image'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        # Read .env file and build the image with build args
-        while IFS= read -r line || [ -n "$line" ]; do
-          if [[ ! "$line" =~ ^# && "$line" =~ .*=.* ]]; then
-            key=$(echo "$line" | cut -d '=' -f 1)
-            value=$(echo "$line" | cut -d '=' -f 2-)
-            docker build --build-arg "$key=$value" -t asia-southeast2-docker.pkg.dev/tubesabp-459213/cloud-run-source-deploy/tubesabp/backend-api:$COMMIT_SHA -f tesbackend/Dockerfile tesbackend
-          fi
-        done < .env
+        BUILD_ARGS=$(cat build_args.txt)
+        docker build $BUILD_ARGS -t asia-southeast2-docker.pkg.dev/tubesabp-459213/cloud-run-source-deploy/tubesabp/backend-api:$COMMIT_SHA -f tesbackend/Dockerfile tesbackend
 
-  # STEP 3: Push Docker Image
+  # STEP 4: Push Docker Image
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-backend-image'
     args:
       - push
       - asia-southeast2-docker.pkg.dev/tubesabp-459213/cloud-run-source-deploy/tubesabp/backend-api:$COMMIT_SHA
 
-  # STEP 4: Deploy to Cloud Run
+  # STEP 5: Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
     id: 'deploy'
     entrypoint: gcloud
