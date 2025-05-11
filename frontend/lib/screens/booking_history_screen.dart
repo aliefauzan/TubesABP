@@ -10,7 +10,6 @@ class BookingHistoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Dummy booking data
     final List<Booking> bookings = [
-      Booking.dummy(),
       Booking(
         transactionId: '35151859256379',
         trainName: 'Argo Parahyangan 43A',
@@ -28,6 +27,7 @@ class BookingHistoryScreen extends StatelessWidget {
         seatClass: 'Eksekutif',
         seatNumber: 'A2',
       ),
+      Booking.dummy(),
     ];
 
     return Scaffold(
@@ -40,155 +40,212 @@ class BookingHistoryScreen extends StatelessWidget {
             const Text(
               'Riwayat Pemesanan',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: bookings.length,
               itemBuilder: (context, index) {
+                final booking = bookings[index];
                 return Card(
-                  elevation: 2,
+                  elevation: 0,
                   margin: const EdgeInsets.only(bottom: 16),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(color: Colors.grey.shade200),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Transaction ID: ${bookings[index].transactionId}',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              booking.trainName,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: booking.status == 'Sudah dibayar'
+                                    ? AppTheme.successColor.withOpacity(0.1)
+                                    : AppTheme.warningColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                booking.status,
+                                style: TextStyle(
+                                  color: booking.status == 'Sudah dibayar'
+                                      ? AppTheme.successColor
+                                      : AppTheme.warningColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          bookings[index].trainName,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    booking.departure,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${booking.date} ${booking.time}',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              children: [
+                                Icon(
+                                  Icons.arrow_forward,
+                                  color: Colors.grey.shade400,
+                                ),
+                                Container(
+                                  width: 1,
+                                  height: 20,
+                                  color: Colors.grey.shade300,
+                                ),
+                              ],
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    booking.arrival,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${booking.date} --:--',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(bookings[index].operator),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 16),
+                        const Divider(),
+                        const SizedBox(height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(bookings[index].date),
-                                Text(bookings[index].time),
-                                Text(bookings[index].departure),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                Text(
-                                  '${bookings[index].passengerName} (${bookings[index].passengerGender})',
+                                const Text(
+                                  'Penumpang',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ),
                                 ),
-                                Text('Kursi: ${bookings[index].seatNumber}'),
-                                Text(bookings[index].seatClass),
+                                const SizedBox(height: 4),
+                                Text(
+                                  booking.passengerName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ],
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text(bookings[index].date),
-                                const Text('--:--'),
-                                Text(bookings[index].arrival),
+                                const Text(
+                                  'Total Biaya',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  booking.price,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.primaryColor,
+                                  ),
+                                ),
                               ],
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 16),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Status Pembayaran'),
-                            Chip(
-                              label: Text(
-                                bookings[index].status,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  // Upload payment proof functionality
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  side: const BorderSide(color: AppTheme.primaryColor),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'UPLOAD BUKTI PEMBAYARAN',
+                                  style: TextStyle(
+                                    color: AppTheme.primaryColor,
+                                  ),
                                 ),
                               ),
-                              backgroundColor: bookings[index].status ==
-                                      'Sudah dibayar'
-                                  ? AppTheme.successColor
-                                  : AppTheme.warningColor,
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Total Biaya',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              bookings[index].price,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.primaryColor,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  // Download ticket functionality
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  side: const BorderSide(color: AppTheme.primaryColor),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'DOWNLOAD TIKET',
+                                  style: TextStyle(
+                                    color: AppTheme.primaryColor,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
-                        ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: () {
-                              // Upload payment proof functionality
-                            },
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              side: const BorderSide(
-                                  color: AppTheme.primaryColor),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: const Text(
-                              'UPLOAD BUKTI PEMBAYARAN',
-                              style: TextStyle(
-                                color: AppTheme.primaryColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: () {
-                              // Download ticket functionality
-                            },
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              side: const BorderSide(
-                                  color: AppTheme.primaryColor),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: const Text(
-                              'DOWNLOAD TIKET',
-                              style: TextStyle(
-                                color: AppTheme.primaryColor,
-                              ),
-                            ),
-                          ),
                         ),
                       ],
                     ),
