@@ -6,7 +6,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud secrets versions access latest --secret=env > .env
+        gcloud secrets versions access latest --secret="env" > .env
 
   # 2. Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
