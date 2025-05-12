@@ -75,13 +75,13 @@ class BookingController extends Controller
             }
 
             $bookings = Booking::with(['train.departureStation', 'train.arrivalStation'])
-                ->where('user_uuid', $user_uuid)
+                ->where('user_uuid', $user->uuid)
                 ->orderBy('created_at', 'desc')
                 ->get();
-                
-            return response()->json($bookings);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Internal server error'], 500);
-        }
+                                                 
+                return response()->json($bookings);
+            } catch (\Exception $e) {
+                return response()->json(['message' => 'Internal server error'], 500);
+            }
     }
 }

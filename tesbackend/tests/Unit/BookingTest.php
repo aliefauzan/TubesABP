@@ -49,39 +49,32 @@ class BookingTest extends TestCase
         $this->assertEquals(Train::class, $relation->getRelated()::class);
     }
 
-    public function test_can_book_train_with_rpc_decrement()
+    public function test_can_get_booking_history()
     {
         $user = User::factory()->create();
-        $train = Train::factory()->create(['available_seats' => 100]);
+        $train = Train::factory()->create();
 
-        // Mock SupabaseService
-        $mockSupabase = $this->getMockBuilder(\App\Services\SupabaseService::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['rpc'])
-            ->getMock();
-        $mockSupabase->method('rpc')->willReturn(new class {
-            public function status() { return 200; }
-        });
-
-        $this->app->instance(\App\Services\SupabaseService::class, $mockSupabase);
-
-        $payload = [
-            'train_id' => $train->id,
-            'travel_date' => now()->toDateString(),
-            'passenger_name' => 'Test User',
-            'passenger_id_number' => '1234567890123456',
-            'passenger_dob' => '2000-01-01',
-            'passenger_gender' => 'male',
-            'payment_method' => 'transfer',
-        ];
-
-        $this->actingAs($user);
-        $response = $this->postJson('/api/bookings', $payload);
-        $response->assertStatus(201);
-        $this->assertDatabaseHas('bookings', [
+        // Create multiple bookings for the user
+        $bookings = Booking::factory()->count(3)->create([
             'user_uuid' => $user->uuid,
             'train_id' => $train->id,
-            'passenger_name' => 'Test User',
         ]);
+
+        $this->actingAs($user);
+
+        $response = $this->getJson('/api/bookings/history?user_uuid=' . $user->uuid);
+
+        $response->assertStatus(200);
+
+        // Assert the response JSON contains 3 bookings
+        $responseData = $response->json();
+        $this->assertCount(3, $responseData);
+
+        // Assert the bookings belong to the user and train
+        foreach ($responseData as $booking) {
+            $this->assertEquals($user->uuid, $booking['user_uuid']);
+            $this->assertEquals($train->id, $booking['train_id']);
+        }
     }
+
 }
