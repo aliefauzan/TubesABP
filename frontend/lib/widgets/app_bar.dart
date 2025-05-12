@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:keretaxpress/utils/theme.dart';
-
-import 'package:flutter/material.dart';
-import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/core/services/api_service.dart';
 import 'package:keretaxpress/core/services/auth_service.dart';
 
@@ -190,9 +187,9 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   onPressed: () => Navigator.pushNamed(context, '/schedule'),
                 ),
                 _NavButton(
-                  label: 'PESAN',
+                  label: 'RIWAYAT',
                   icon: Icons.train,
-                  onPressed: () => Navigator.pushNamed(context, '/schedule'),
+                  onPressed: () => Navigator.pushNamed(context, '/booking-history'),
                 ),
                 TextButton.icon(
                   onPressed: () {

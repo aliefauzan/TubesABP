@@ -52,4 +52,24 @@ class Booking {
       seatNumber: 'A1',
     );
   }
+
+  factory Booking.fromJson(Map<String, dynamic> json) {
+    return Booking(
+      transactionId: json['transaction_id']?.toString() ?? '',
+      trainName: json['train_name'] ?? '',
+      operator: json['operator'] ?? '',
+      date: json['date'] ?? '',
+      time: json['time'] ?? '',
+      departure: json['departure'] ?? '',
+      arrival: json['arrival'] ?? '',
+      status: json['status'] ?? '',
+      price: json['price']?.toString() ?? '',
+      passengerName: json['passenger_name'] ?? '',
+      passengerId: json['passenger_id']?.toString() ?? '',
+      passengerDob: json['passenger_dob'] ?? '',
+      passengerGender: json['passenger_gender'] ?? '',
+      seatClass: json['seat_class'] ?? '',
+      seatNumber: json['seat_number']?.toString() ?? '',
+    );
+  }
 }
