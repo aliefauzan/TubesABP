@@ -15,6 +15,8 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/user/{id?}', [AuthController::class, 'user']);
 Route::get('/trains/all', [TrainController::class, 'allTrains']);
 Route::get('/stations', [StationController::class, 'index']);
+Route::post('/bookings', [BookingController::class, 'book']);
+Route::get('/bookings/history', [BookingController::class, 'history']);
 
 // Authenticated routes
 Route::middleware('auth:sanctum')->group(function () {
