@@ -71,7 +71,7 @@ class BookingController extends Controller
             $user = \App\Models\User::where('uuid', $request->user_uuid)->first();
 
             $bookings = Booking::with(['train.departureStation', 'train.arrivalStation'])
-                ->where('user_id', $user->id)
+                ->where('user_uuid', $user->uuid)
                 ->orderBy('created_at', 'desc')
                 ->get();
                 
