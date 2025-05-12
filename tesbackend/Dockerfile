@@ -15,6 +15,9 @@ WORKDIR /var/www
 # Copy project files
 COPY . .
 
+# Copy the .env file into the container
+COPY .env /var/www/.env
+
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
@@ -23,6 +26,7 @@ RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage /var/www/bootstrap/cache
 
 EXPOSE 8080
+
 RUN php artisan route:list
 
 CMD ["php", "-S", "0.0.0.0:8080", "-t", "public"]
