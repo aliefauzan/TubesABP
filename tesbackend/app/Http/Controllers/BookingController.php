@@ -29,7 +29,6 @@ class BookingController extends Controller
                 'passenger_id_number' => 'required|string',
                 'passenger_dob' => 'required|date',
                 'passenger_gender' => 'required|in:male,female',
-                'payment_method' => 'required|in:transfer',
                 'seat_number' => 'required|string',
             ]);
             
@@ -52,7 +51,6 @@ class BookingController extends Controller
                 'passenger_dob' => $request->passenger_dob,
                 'passenger_gender' => $request->passenger_gender,
                 'seat_number' => $request->seat_number,
-                'payment_method' => $request->payment_method,
                 'status' => 'pending',
                 'total_price' => $train->price,
             ]);
