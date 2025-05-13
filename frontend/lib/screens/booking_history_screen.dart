@@ -3,13 +3,19 @@ import 'package:keretaxpress/models/booking.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/core/services/booking_service.dart';
+import 'package:keretaxpress/core/services/auth_service.dart';
 
 class BookingHistoryScreen extends StatelessWidget {
   const BookingHistoryScreen({super.key});
 
   Future<List<Booking>> _fetchBookings() async {
     final bookingService = BookingService();
-    final data = await bookingService.getBookingHistory();
+    final authService = AuthService();
+    final userUuid = await authService.getUserUUID();
+    if (userUuid == null) {
+      return [];
+    }
+    final data = await bookingService.getBookingHistory(userUuid);
     if (data is List) {
       return data.map((json) => Booking.fromJson(json)).toList();
     }
@@ -111,7 +117,7 @@ class BookingHistoryScreen extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        '${booking.date} ${booking.time}',
+                                        '\${booking.date} \${booking.time}',
                                         style: TextStyle(
                                           color: Colors.grey.shade600,
                                         ),
@@ -145,7 +151,7 @@ class BookingHistoryScreen extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        '${booking.date} --:--',
+                                        '\${booking.date} --:--',
                                         style: TextStyle(
                                           color: Colors.grey.shade600,
                                         ),

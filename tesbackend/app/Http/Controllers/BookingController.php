@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -6,6 +7,7 @@ use App\Models\Booking;
 use App\Models\Train;
 use App\Services\SupabaseService;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
 {
@@ -15,7 +17,7 @@ class BookingController extends Controller
     {
         $this->supabase = $supabase;
     }
-    
+
     public function book(Request $request)
     {
         try {
@@ -56,6 +58,8 @@ class BookingController extends Controller
             ]);
             
             return response()->json($booking, 201);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Internal server error'], 500);
         }
@@ -65,7 +69,7 @@ class BookingController extends Controller
     {
         try {
             $request->validate([
-                'user_uuid' => 'required|uuid|exists:users,uuid',
+                'user_uuid' => 'required|uuid',
             ]);
 
             $user = \App\Models\User::where('uuid', $request->user_uuid)->first();
@@ -78,10 +82,12 @@ class BookingController extends Controller
                 ->where('user_uuid', $user->uuid)
                 ->orderBy('created_at', 'desc')
                 ->get();
-                                                 
-                return response()->json($bookings);
-            } catch (\Exception $e) {
-                return response()->json(['message' => 'Internal server error'], 500);
-            }
+                
+            return response()->json($bookings);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Internal server error'], 500);
+        }
     }
 }

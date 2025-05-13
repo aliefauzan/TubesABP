@@ -30,14 +30,20 @@ class ApiService {
     };
   }
 
-  Future<dynamic> get(String endpoint) async {
+  Future<dynamic> get(String endpoint, {Map<String, String>? queryParameters}) async {
     try {
       final cleanBaseUrl = _baseUrl.endsWith('/') ? _baseUrl.substring(0, _baseUrl.length - 1) : _baseUrl;
       final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
-      final url = '$cleanBaseUrl/$cleanEndpoint';
+
+      Uri url;
+      if (queryParameters != null && queryParameters.isNotEmpty) {
+        url = Uri.parse('$cleanBaseUrl/$cleanEndpoint').replace(queryParameters: queryParameters);
+      } else {
+        url = Uri.parse('$cleanBaseUrl/$cleanEndpoint');
+      }
 
       final response = await http.get(
-        Uri.parse(url),
+        url,
         headers: await _getHeaders(),
       );
       return _handleResponse(response);
