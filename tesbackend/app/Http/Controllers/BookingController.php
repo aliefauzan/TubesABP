@@ -59,6 +59,7 @@ class BookingController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
         } catch (\Exception $e) {
+            \Log::error($e);
             return response()->json(['message' => 'Internal server error'], 500);
         }
     }

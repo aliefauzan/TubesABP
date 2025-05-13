@@ -148,7 +148,7 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_errorMessage!),
+            content: Text('Failed to create booking: $e'),
             backgroundColor: Colors.red,
           ),
         );
