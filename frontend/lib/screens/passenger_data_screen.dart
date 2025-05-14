@@ -3,6 +3,7 @@ import 'package:keretaxpress/models/train.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/core/services/booking_service.dart';
+import 'package:keretaxpress/core/services/auth_service.dart';
 import 'package:intl/intl.dart';
 
 class PassengerDataScreen extends StatefulWidget {
@@ -22,6 +23,7 @@ class PassengerDataScreen extends StatefulWidget {
 class _PassengerDataScreenState extends State<PassengerDataScreen> {
   final _formKey = GlobalKey<FormState>();
   final _bookingService = BookingService();
+  final _authService = AuthService();
   final _nameController = TextEditingController();
   final _idNumberController = TextEditingController();
   DateTime? _birthDate;
@@ -85,14 +87,29 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
     });
 
     try {
+      // Check authentication first
+      final isAuthenticated = await _authService.isAuthenticated();
+      if (!isAuthenticated) {
+        throw Exception('Please login first');
+      }
+
+      final userUuid = await _authService.getUserUUID();
+      if (userUuid == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // Parse and format the travel date
+      final travelDate = DateFormat('d MMM y').parse(widget.train.date);
+      final formattedTravelDate = DateFormat('yyyy-MM-dd').format(travelDate);
+
       final bookingData = {
-        'train_id': widget.train.id,
-        'travel_date': widget.train.date,
+        'user_uuid': userUuid,
+        'train_id': int.parse(widget.train.id), // Convert string ID to integer
+        'travel_date': formattedTravelDate, // Use properly formatted date
         'passenger_name': _nameController.text,
         'passenger_gender': _gender == 'Laki-laki' ? 'male' : 'female',
         'passenger_id_number': _idNumberController.text,
         'passenger_dob': DateFormat('yyyy-MM-dd').format(_birthDate!),
-        'payment_method': _paymentMethod,
         'seat_number': widget.selectedSeat,
       };
 
@@ -131,10 +148,15 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_errorMessage!),
+            content: Text('Failed to create booking: $e'),
             backgroundColor: Colors.red,
           ),
         );
+
+        // If not authenticated, navigate to login
+        if (_errorMessage!.contains('login')) {
+          Navigator.pushNamed(context, '/login');
+        }
       }
     } finally {
       if (mounted) {
@@ -426,6 +448,7 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
                   // Add more payment methods here if needed
                 ],
                 onChanged: (value) {
+                  // Payment method is for display only and not sent to the API
                   if (value != null) {
                     setState(() {
                       _paymentMethod = value;

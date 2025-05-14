@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -6,8 +7,7 @@ use App\Models\Booking;
 use App\Models\Train;
 use App\Services\SupabaseService;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
 {
@@ -17,7 +17,7 @@ class BookingController extends Controller
     {
         $this->supabase = $supabase;
     }
-    
+
     public function book(Request $request)
     {
         try {
@@ -29,7 +29,6 @@ class BookingController extends Controller
                 'passenger_id_number' => 'required|string',
                 'passenger_dob' => 'required|date',
                 'passenger_gender' => 'required|in:male,female',
-                'payment_method' => 'required|in:transfer',
                 'seat_number' => 'required|string',
             ]);
             
@@ -55,28 +54,26 @@ class BookingController extends Controller
                 $train->available_seats -= 1;
                 $train->save();
 
-                $booking = Booking::create([
-                    'transaction_id' => 'KX-' . Str::random(10),
-                    'user_uuid' => $request->user_uuid,
-                    'train_id' => $train->id,
-                    'travel_date' => $request->travel_date,
-                    'passenger_name' => $request->passenger_name,
-                    'passenger_id_number' => $request->passenger_id_number,
-                    'passenger_dob' => $request->passenger_dob,
-                    'passenger_gender' => $request->passenger_gender,
-                    'seat_number' => $request->seat_number,
-                    'payment_method' => $request->payment_method,
-                    'status' => 'pending',
-                    'total_price' => $train->price,
-                ]);
-                
-                return response()->json($booking, 201);
-            });
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json(['message' => 'Validation failed', 'errors' => $e->errors()], 422);
+            $booking = Booking::create([
+                'transaction_id' => 'KX-' . Str::random(10),
+                'user_uuid' => $request->user_uuid,
+                'train_id' => $train->id,
+                'travel_date' => $request->travel_date,
+                'passenger_name' => $request->passenger_name,
+                'passenger_id_number' => $request->passenger_id_number,
+                'passenger_dob' => $request->passenger_dob,
+                'passenger_gender' => $request->passenger_gender,
+                'seat_number' => $request->seat_number,
+                'status' => 'pending',
+                'total_price' => $train->price,
+            ]);
+            
+            return response()->json($booking, 201);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
         } catch (\Exception $e) {
-            Log::error('Booking error: ' . $e->getMessage());
-            return response()->json(['message' => 'Failed to create booking. Please try again.'], 500);
+            \Log::error($e);
+            return response()->json(['message' => 'Internal server error'], 500);
         }
     }
     
@@ -84,20 +81,19 @@ class BookingController extends Controller
     {
         try {
             $request->validate([
-                'user_uuid' => 'required|uuid|exists:users,uuid',
+                'user_uuid' => 'required|uuid',
             ]);
 
             $bookings = Booking::with(['train.departureStation', 'train.arrivalStation'])
                 ->where('user_uuid', $request->user_uuid)
                 ->orderBy('created_at', 'desc')
                 ->get();
-                                                 
+                
             return response()->json($bookings);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json(['message' => 'Validation failed', 'errors' => $e->errors()], 422);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
         } catch (\Exception $e) {
-            Log::error('Booking history error: ' . $e->getMessage());
-            return response()->json(['message' => 'Failed to fetch booking history. Please try again.'], 500);
+            return response()->json(['message' => 'Internal server error'], 500);
         }
     }
 }
