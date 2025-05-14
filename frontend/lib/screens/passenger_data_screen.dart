@@ -110,7 +110,6 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
         'passenger_gender': _gender == 'Laki-laki' ? 'male' : 'female',
         'passenger_id_number': _idNumberController.text,
         'passenger_dob': DateFormat('yyyy-MM-dd').format(_birthDate!),
-        'payment_method': _paymentMethod,
         'seat_number': widget.selectedSeat,
       };
 
@@ -149,7 +148,7 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_errorMessage!),
+            content: Text('Failed to create booking: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -449,6 +448,7 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
                   // Add more payment methods here if needed
                 ],
                 onChanged: (value) {
+                  // Payment method is for display only and not sent to the API
                   if (value != null) {
                     setState(() {
                       _paymentMethod = value;
