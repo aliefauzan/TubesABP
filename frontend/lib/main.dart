@@ -9,63 +9,25 @@ import 'package:keretaxpress/screens/payment_success_screen.dart';
 import 'package:keretaxpress/screens/booking_history_screen.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/models/train.dart';
-import 'package:keretaxpress/core/services/auth_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   await dotenv.load(fileName: '.env');
-
-  // Initialize authentication
-  final authService = AuthService();
-  await authService.initializeAuth();
   
   runApp(const KeretaXpressApp());
 }
 
-class KeretaXpressApp extends StatefulWidget {
+class KeretaXpressApp extends StatelessWidget {
   const KeretaXpressApp({super.key});
 
   @override
-  State<KeretaXpressApp> createState() => _KeretaXpressAppState();
-}
-
-class _KeretaXpressAppState extends State<KeretaXpressApp> {
-  final _authService = AuthService();
-  bool _initialized = false;
-  bool _isAuthenticated = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkAuthState();
-  }
-
-  Future<void> _checkAuthState() async {
-    final isAuthenticated = await _authService.isAuthenticated();
-    setState(() {
-      _initialized = true;
-      _isAuthenticated = isAuthenticated;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (!_initialized) {
-      return const MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
-      );
-    }
-
     return MaterialApp(
       title: 'KeretaXpress',
       theme: AppTheme.theme,
-      initialRoute: _isAuthenticated ? '/' : '/login',
+      initialRoute: '/',
       routes: {
         '/': (context) => const HomeScreen(),
         '/home': (context) => const HomeScreen(),

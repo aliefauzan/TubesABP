@@ -1,15 +1,13 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\Train;
-use App\Models\User;
 use App\Services\SupabaseService;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
 {
@@ -19,45 +17,33 @@ class BookingController extends Controller
     {
         $this->supabase = $supabase;
     }
-
+    
     public function book(Request $request)
     {
         try {
             $request->validate([
                 'user_uuid' => 'required|uuid|exists:users,uuid',
                 'train_id' => 'required|exists:trains,id',
-                'travel_date' => 'required|date|after_or_equal:today',
+                'travel_date' => 'required|date',
                 'passenger_name' => 'required|string|min:3',
                 'passenger_id_number' => 'required|string',
                 'passenger_dob' => 'required|date',
                 'passenger_gender' => 'required|in:male,female',
-                'payment_method' => 'required|string',
+                'payment_method' => 'required|in:transfer',
                 'seat_number' => 'required|string',
             ]);
             
-            return DB::transaction(function () use ($request) {
+            $booking = DB::transaction(function () use ($request) {
                 $train = Train::lockForUpdate()->findOrFail($request->train_id);
 
                 if ($train->available_seats <= 0) {
-                    return response()->json(['message' => 'No available seats for this train'], 400);
+                    throw new \Exception('No available seats for this train');
                 }
 
-                // Check if seat is already booked
-                $existingBooking = Booking::where('train_id', $train->id)
-                    ->where('travel_date', $request->travel_date)
-                    ->where('seat_number', $request->seat_number)
-                    ->where('status', '!=', 'cancelled')
-                    ->first();
-
-                if ($existingBooking) {
-                    return response()->json(['message' => 'This seat is already booked'], 400);
-                }
-
-                // Decrement available seats
                 $train->available_seats -= 1;
                 $train->save();
 
-                $booking = Booking::create([
+                return Booking::create([
                     'transaction_id' => 'KX-' . Str::random(10),
                     'user_uuid' => $request->user_uuid,
                     'train_id' => $train->id,
@@ -66,18 +52,19 @@ class BookingController extends Controller
                     'passenger_id_number' => $request->passenger_id_number,
                     'passenger_dob' => $request->passenger_dob,
                     'passenger_gender' => $request->passenger_gender,
-                    'payment_method' => $request->payment_method,
                     'seat_number' => $request->seat_number,
+                    'payment_method' => $request->payment_method,
                     'status' => 'pending',
                     'total_price' => $train->price,
                 ]);
-                
-                return response()->json($booking, 201);
             });
-        } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->errors()], 422);
+
+            return response()->json($booking, 201);
         } catch (\Exception $e) {
-            \Log::error($e);
+            Log::error('Booking error: ' . $e->getMessage(), ['exception' => $e]);
+            if ($e->getMessage() === 'No available seats for this train') {
+                return response()->json(['message' => $e->getMessage()], 400);
+            }
             return response()->json(['message' => 'Internal server error'], 500);
         }
     }
@@ -86,24 +73,23 @@ class BookingController extends Controller
     {
         try {
             $request->validate([
-                'user_uuid' => 'required|uuid',
+                'user_uuid' => 'required|uuid|exists:users,uuid',
             ]);
 
-            $user = User::where('uuid', $request->user_uuid)->first();
+            $user = \App\Models\User::where('uuid', $request->user_uuid)->first();
+
             if (!$user) {
                 return response()->json(['message' => 'User not found'], 404);
             }
 
             $bookings = Booking::with(['train.departureStation', 'train.arrivalStation'])
-                ->where('user_uuid', $request->user_uuid)
+                ->where('user_uuid', $user->uuid)
                 ->orderBy('created_at', 'desc')
                 ->get();
-                
-            return response()->json($bookings);
-        } catch (ValidationException $e) {
-            return response()->json(['errors' => $e->errors()], 422);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Internal server error'], 500);
-        }
+                                                 
+                return response()->json($bookings);
+            } catch (\Exception $e) {
+                return response()->json(['message' => 'Internal server error'], 500);
+            }
     }
 }
