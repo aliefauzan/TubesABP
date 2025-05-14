@@ -8,6 +8,7 @@ use App\Services\SupabaseService;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
 {
@@ -60,6 +61,8 @@ class BookingController extends Controller
             });
 
             return response()->json($booking, 201);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             Log::error('Booking error: ' . $e->getMessage(), ['exception' => $e]);
             if ($e->getMessage() === 'No available seats for this train') {
@@ -73,7 +76,7 @@ class BookingController extends Controller
     {
         try {
             $request->validate([
-                'user_uuid' => 'required|uuid|exists:users,uuid',
+                'user_uuid' => 'required|uuid',
             ]);
 
             $user = \App\Models\User::where('uuid', $request->user_uuid)->first();
@@ -88,6 +91,8 @@ class BookingController extends Controller
                 ->get();
                                                  
                 return response()->json($bookings);
+            } catch (ValidationException $e) {
+                return response()->json(['errors' => $e->errors()], 422);
             } catch (\Exception $e) {
                 return response()->json(['message' => 'Internal server error'], 500);
             }
