@@ -11,7 +11,8 @@ class Booking extends Model
     protected $fillable = [
         'transaction_id', 'user_uuid', 'train_id', 'travel_date',
         'passenger_name', 'passenger_id_number', 'passenger_dob',
-        'passenger_gender', 'seat_number', 'status', 'total_price', 'payment_proof'
+        'passenger_gender', 'seat_number', 'status', 'total_price',
+        'payment_proof', 'payment_method'
     ];
     
     protected $casts = [
