@@ -54,21 +54,22 @@ class BookingController extends Controller
                 $train->available_seats -= 1;
                 $train->save();
 
-            $booking = Booking::create([
-                'transaction_id' => 'KX-' . Str::random(10),
-                'user_uuid' => $request->user_uuid,
-                'train_id' => $train->id,
-                'travel_date' => $request->travel_date,
-                'passenger_name' => $request->passenger_name,
-                'passenger_id_number' => $request->passenger_id_number,
-                'passenger_dob' => $request->passenger_dob,
-                'passenger_gender' => $request->passenger_gender,
-                'seat_number' => $request->seat_number,
-                'status' => 'pending',
-                'total_price' => $train->price,
-            ]);
-            
-            return response()->json($booking, 201);
+                $booking = Booking::create([
+                    'transaction_id' => 'KX-' . Str::random(10),
+                    'user_uuid' => $request->user_uuid,
+                    'train_id' => $train->id,
+                    'travel_date' => $request->travel_date,
+                    'passenger_name' => $request->passenger_name,
+                    'passenger_id_number' => $request->passenger_id_number,
+                    'passenger_dob' => $request->passenger_dob,
+                    'passenger_gender' => $request->passenger_gender,
+                    'seat_number' => $request->seat_number,
+                    'status' => 'pending',
+                    'total_price' => $train->price,
+                ]);
+                
+                return response()->json($booking, 201);
+            });
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
         } catch (\Exception $e) {
