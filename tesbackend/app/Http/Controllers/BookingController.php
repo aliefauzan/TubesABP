@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\Train;
+use App\Models\User;
 use App\Services\SupabaseService;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
@@ -29,6 +31,7 @@ class BookingController extends Controller
                 'passenger_id_number' => 'required|string',
                 'passenger_dob' => 'required|date',
                 'passenger_gender' => 'required|in:male,female',
+                'payment_method' => 'required|string',
                 'seat_number' => 'required|string',
             ]);
             
@@ -63,6 +66,7 @@ class BookingController extends Controller
                     'passenger_id_number' => $request->passenger_id_number,
                     'passenger_dob' => $request->passenger_dob,
                     'passenger_gender' => $request->passenger_gender,
+                    'payment_method' => $request->payment_method,
                     'seat_number' => $request->seat_number,
                     'status' => 'pending',
                     'total_price' => $train->price,
@@ -84,6 +88,11 @@ class BookingController extends Controller
             $request->validate([
                 'user_uuid' => 'required|uuid',
             ]);
+
+            $user = User::where('uuid', $request->user_uuid)->first();
+            if (!$user) {
+                return response()->json(['message' => 'User not found'], 404);
+            }
 
             $bookings = Booking::with(['train.departureStation', 'train.arrivalStation'])
                 ->where('user_uuid', $request->user_uuid)
