@@ -6,6 +6,8 @@ use App\Models\Booking;
 use App\Models\Train;
 use App\Services\SupabaseService;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
 {
@@ -31,32 +33,38 @@ class BookingController extends Controller
                 'seat_number' => 'required|string',
             ]);
             
-            $train = Train::findOrFail($request->train_id);
+            $booking = DB::transaction(function () use ($request) {
+                $train = Train::lockForUpdate()->findOrFail($request->train_id);
 
-            if ($train->available_seats <= 0) {
-                return response()->json(['message' => 'No available seats for this train'], 400);
-            }
-            // Decrement available seats locally
-            $train->available_seats -= 1;
-            $train->save();
+                if ($train->available_seats <= 0) {
+                    throw new \Exception('No available seats for this train');
+                }
 
-            $booking = Booking::create([
-                'transaction_id' => 'KX-' . Str::random(10),
-                'user_uuid' => $request->user_uuid,
-                'train_id' => $train->id,
-                'travel_date' => $request->travel_date,
-                'passenger_name' => $request->passenger_name,
-                'passenger_id_number' => $request->passenger_id_number,
-                'passenger_dob' => $request->passenger_dob,
-                'passenger_gender' => $request->passenger_gender,
-                'seat_number' => $request->seat_number,
-                'payment_method' => $request->payment_method,
-                'status' => 'pending',
-                'total_price' => $train->price,
-            ]);
-            
+                $train->available_seats -= 1;
+                $train->save();
+
+                return Booking::create([
+                    'transaction_id' => 'KX-' . Str::random(10),
+                    'user_uuid' => $request->user_uuid,
+                    'train_id' => $train->id,
+                    'travel_date' => $request->travel_date,
+                    'passenger_name' => $request->passenger_name,
+                    'passenger_id_number' => $request->passenger_id_number,
+                    'passenger_dob' => $request->passenger_dob,
+                    'passenger_gender' => $request->passenger_gender,
+                    'seat_number' => $request->seat_number,
+                    'payment_method' => $request->payment_method,
+                    'status' => 'pending',
+                    'total_price' => $train->price,
+                ]);
+            });
+
             return response()->json($booking, 201);
         } catch (\Exception $e) {
+            Log::error('Booking error: ' . $e->getMessage(), ['exception' => $e]);
+            if ($e->getMessage() === 'No available seats for this train') {
+                return response()->json(['message' => $e->getMessage()], 400);
+            }
             return response()->json(['message' => 'Internal server error'], 500);
         }
     }
