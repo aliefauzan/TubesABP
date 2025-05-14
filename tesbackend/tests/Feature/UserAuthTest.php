@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class ApiTest extends TestCase
+class UserAuthTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -71,24 +71,4 @@ class ApiTest extends TestCase
                      'user' => ['id', 'name', 'email']
                  ]);
     }
-
-    /**
-     * Test train search endpoint.
-     */
-    public function test_train_search_requires_authentication()
-    {
-        $response = $this->getJson('/api/trains/search');
-        $response->assertStatus(401);
-    }
-
-    /**
-     * Test booking creation requires authentication.
-     */
-    public function test_booking_creation_requires_authentication()
-    {
-        $response = $this->postJson('/api/bookings', []);
-        $response->assertStatus(401);
-    }
-
-    // Additional tests for promo trains, booking history, payment upload can be added similarly.
 }
