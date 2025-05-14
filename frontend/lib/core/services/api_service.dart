@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:mime/mime.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -22,12 +25,15 @@ class ApiService {
     return _token != null && _token!.isNotEmpty;
   }
 
-  Future<Map<String, String>> _getHeaders() async {
-    return {
-      'Content-Type': 'application/json',
+  Future<Map<String, String>> _getHeaders({bool isJson = true}) async {
+    final headers = <String, String>{
       'Accept': 'application/json',
       if (_token != null) 'Authorization': 'Bearer $_token',
     };
+    if (isJson) {
+      headers['Content-Type'] = 'application/json';
+    }
+    return headers;
   }
 
   Future<dynamic> get(String endpoint) async {
@@ -46,29 +52,9 @@ class ApiService {
     }
   }
 
-  Future<dynamic> getStations() async {
-    try {
-      return await get('/stations');
-    } catch (e) {
-      throw Exception('Failed to fetch stations: $e');
-    }
-  }
-
-  Future<dynamic> getAllTrains() async {
-    try {
-      return await get('/trains/all');
-    } catch (e) {
-      throw Exception('Failed to fetch all trains: $e');
-    }
-  }
-
   Future<dynamic> getUserInfo(String userId) async {
-    try {
-      return await get('/user/$userId');
-    } catch (e) {
-      throw Exception('Failed to fetch user info: $e');
-    }
-  }
+  return get('/user/\$userId');
+}
 
   Future<dynamic> post(String endpoint, dynamic data) async {
     try {
@@ -114,6 +100,42 @@ class ApiService {
         Uri.parse(url),
         headers: await _getHeaders(),
       );
+      return _handleResponse(response);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<dynamic> postMultipart(String endpoint, File file, String fieldName, {Map<String, String>? fields}) async {
+    try {
+      final cleanBaseUrl = _baseUrl.endsWith('/') ? _baseUrl.substring(0, _baseUrl.length - 1) : _baseUrl;
+      final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+      final url = Uri.parse('$cleanBaseUrl/$cleanEndpoint');
+
+      final request = http.MultipartRequest('POST', url);
+
+      if (_token != null) {
+        request.headers['Authorization'] = 'Bearer $_token';
+      }
+
+      if (fields != null) {
+        request.fields.addAll(fields);
+      }
+
+      final mimeType = lookupMimeType(file.path) ?? 'application/octet-stream';
+      final mimeTypeSplit = mimeType.split('/');
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          fieldName,
+          file.path,
+          contentType: MediaType(mimeTypeSplit[0], mimeTypeSplit[1]),
+        ),
+      );
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
       return _handleResponse(response);
     } catch (e) {
       throw _handleError(e);

@@ -11,13 +11,14 @@ class BookingService {
     }
   }
 
-  Future<dynamic> getBookingHistory() async {
+  Future<dynamic> getBookingHistory(String userUuid) async {
     try {
-      return await _api.get('/bookings/history');
+      return await _api.get('/bookings/history?user_uuid=$userUuid');
     } catch (e) {
       throw BookingException('Failed to fetch booking history: ${e.toString()}');
     }
   }
+
 
   Future<dynamic> uploadPaymentProof(String bookingId, String imagePath) async {
     try {

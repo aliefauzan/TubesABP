@@ -3,18 +3,27 @@ import 'package:keretaxpress/models/booking.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/core/services/booking_service.dart';
+import 'package:keretaxpress/core/services/auth_service.dart';
+import 'package:keretaxpress/core/services/api_service.dart';
 
 class BookingHistoryScreen extends StatelessWidget {
   const BookingHistoryScreen({super.key});
 
   Future<List<Booking>> _fetchBookings() async {
     final bookingService = BookingService();
-    final data = await bookingService.getBookingHistory();
+    final authService = AuthService();
+    final userUuid = await authService.getUserUUID();
+    if (userUuid == null) {
+      return [];
+    }
+    final data = await bookingService.getBookingHistory(userUuid);
     if (data is List) {
       return data.map((json) => Booking.fromJson(json)).toList();
     }
     return [];
   }
+
+
 
   @override
   Widget build(BuildContext context) {
