@@ -23,7 +23,6 @@ class PassengerDataScreen extends StatefulWidget {
 class _PassengerDataScreenState extends State<PassengerDataScreen> {
   final _formKey = GlobalKey<FormState>();
   final _bookingService = BookingService();
-  final _authService = AuthService();
   final _nameController = TextEditingController();
   final _idNumberController = TextEditingController();
   DateTime? _birthDate;
@@ -87,10 +86,10 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
     });
 
     try {
-      final userUuid = await _authService.getUserUUID();
-
+      final authService = AuthService();
+      final userUUID = await authService.getUserUUID();
       final bookingData = {
-        'user_uuid': userUuid,
+        'user_uuid': userUUID,
         'train_id': widget.train.id,
         'travel_date': widget.train.date,
         'passenger_name': _nameController.text,
@@ -428,6 +427,7 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
                 ),
                 items: [
                   DropdownMenuItem(value: 'transfer', child: Text('Transfer Bank')),
+                  // Add more payment methods here if needed
                 ],
                 onChanged: (value) {
                   if (value != null) {

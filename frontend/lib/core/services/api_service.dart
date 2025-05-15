@@ -52,10 +52,6 @@ class ApiService {
     }
   }
 
-  Future<dynamic> getUserInfo(String userId) async {
-  return get('/user/\$userId');
-}
-
   Future<dynamic> post(String endpoint, dynamic data) async {
     try {
       final cleanBaseUrl = _baseUrl.endsWith('/') ? _baseUrl.substring(0, _baseUrl.length - 1) : _baseUrl;

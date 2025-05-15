@@ -43,11 +43,13 @@ class _CustomAppBarState extends State<CustomAppBar> {
           });
           return;
         }
-        final userInfo = await _apiService.getUserInfo(userUUID);
+        // Fetch user info from API using ApiService
+        final userInfo = await _apiService.get('/user');
         setState(() {
           _isLoggedIn = true;
           _userName = userInfo['user'] != null ? userInfo['user']['name'] ?? '' : '';
           _userEmail = userInfo['user'] != null ? userInfo['user']['email'] ?? '' : '';
+          _userId = userInfo['user'] != null ? userInfo['user']['id']?.toString() ?? '' : '';
         });
       } catch (e) {
         print('DEBUG: error in _checkLoginStatus: $e');
