@@ -94,7 +94,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
       if (response != null && response['trains'] != null && response['trains'] is List) {
         setState(() {
-          _trains = (response['trains'] as List).map((data) => Train.fromJson(data)).toList();
+          _trains = (response['trains'] as List)
+            .map((data) => Train.fromJson(data, stations: _stations))
+            .toList();
           _isLoading = false;
           _showAllTrains = false;
         });
@@ -124,7 +126,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       final response = await _trainService.getAllTrains();
       if (response != null && response['trains'] != null && response['trains'] is List) {
         setState(() {
-          _trains = (response['trains'] as List).map((data) => Train.fromJson(data)).toList();
+          _trains = (response['trains'] as List)
+            .map((data) => Train.fromJson(data, stations: _stations))
+            .toList();
           _isLoading = false;
           _showAllTrains = true;
         });

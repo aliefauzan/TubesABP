@@ -1,3 +1,5 @@
+import 'package:keretaxpress/models/station.dart';
+
 class Train {
   final String id;
   final String name;
@@ -11,6 +13,8 @@ class Train {
   final String classType;
   final String price;
   final int seatsLeft;
+  final String? departureStationName;
+  final String? arrivalStationName;
 
   Train({
     required this.id,
@@ -25,6 +29,8 @@ class Train {
     required this.classType,
     required this.price,
     required this.seatsLeft,
+    this.departureStationName,
+    this.arrivalStationName,
   });
 
   factory Train.dummy() {
@@ -41,10 +47,21 @@ class Train {
       classType: 'Ekonomi',
       price: 'Rp150.000',
       seatsLeft: 50,
+      departureStationName: 'Kiaracondong',
+      arrivalStationName: 'Jatinegara',
     );
   }
 
-  factory Train.fromJson(Map<String, dynamic> json) {
+  factory Train.fromJson(Map<String, dynamic> json, {List<Station>? stations}) {
+    String? getStationName(dynamic id) {
+      if (stations == null) return null;
+      final found = stations.firstWhere(
+        (s) => s.id.toString() == id.toString(),
+        orElse: () => Station(id: 0, name: '', city: ''),
+      );
+      return found.name.isNotEmpty ? found.name : null;
+    }
+
     return Train(
       id: json['id'].toString(),
       name: json['name'] ?? '',
@@ -58,6 +75,8 @@ class Train {
       classType: json['class_type'] ?? '',
       price: json['price'] != null ? 'Rp${json['price'].toString()}' : '',
       seatsLeft: json['available_seats'] ?? 0,
+      departureStationName: getStationName(json['departure_station_id']),
+      arrivalStationName: getStationName(json['arrival_station_id']),
     );
   }
 }
