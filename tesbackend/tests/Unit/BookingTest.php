@@ -100,4 +100,6 @@ public function test_booking_creation_no_available_seats()
         'message' => 'No available seats for this train',
     ]);
 }
+
+
 }
