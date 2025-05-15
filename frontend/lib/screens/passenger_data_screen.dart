@@ -3,6 +3,7 @@ import 'package:keretaxpress/models/train.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/core/services/booking_service.dart';
+import 'package:keretaxpress/core/services/auth_service.dart';
 import 'package:intl/intl.dart';
 
 class PassengerDataScreen extends StatefulWidget {
@@ -85,7 +86,10 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
     });
 
     try {
+      final authService = AuthService();
+      final userUUID = await authService.getUserUUID();
       final bookingData = {
+        'user_uuid': userUUID,
         'train_id': widget.train.id,
         'travel_date': widget.train.date,
         'passenger_name': _nameController.text,
