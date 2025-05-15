@@ -54,21 +54,27 @@ class Booking {
   }
 
   factory Booking.fromJson(Map<String, dynamic> json) {
+    final train = json['train'] ?? {};
+    final departureStation = train['departure_station'] ?? {};
+    final arrivalStation = train['arrival_station'] ?? {};
+
     return Booking(
       transactionId: json['transaction_id']?.toString() ?? '',
-      trainName: json['train_name'] ?? '',
-      operator: json['operator'] ?? '',
-      date: json['date'] ?? '',
-      time: json['time'] ?? '',
-      departure: json['departure'] ?? '',
-      arrival: json['arrival'] ?? '',
+      trainName: train['name'] ?? '',
+      operator: train['operator'] ?? '',
+      date: json['travel_date']?.toString().substring(0, 10) ?? '',
+      time: train['departure_time'] != null
+          ? DateTime.parse(train['departure_time']).toLocal().toString().substring(11, 16)
+          : '',
+      departure: departureStation['name'] ?? '',
+      arrival: arrivalStation['name'] ?? '',
       status: json['status'] ?? '',
-      price: json['price']?.toString() ?? '',
+      price: json['total_price']?.toString() ?? '',
       passengerName: json['passenger_name'] ?? '',
-      passengerId: json['passenger_id']?.toString() ?? '',
-      passengerDob: json['passenger_dob'] ?? '',
+      passengerId: json['passenger_id_number']?.toString() ?? '',
+      passengerDob: json['passenger_dob']?.toString() ?? '',
       passengerGender: json['passenger_gender'] ?? '',
-      seatClass: json['seat_class'] ?? '',
+      seatClass: train['class_type'] ?? '',
       seatNumber: json['seat_number']?.toString() ?? '',
     );
   }

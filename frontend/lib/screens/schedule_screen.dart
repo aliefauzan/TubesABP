@@ -33,14 +33,18 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeData();
+    _initializeData(showAll: true);
   }
 
-  Future<void> _initializeData() async {
+  Future<void> _initializeData({bool showAll = false}) async {
     try {
       await _fetchStations();
       if (_stations.isNotEmpty) {
-        await _fetchTrains();
+        if (showAll) {
+          await _fetchAllTrains();
+        } else {
+          await _fetchTrains();
+        }
       }
     } catch (e) {
       setState(() {
@@ -94,7 +98,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
       if (response != null && response['trains'] != null && response['trains'] is List) {
         setState(() {
-          _trains = (response['trains'] as List).map((data) => Train.fromJson(data)).toList();
+          _trains = (response['trains'] as List)
+            .map((data) => Train.fromJson(data, stations: _stations))
+            .toList();
           _isLoading = false;
           _showAllTrains = false;
         });
@@ -124,7 +130,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       final response = await _trainService.getAllTrains();
       if (response != null && response['trains'] != null && response['trains'] is List) {
         setState(() {
-          _trains = (response['trains'] as List).map((data) => Train.fromJson(data)).toList();
+          _trains = (response['trains'] as List)
+            .map((data) => Train.fromJson(data, stations: _stations))
+            .toList();
           _isLoading = false;
           _showAllTrains = true;
         });
@@ -192,11 +200,14 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           padding: const EdgeInsets.all(16.0),
           child: ListView(
             children: [
-              const Text(
-                'Pilih Jadwal Keberangkatan',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+              const Center(
+                child: Text(
+                  'Pilih Jadwal Keberangkatan',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
               const SizedBox(height: 20),
@@ -326,6 +337,24 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               onPressed: _fetchAllTrains,
                               icon: const Icon(Icons.train),
                               label: const Text('Semua Kereta'),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: _fetchTrains,
+                              icon: const Icon(Icons.search),
+                              label: const Text('Cari Kereta'),
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
