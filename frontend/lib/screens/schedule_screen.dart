@@ -184,6 +184,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    double scaleFont(double size) {
+      if (screenWidth < 400) return size * 0.85;
+      if (screenWidth < 350) return size * 0.75;
+      return size;
+    }
     final filteredTrains = _trains.where((train) {
       final query = _searchQuery.toLowerCase();
       final matchesClass = _trainClassFilter == 'Semua' || train.classType == _trainClassFilter;
@@ -200,11 +206,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           padding: const EdgeInsets.all(16.0),
           child: ListView(
             children: [
-              const Center(
+              Center(
                 child: Text(
                   'Pilih Jadwal Keberangkatan',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: scaleFont(24),
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,

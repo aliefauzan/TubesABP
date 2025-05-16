@@ -71,7 +71,7 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
                 'Riwayat Pemesanan',
@@ -121,16 +121,15 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Transaction ID centered
+                              // Passenger name centered at top
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'Transaction ID : ${booking.transactionId}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey.shade700,
-                                      fontSize: 13,
+                                    booking.passengerName,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -263,12 +262,22 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
                                 ],
                               ),
                               const SizedBox(height: 18),
-                              // Total price
+                              // Bottom row with Transaction ID and Total Biaya
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
+                                  // Transaction ID on bottom left
+                                  Text(
+                                    'Transaction ID : ${booking.transactionId}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey.shade700,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  // Total Biaya on bottom right
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       const Text('Total Biaya', style: TextStyle(color: Colors.grey)),
                                       Text(
@@ -278,16 +287,6 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
                                           color: Colors.blue.shade700,
                                           fontSize: 18,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      const Text('Penumpang', style: TextStyle(color: Colors.grey)),
-                                      Text(
-                                        booking.passengerName,
-                                        style: const TextStyle(fontWeight: FontWeight.w500),
                                       ),
                                     ],
                                   ),
