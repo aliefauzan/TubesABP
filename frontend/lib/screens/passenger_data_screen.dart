@@ -168,6 +168,61 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
                   style: Theme.of(context).textTheme.displayMedium,
                 ),
                 const SizedBox(height: 24),
+
+                // --- Passenger Data Form Fields ---
+                TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nama Penumpang',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) => value == null || value.isEmpty ? 'Nama wajib diisi' : null,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _idNumberController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nomor Identitas',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) => value == null || value.isEmpty ? 'Nomor identitas wajib diisi' : null,
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  value: _gender,
+                  decoration: const InputDecoration(
+                    labelText: 'Jenis Kelamin',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'Laki-laki', child: Text('Laki-laki')),
+                    DropdownMenuItem(value: 'Perempuan', child: Text('Perempuan')),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) setState(() => _gender = value);
+                  },
+                ),
+                const SizedBox(height: 12),
+                InkWell(
+                  onTap: () => _selectDate(context),
+                  child: InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'Tanggal Lahir',
+                      border: OutlineInputBorder(),
+                    ),
+                    child: Text(
+                      _birthDate == null
+                          ? 'Pilih tanggal lahir'
+                          : DateFormat('dd/MM/yyyy').format(_birthDate!),
+                      style: TextStyle(
+                        color: _birthDate == null ? Colors.grey : Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // --- End Passenger Data Form Fields ---
+
                 Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -182,12 +237,110 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
                           style: Theme.of(context).textTheme.displaySmall,
                         ),
                         const SizedBox(height: 16),
-                        TrainTimeline(
-                          departureTime: widget.train.time,
-                          departureStation: widget.train.departureStationName ?? widget.train.departure,
-                          duration: widget.train.duration,
-                          arrivalTime: widget.train.arrivalTime,
-                          arrivalStation: widget.train.arrivalStationName ?? widget.train.arrival,
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    widget.train.time,
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      color: AppTheme.primaryColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    widget.train.departureStationName ?? widget.train.departure,
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(
+                                    height: 32,
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                          child: Container(
+                                            height: 2,
+                                            color: Colors.blue.shade200,
+                                          ),
+                                        ),
+                                        Center(
+                                          child: Container(
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.blue.shade400,
+                                                width: 2,
+                                              ),
+                                            ),
+                                            child: Icon(
+                                              Icons.train,
+                                              size: 14,
+                                              color: Colors.blue.shade700,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _formatDuration(widget.train.duration),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.blue.shade700,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    widget.train.arrivalTime,
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      color: AppTheme.primaryColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    widget.train.arrivalStationName ?? widget.train.arrival,
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    textAlign: TextAlign.end,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -342,5 +495,25 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
         ),
       ),
     );
+  }
+
+  String _formatDuration(String duration) {
+    int minutes = 0;
+    final match = RegExp(r'^(\d+)m?').firstMatch(duration);
+    if (match != null) {
+      minutes = int.tryParse(match.group(1) ?? '0') ?? 0;
+    } else {
+      minutes = int.tryParse(duration) ?? 0;
+    }
+    final hours = minutes ~/ 60;
+    final mins = minutes % 60;
+
+    if (hours > 0 && mins > 0) {
+      return '${hours}j${mins}m';
+    } else if (hours > 0) {
+      return '${hours}j';
+    } else {
+      return '${mins}m';
+    }
   }
 }
