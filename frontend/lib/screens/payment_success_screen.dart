@@ -99,7 +99,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Status Tiket: ${booking.status}'),
+                                Text('Status Tiket: paid'),
                                 Text('Kelas: ${booking.seatClass}'),
                               ],
                             ),
@@ -114,7 +114,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                           Text('Tanggal Lahir: ${booking.passengerDob}'),
                           Text('Jenis Kelamin: ${booking.passengerGender}'),
                           Text('Kursi: ${booking.seatNumber}'),
-                          Text('Status Tiket: ${booking.status}'),
+                          Text('Status Tiket: paid'),
                           Text('Kelas: ${booking.seatClass}'),
                         ],
                       );
@@ -140,30 +140,6 @@ class PaymentSuccessScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Upload payment proof functionality
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'UPLOAD BUKTI PEMBAYARAN',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
