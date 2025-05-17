@@ -146,7 +146,14 @@ class PaymentConfirmationScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/payment-success');
+                  Navigator.pushNamed(
+                    context,
+                    '/payment-success',
+                    arguments: {
+                      'booking': booking,
+                      'train': train,
+                    },
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryColor,
