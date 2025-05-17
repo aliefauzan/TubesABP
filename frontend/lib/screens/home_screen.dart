@@ -132,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const Text(
             'SELAMAT DATANG DI KERETAXPRESS',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
             'Nikmati kemudahan memesan tiket kereta dengan harga terbaik',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               color: Colors.white,
             ),
           ),
@@ -279,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
         const Text(
           'Promo Spesial',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
         ),

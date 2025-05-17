@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:keretaxpress/models/train.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
+import 'package:keretaxpress/models/booking.dart';
+import 'package:keretaxpress/widgets/train_card.dart';
 
 class PaymentConfirmationScreen extends StatelessWidget {
   const PaymentConfirmationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // In a real app, you would get this from state management
-    final train = Train.dummy();
+    final args = ModalRoute.of(context)?.settings.arguments as Map;
+    final booking = args['booking'] is Booking ? args['booking'] : Booking.fromJson(args['booking'] as Map<String, dynamic>);
+    final train = args['train'] as Train;
 
     return Scaffold(
       appBar: const CustomAppBar(),
@@ -18,11 +21,14 @@ class PaymentConfirmationScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Konfirmasi Pembayaran',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+            const Center(
+              child: Text(
+                'Konfirmasi Pembayaran',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: 20),
@@ -37,9 +43,8 @@ class PaymentConfirmationScreen extends StatelessWidget {
                   SizedBox(height: 10),
                   Text(
                     'Pembayaran Belum Dilakukan',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.orange,
+                    style: TextStyle(                    fontSize: 16,
+                    color: Colors.orange,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -49,60 +54,21 @@ class PaymentConfirmationScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'Transaction ID: ${train.id}',
+              'Transaction ID: ${booking.transactionId}',
               style: const TextStyle(
                 color: Colors.grey,
               ),
             ),
             const SizedBox(height: 20),
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      train.name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(train.operator),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(train.date),
-                            Text(train.time),
-                            Text(train.departure),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(train.duration),
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(train.date),
-                            Text(train.arrivalTime),
-                            Text(train.arrival),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+            // --- Train Card Section ---
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: TrainCard(
+                train: train,
+                onTap: () {}, // No action needed here
               ),
             ),
+            // --- End Train Card Section ---
             const SizedBox(height: 20),
             const Text(
               'Detail Penumpang',
@@ -112,41 +78,63 @@ class PaymentConfirmationScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            const Text('Alif Lohen'),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('Tanggal Lahir: 30 Mar 2003'),
-                    Text('Jenis Kelamin: Laki-laki'),
-                    Text('Kursi: A1'),
-                  ],
-                ),
-                const Spacer(),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('Status Tiket: Menunggu pembayaran'),
-                    Text('Kelas: Ekonomi'),
-                  ],
-                ),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth > 400;
+                return isWide
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(booking.passengerName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 4),
+                                Text('Tanggal Lahir: ${booking.passengerDob}'),
+                                Text('Jenis Kelamin: ${booking.passengerGender}'),
+                                Text('Kursi: ${booking.seatNumber}'),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Status Tiket: ${booking.status}'),
+                                Text('Kelas: ${booking.seatClass}'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(booking.passengerName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 4),
+                          Text('Tanggal Lahir: ${booking.passengerDob}'),
+                          Text('Jenis Kelamin: ${booking.passengerGender}'),
+                          Text('Kursi: ${booking.seatNumber}'),
+                          Text('Status Tiket: ${booking.status}'),
+                          Text('Kelas: ${booking.seatClass}'),
+                        ],
+                      );
+              },
             ),
             const SizedBox(height: 20),
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'Total Biaya',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  'Rp150.000',
-                  style: TextStyle(
+                  booking.price,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primaryColor,
                   ),
@@ -162,7 +150,9 @@ class PaymentConfirmationScreen extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size(double.infinity, 0),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -171,7 +161,9 @@ class PaymentConfirmationScreen extends StatelessWidget {
                   'UPLOAD BUKTI PEMBAYARAN',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),

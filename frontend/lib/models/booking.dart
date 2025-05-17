@@ -1,3 +1,5 @@
+import 'train.dart';
+
 class Booking {
   final String transactionId;
   final String trainName;

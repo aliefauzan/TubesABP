@@ -183,14 +183,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    double scaleFont(double size) {
-      if (screenWidth < 400) return size * 0.85;
-      if (screenWidth < 350) return size * 0.75;
-      return size;
-    }
-    final filteredTrains = _trains.where((train) {
+  Widget build(BuildContext context) {    final filteredTrains = _trains.where((train) {
       final query = _searchQuery.toLowerCase();
       final matchesClass = _trainClassFilter == 'Semua' || train.classType == _trainClassFilter;
       return (train.name.toLowerCase().contains(query) ||
@@ -210,7 +203,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 child: Text(
                   'Pilih Jadwal Keberangkatan',
                   style: TextStyle(
-                    fontSize: scaleFont(24),
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
@@ -230,7 +223,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       const Text(
                         'Stasiun Keberangkatan & Kedatangan',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -339,14 +332,29 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: ElevatedButton.icon(
+                            child: ElevatedButton(
                               onPressed: _fetchAllTrains,
-                              icon: const Icon(Icons.train),
-                              label: const Text('Semua Kereta'),
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: Center(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Icon(Icons.train),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Semua Kereta',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -379,11 +387,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               TextField(
                 decoration: InputDecoration(
                   hintText: 'Cari Kereta...',
+                  hintStyle: TextStyle(fontSize: 14),
                   prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
+                style: TextStyle(fontSize: 14),
                 onChanged: (value) {
                   setState(() {
                     _searchQuery = value;
