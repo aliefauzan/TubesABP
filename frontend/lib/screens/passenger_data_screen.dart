@@ -4,6 +4,8 @@ import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/core/services/booking_service.dart';
 import 'package:keretaxpress/core/services/auth_service.dart';
+import 'package:keretaxpress/utils/currency_formatter.dart';
+import 'package:keretaxpress/widgets/train_timeline.dart';
 import 'package:intl/intl.dart';
 
 class PassengerDataScreen extends StatefulWidget {
@@ -17,7 +19,7 @@ class PassengerDataScreen extends StatefulWidget {
   });
 
   @override
-  State<PassengerDataScreen> createState() => _PassengerDataScreenState();
+  _PassengerDataScreenState createState() => _PassengerDataScreenState();
 }
 
 class _PassengerDataScreenState extends State<PassengerDataScreen> {
@@ -151,344 +153,191 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
-
-    num parsePrice(String priceStr) {
-      // Remove 'Rp', dots, commas, and whitespace
-      final cleaned = priceStr.replaceAll(RegExp(r'[^0-9]'), '');
-      return num.tryParse(cleaned) ?? 0;
-    }
-
     return Scaffold(
       appBar: const CustomAppBar(),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Isi Data Penumpang',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Isi Data Penumpang',
+                  style: Theme.of(context).textTheme.displayMedium,
                 ),
-              ),
-              const SizedBox(height: 20),
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Data Penumpang',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: InputDecoration(
-                          labelText: 'Nama Lengkap',
-                          hintText: 'Masukkan nama lengkap',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.person),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Nama tidak boleh kosong';
-                          }
-                          if (value.length < 3) {
-                            return 'Nama minimal 3 karakter';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        value: _gender,
-                        decoration: InputDecoration(
-                          labelText: 'Jenis Kelamin',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.person_outline),
-                        ),
-                        items: ['Laki-laki', 'Perempuan']
-                            .map((gender) => DropdownMenuItem(
-                                  value: gender,
-                                  child: Text(gender),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              _gender = value;
-                            });
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _idNumberController,
-                        decoration: InputDecoration(
-                          labelText: 'Nomor Identitas (KTP/Paspor)',
-                          hintText: 'Masukkan nomor KTP atau paspor',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.badge),
-                        ),
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Nomor identitas tidak boleh kosong';
-                          }
-                          if (value.length < 16) {
-                            return 'Nomor identitas minimal 16 digit';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      InkWell(
-                        onTap: () => _selectDate(context),
-                        child: InputDecorator(
-                          decoration: InputDecoration(
-                            labelText: 'Tanggal Lahir',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            prefixIcon: const Icon(Icons.calendar_today),
-                          ),
-                          child: Text(
-                            _birthDate != null
-                                ? DateFormat('dd/MM/yyyy').format(_birthDate!)
-                                : 'Pilih tanggal lahir',
-                          ),
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: 24),
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Detail Keberangkatan',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Detail Perjalanan',
+                          style: Theme.of(context).textTheme.displaySmall,
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        '${widget.train.name} ${widget.train.classType}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        const SizedBox(height: 16),
+                        TrainTimeline(
+                          departureTime: widget.train.time,
+                          departureStation: widget.train.departureStationName ?? widget.train.departure,
+                          duration: widget.train.duration,
+                          arrivalTime: widget.train.arrivalTime,
+                          arrivalStation: widget.train.arrivalStationName ?? widget.train.arrival,
                         ),
-                      ),
-                      Text(
-                        widget.train.operator,
-                        style: const TextStyle(
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.train.date,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(widget.train.time),
-                              Text(widget.train.departure),
-                            ],
+                        const SizedBox(height: 16),
+                        Text(
+                          '${widget.train.name} ${widget.train.classType}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
-                          Column(
-                            children: [
-                              Text(widget.train.duration),
-                            ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                widget.train.date,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(widget.train.arrivalTime),
-                              Text(widget.train.arrival),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Detail Pembayaran',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Harga tiket'),
-                          Text(currencyFormat.format(parsePrice(widget.train.price))),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Total Penumpang'),
-                          const Text('1'),
-                        ],
-                      ),
-                      const Divider(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Total Harga',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        Text(
+                          widget.train.operator,
+                          style: const TextStyle(
+                            color: Colors.grey,
                           ),
-                          Text(
-                            currencyFormat.format(parsePrice(widget.train.price)),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _paymentMethod,
-                decoration: InputDecoration(
-                  labelText: 'Metode Pembayaran',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  prefixIcon: const Icon(Icons.payment),
-                ),
-                items: [
-                  DropdownMenuItem(value: 'transfer', child: Text('Transfer Bank')),
-                  // Add more payment methods here if needed
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _paymentMethod = value;
-                    });
-                  }
-                },
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _isLoading ? null : () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: const BorderSide(color: AppTheme.primaryColor),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
                         ),
-                      ),
-                      child: const Text(
-                        'BATALKAN',
-                        style: TextStyle(
-                          color: AppTheme.primaryColor,
-                        ),
-                      ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _submitBooking,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                ),
+                const SizedBox(height: 20),
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Detail Pembayaran',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : const Text(
-                              'LANJUTKAN',
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Harga tiket'),
+                            Text(currencyFormat.format(parsePrice(widget.train.price))),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Total Penumpang'),
+                            const Text('1'),
+                          ],
+                        ),
+                        const Divider(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Total Harga',
                               style: TextStyle(
-                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            Text(
+                              currencyFormat.format(parsePrice(widget.train.price)),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _paymentMethod,
+                  decoration: InputDecoration(
+                    labelText: 'Metode Pembayaran',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    prefixIcon: const Icon(Icons.payment),
+                  ),
+                  items: [
+                    DropdownMenuItem(value: 'transfer', child: Text('Transfer Bank')),
+                    // Add more payment methods here if needed
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _paymentMethod = value;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _isLoading ? null : () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: const BorderSide(color: AppTheme.primaryColor),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'BATALKAN',
+                          style: TextStyle(
+                            color: AppTheme.primaryColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _submitBooking,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : const Text(
+                                'LANJUTKAN',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

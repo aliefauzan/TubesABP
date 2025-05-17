@@ -4,6 +4,7 @@ import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/core/services/booking_service.dart';
 import 'package:keretaxpress/core/services/auth_service.dart';
+import 'package:keretaxpress/widgets/booking_card.dart';
 
 class BookingHistoryScreen extends StatefulWidget {
   const BookingHistoryScreen({super.key});
@@ -73,11 +74,10 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(
-                'Riwayat Pemesanan',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+              Center(
+                child: Text(
+                  'Riwayat Pemesanan',
+                  style: Theme.of(context).textTheme.displayMedium,
                 ),
               ),
               const SizedBox(height: 24),
@@ -90,7 +90,10 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
                     return Center(
                       child: Column(
                         children: [
-                          const Text('Gagal memuat riwayat.'),
+                          Text(
+                            'Gagal memuat riwayat.',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
                           const SizedBox(height: 8),
                           ElevatedButton(
                             onPressed: _loadBookings,
@@ -100,240 +103,26 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
                       ),
                     );
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('Tidak ada riwayat pemesanan.'));
+                    return Center(
+                      child: Text(
+                        'Tidak ada riwayat pemesanan.',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    );
                   }
-                  final bookings = snapshot.data!;
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: bookings.length,
+                    itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
-                      final booking = bookings[index];
-                      return Card(
-                        elevation: 2,
-                        margin: const EdgeInsets.only(bottom: 20),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18),
-                          side: BorderSide(color: Colors.blue.shade100),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Passenger name centered at top
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    booking.passengerName,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              // Train name, operator, and status badge to the right
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          booking.trainName,
-                                          style: const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          booking.operator,
-                                          style: TextStyle(
-                                            color: Colors.blue.shade700,
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: booking.status == 'Sudah dibayar'
-                                          ? Colors.blue.shade100
-                                          : Colors.yellow.shade100,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      booking.status,
-                                      style: TextStyle(
-                                        color: booking.status == 'Sudah dibayar'
-                                            ? Colors.blue.shade700
-                                            : Colors.orange.shade700,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 18),
-                              // Timeline
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // Departure
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        booking.date,
-                                        style: const TextStyle(fontWeight: FontWeight.w500),
-                                      ),
-                                      Text(
-                                        booking.time,
-                                        style: TextStyle(
-                                          color: Colors.blue.shade700,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      Text(
-                                        booking.departure,
-                                        style: const TextStyle(fontWeight: FontWeight.w500),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(width: 10),
-                                  // Timeline visual
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          margin: const EdgeInsets.only(bottom: 4),
-                                          height: 2,
-                                          color: Colors.blue.shade200,
-                                        ),
-                                        Icon(Icons.train, color: Colors.blue.shade400, size: 28),
-                                        Container(
-                                          margin: const EdgeInsets.only(top: 4),
-                                          height: 2,
-                                          color: Colors.blue.shade200,
-                                        ),
-                                        // Duration (dummy for now)
-                                        Text(
-                                          '3j40m',
-                                          style: TextStyle(
-                                            color: Colors.blue.shade700,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  // Arrival
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        booking.date,
-                                        style: const TextStyle(fontWeight: FontWeight.w500),
-                                      ),
-                                      Text(
-                                        '--:--',
-                                        style: TextStyle(
-                                          color: Colors.blue.shade700,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      Text(
-                                        booking.arrival,
-                                        style: const TextStyle(fontWeight: FontWeight.w500),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 18),
-                              // Bottom row with Transaction ID and Total Biaya
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  // Transaction ID on bottom left
-                                  Text(
-                                    'Transaction ID : ${booking.transactionId}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey.shade700,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  // Total Biaya on bottom right
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      const Text('Total Biaya', style: TextStyle(color: Colors.grey)),
-                                      Text(
-                                        booking.price,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.blue.shade700,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 18),
-                              // Action buttons
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: OutlinedButton(
-                                      onPressed: _isLoadingAction ? null : () => _uploadPaymentProof(booking),
-                                      style: OutlinedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(vertical: 14),
-                                        side: BorderSide(color: Colors.blue.shade700),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        'Upload bukti pembayaran',
-                                        style: TextStyle(color: Colors.blue.shade700),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      onPressed: _isLoadingAction ? null : () => _downloadTicket(booking),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.blue.shade700,
-                                        padding: const EdgeInsets.symmetric(vertical: 14),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'Download tiket',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                      final booking = snapshot.data![index];
+                      return BookingCard(
+                        booking: booking,
+                        isLoadingAction: _isLoadingAction,
+                        onUploadPaymentProof: _uploadPaymentProof,
+                        onDownloadTicket: _downloadTicket,
                       );
                     },
                   );

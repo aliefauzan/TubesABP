@@ -7,19 +7,23 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key});
 
   @override
-  State<CustomAppBar> createState() => _CustomAppBarState();
+  Size get preferredSize => const Size.fromHeight(110);
 
   @override
-  Size get preferredSize => const Size.fromHeight(110);
+  State<CustomAppBar> createState() => _CustomAppBarState();
 }
 
 class _CustomAppBarState extends State<CustomAppBar> {
-  bool _isLoggedIn = false;
-  String _userId = '';
-  String _userName = '';
-  String _userEmail = '';
   final AuthService _authService = AuthService();
   final ApiService _apiService = ApiService();
+  bool _isLoggedIn = false;
+  String _userName = '';
+  String _userEmail = '';
+
+  String _getCurrentRoute(BuildContext context) {
+    final ModalRoute? route = ModalRoute.of(context);
+    return route?.settings.name ?? '';
+  }
 
   @override
   void initState() {
@@ -27,43 +31,40 @@ class _CustomAppBarState extends State<CustomAppBar> {
     _checkLoginStatus();
   }
 
-  void _checkLoginStatus() async {
+  Future<void> _checkLoginStatus() async {
     bool loggedIn = _apiService.isLoggedIn();
+    if (!mounted) return;
+    
     if (loggedIn) {
       try {
-        // Get user UUID from local storage or token
-        // Since ApiService does not have getUserUUID, get from AuthService or other means
         String? userUUID = await _authService.getUserUUID();
-        print('DEBUG: userUUID = $userUUID');
         if (userUUID == null || userUUID.isEmpty) {
           setState(() {
-            _isLoggedIn = true;
             _userName = '';
             _userEmail = '';
+            _isLoggedIn = true;
           });
           return;
         }
-        // Fetch user info from API using ApiService
         final userInfo = await _apiService.get('/user');
+        if (!mounted) return;
         setState(() {
           _isLoggedIn = true;
           _userName = userInfo['user'] != null ? userInfo['user']['name'] ?? '' : '';
           _userEmail = userInfo['user'] != null ? userInfo['user']['email'] ?? '' : '';
-          _userId = userInfo['user'] != null ? userInfo['user']['id']?.toString() ?? '' : '';
         });
       } catch (e) {
-        print('DEBUG: error in _checkLoginStatus: $e');
+        if (!mounted) return;
         setState(() {
           _isLoggedIn = false;
-          _userId = '';
           _userName = '';
           _userEmail = '';
         });
       }
     } else {
+      if (!mounted) return;
       setState(() {
         _isLoggedIn = false;
-        _userId = '';
         _userName = '';
         _userEmail = '';
       });
@@ -73,14 +74,13 @@ class _CustomAppBarState extends State<CustomAppBar> {
   void _logout() async {
     await _authService.signOut();
     _apiService.setToken('');
+    if (!mounted) return;
     setState(() {
       _isLoggedIn = false;
       _userName = '';
       _userEmail = '';
     });
-    if (mounted) {
-      Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-    }
+    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
   }
 
   void _showAccountDialog() {
@@ -162,6 +162,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(50),
         child: Container(
+          height: 50,
           decoration: BoxDecoration(
             color: Colors.white,
             boxShadow: [
@@ -172,46 +173,46 @@ class _CustomAppBarState extends State<CustomAppBar> {
               ),
             ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _NavButton(
-                  label: 'BERANDA',
-                  icon: Icons.home,
-                  onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                    context, '/', (route) => false),
-                ),
-                _NavButton(
-                  label: 'JADWAL',
-                  icon: Icons.schedule,
-                  onPressed: () => Navigator.pushNamed(context, '/schedule'),
-                ),
-                _NavButton(
-                  label: 'RIWAYAT',
-                  icon: Icons.train,
-                  onPressed: () => Navigator.pushNamed(context, '/booking-history'),
-                ),
-                TextButton.icon(
-                  onPressed: () {
-                    if (_isLoggedIn) {
-                      _showAccountDialog();
-                    } else {
-                      Navigator.pushNamed(context, '/login');
-                    }
-                  },
-                  icon: const Icon(Icons.account_circle, color: AppTheme.primaryColor),
-                  label: const Text(
-                    'AKUN',
-                    style: TextStyle(
-                      color: AppTheme.textColor,
-                      fontSize: 12,
-                    ),
+          child: Builder(
+            builder: (context) {
+              final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _NavButton(
+                    label: 'BERANDA',
+                    icon: Icons.home,
+                    selected: currentRoute == '/' || currentRoute == null,
+                    onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                      context, '/', (route) => false),
                   ),
-                ),
-              ],
-            ),
+                  _NavButton(
+                    label: 'JADWAL',
+                    icon: Icons.schedule,
+                    selected: currentRoute == '/schedule',
+                    onPressed: () => Navigator.pushNamed(context, '/schedule'),
+                  ),
+                  _NavButton(
+                    label: 'RIWAYAT',
+                    icon: Icons.train,
+                    selected: currentRoute == '/booking-history',
+                    onPressed: () => Navigator.pushNamed(context, '/booking-history'),
+                  ),
+                  _NavButton(
+                    label: 'AKUN',
+                    icon: Icons.account_circle,
+                    selected: currentRoute == '/login' || currentRoute == '/account',
+                    onPressed: () {
+                      if (_isLoggedIn) {
+                        _showAccountDialog();
+                      } else {
+                        Navigator.pushNamed(context, '/login');
+                      }
+                    },
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -223,23 +224,62 @@ class _NavButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final VoidCallback onPressed;
+  final bool selected;
 
   const _NavButton({
     required this.label,
     required this.icon,
     required this.onPressed,
+    this.selected = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, color: AppTheme.primaryColor),
-      label: Text(
-        label,
-        style: const TextStyle(
-          color: AppTheme.textColor,
-          fontSize: 12,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        minWidth: 60,
+        maxHeight: 50,
+      ),
+      child: InkResponse(
+        onTap: onPressed,
+        child: SizedBox(
+          height: 50,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Icon(
+                icon,
+                color: selected ? AppTheme.primaryColor : Colors.black54,
+                size: 20,
+              ),
+              const SizedBox(height: 2),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                decoration: selected
+                    ? const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: AppTheme.primaryColor,
+                            width: 2,
+                          ),
+                        ),
+                      )
+                    : null,
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: selected ? AppTheme.primaryColor : Colors.black,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

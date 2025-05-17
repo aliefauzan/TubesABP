@@ -18,10 +18,9 @@ class PaymentConfirmationScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Konfirmasi Pembayaran',
+            const Text('Konfirmasi Pembayaran',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -37,9 +36,8 @@ class PaymentConfirmationScreen extends StatelessWidget {
                   SizedBox(height: 10),
                   Text(
                     'Pembayaran Belum Dilakukan',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.orange,
+                    style: TextStyle(                    fontSize: 16,
+                    color: Colors.orange,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -141,6 +139,7 @@ class PaymentConfirmationScreen extends StatelessWidget {
                 Text(
                   'Total Biaya',
                   style: TextStyle(
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -162,7 +161,9 @@ class PaymentConfirmationScreen extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  minimumSize: const Size(double.infinity, 0),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -171,7 +172,9 @@ class PaymentConfirmationScreen extends StatelessWidget {
                   'UPLOAD BUKTI PEMBAYARAN',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
+                    fontSize: 14,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),

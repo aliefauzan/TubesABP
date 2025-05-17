@@ -31,21 +31,30 @@ class AppTheme {
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
-      ),
-      textTheme: const TextTheme(
+      ),      textTheme: const TextTheme(
         displayLarge: TextStyle(
-          fontSize: 32,
+          fontSize: 24, // Reduced for better readability
           fontWeight: FontWeight.bold,
           color: textColor,
         ),
         displayMedium: TextStyle(
-          fontSize: 28,
+          fontSize: 20, // Standard title size
           fontWeight: FontWeight.bold,
           color: textColor,
         ),
         displaySmall: TextStyle(
-          fontSize: 24,
+          fontSize: 18, // Section heading size
           fontWeight: FontWeight.bold,
+          color: textColor,
+        ),
+        titleLarge: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: textColor,
+        ),
+        titleMedium: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
           color: textColor,
         ),
         bodyLarge: TextStyle(
@@ -67,14 +76,18 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
+      ),      elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
-          minimumSize: const Size(double.infinity, 50),
+          minimumSize: const Size(double.infinity, 48), // Standard button height
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -82,9 +95,14 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: primaryColor,
           side: const BorderSide(color: primaryColor),
-          minimumSize: const Size(double.infinity, 50),
+          minimumSize: const Size(double.infinity, 48),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
