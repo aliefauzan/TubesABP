@@ -1,5 +1,7 @@
 import 'package:keretaxpress/core/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:keretaxpress/core/exceptions/api_exception.dart';
+import 'package:keretaxpress/core/exceptions/api_auth_exception.dart';
 
 class AuthService {
   final ApiService _api = ApiService();
@@ -17,8 +19,12 @@ class AuthService {
       );
 
       return laravelResponse;
+    } on ApiAuthException {
+      rethrow;
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw Exception('Registration failed: $e');
+      throw ApiException(message: 'Registrasi gagal: ${e.toString()}', statusCode: 0);
     }
   }
 
@@ -40,8 +46,12 @@ class AuthService {
       }
 
       return laravelResponse;
+    } on ApiAuthException {
+      rethrow;
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw ApiException(message: 'Login gagal: ${e.toString()}', statusCode: 0);
     }
   }
 
@@ -51,9 +61,18 @@ class AuthService {
   }
 
   Future<void> signOut() async {
-    await _api.post('/logout', {});
-    _api.setToken('');
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('user_uuid');
+    try {
+      await _api.post('/logout', {});
+      _api.setToken('');
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('user_uuid');
+    } on ApiAuthException {
+      rethrow;
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      // Consider if a specific exception is needed for logout failure
+      throw ApiException(message: 'Logout gagal: ${e.toString()}', statusCode: 0);
+    }
   }
 }

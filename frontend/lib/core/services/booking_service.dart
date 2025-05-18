@@ -55,11 +55,3 @@ class BookingService {
     }
   }
 }
-
-// Consider removing BookingException if ApiException and ApiAuthException cover all needed cases.
-// class BookingException implements Exception {
-//   final String message;
-//   BookingException(this.message);
-//   @override
-//   String toString() => message;
-// }

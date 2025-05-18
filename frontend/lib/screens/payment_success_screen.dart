@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:keretaxpress/models/train.dart';
+import 'package:keretaxpress/models/booking.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/widgets/train_card.dart';
@@ -7,15 +8,15 @@ import 'package:keretaxpress/widgets/train_card.dart';
 class PaymentSuccessScreen extends StatefulWidget {
   final String transactionId;
   final void Function(String transactionId)? onStatusUpdate;
-  final dynamic booking;
-  final dynamic train;
+  final Booking booking;
+  final Train train;
 
   const PaymentSuccessScreen({
     Key? key,
     required this.transactionId,
     this.onStatusUpdate,
-    this.booking,
-    this.train,
+    required this.booking,
+    required this.train,
   }) : super(key: key);
 
   @override
@@ -25,8 +26,8 @@ class PaymentSuccessScreen extends StatefulWidget {
 class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
   @override
   Widget build(BuildContext context) {
-    final booking = widget.booking ?? (ModalRoute.of(context)?.settings.arguments as Map)['booking'];
-    final train = widget.train ?? (ModalRoute.of(context)?.settings.arguments as Map)['train'];
+    final booking = widget.booking;
+    final train = widget.train;
 
     return Scaffold(
       appBar: const CustomAppBar(),

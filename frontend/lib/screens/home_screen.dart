@@ -148,10 +148,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 20),
-       // Image.asset(
-       //   'assets/images/train_illustration.png',
-       //   height: 150,
-       // ),
         ],
       ),
     );

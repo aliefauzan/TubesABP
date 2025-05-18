@@ -1,5 +1,3 @@
-import 'train.dart';
-
 class Booking {
   final String transactionId;
   final String trainName;
@@ -62,10 +60,6 @@ class Booking {
     final train = json['train'] ?? {};
     final departureStation = train['departure_station'] ?? {};
     final arrivalStation = train['arrival_station'] ?? {};
-
-    // print('Train data from API: $train');
-    // print('Departure station: $departureStation');
-    // print('Arrival station: $arrivalStation');
 
     String statusFromServer = json['status']?.toString() ?? '';
     String displayStatus = statusFromServer.isEmpty ? 'pending' : statusFromServer;

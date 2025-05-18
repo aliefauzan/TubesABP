@@ -11,6 +11,7 @@ import 'package:keretaxpress/screens/seat_selection_screen.dart';
 import 'package:keretaxpress/core/exceptions/api_exception.dart';
 import 'package:keretaxpress/core/exceptions/api_auth_exception.dart';
 import 'package:intl/intl.dart';
+import 'package:keretaxpress/widgets/schedule/train_search_filter_bar.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -181,7 +182,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       setState(() {
         _selectedDate = picked;
       });
-      await _fetchTrains();
     }
   }
 
@@ -213,178 +213,38 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Stasiun Keberangkatan & Kedatangan',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: DropdownButtonFormField<Station>(
-                              isExpanded: true,
-                              decoration: InputDecoration(
-                                labelText: 'Stasiun Keberangkatan',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                prefixIcon: const Icon(Icons.location_on),
-                              ),
-                              value: _selectedDepartureStation,
-                              items: _stations.map((station) {
-                                return DropdownMenuItem<Station>(
-                                  value: station,
-                                  child: Text(station.toString()),
-                                );
-                              }).toList(),
-                              onChanged: (Station? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    _selectedDepartureStation = newValue;
-                                  });
-                                  _fetchTrains();
-                                }
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: DropdownButtonFormField<Station>(
-                              isExpanded: true,
-                              decoration: InputDecoration(
-                                labelText: 'Stasiun Kedatangan',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                prefixIcon: const Icon(Icons.location_on),
-                              ),
-                              value: _selectedArrivalStation,
-                              items: _stations.map((station) {
-                                return DropdownMenuItem<Station>(
-                                  value: station,
-                                  child: Text(station.toString()),
-                                );
-                              }).toList(),
-                              onChanged: (Station? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    _selectedArrivalStation = newValue;
-                                  });
-                                  _fetchTrains();
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      // Train class filter dropdown
-                      DropdownButtonFormField<String>(
-                        isExpanded: true,
-                        decoration: InputDecoration(
-                          labelText: 'Kelas Kereta',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.category),
-                        ),
-                        value: _trainClassFilter,
-                        items: <String>['Semua', 'Ekonomi', 'Bisnis', 'Eksekutif']
-                            .map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            _trainClassFilter = newValue ?? 'Semua';
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () => _selectDate(context),
-                              icon: const Icon(Icons.calendar_today),
-                              label: Text(
-                                '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: _fetchAllTrains,
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: const [
-                                    Icon(Icons.train),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Semua Kereta',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: _fetchTrains,
-                              icon: const Icon(Icons.search),
-                              label: const Text('Cari Kereta'),
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+              TrainSearchFilterBar(
+                stations: _stations,
+                selectedDepartureStation: _selectedDepartureStation,
+                selectedArrivalStation: _selectedArrivalStation,
+                selectedDate: _selectedDate,
+                selectedTrainClass: _trainClassFilter,
+                isLoadingStations: _isLoading && _stations.isEmpty,
+                onDepartureStationChanged: (station) {
+                  setState(() {
+                    _selectedDepartureStation = station;
+                  });
+                },
+                onArrivalStationChanged: (station) {
+                  setState(() {
+                    _selectedArrivalStation = station;
+                  });
+                },
+                onDateChanged: (date) {
+                  setState(() {
+                    _selectedDate = date;
+                  });
+                },
+                onTrainClassChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _trainClassFilter = value;
+                    });
+                  }
+                },
+                onSearchPressed: () {
+                  _fetchTrains();
+                },
               ),
               const SizedBox(height: 20),
               TextField(
