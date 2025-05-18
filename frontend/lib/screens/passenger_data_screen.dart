@@ -7,6 +7,7 @@ import 'package:keretaxpress/core/services/auth_service.dart';
 import 'package:keretaxpress/utils/currency_formatter.dart';
 import 'package:keretaxpress/widgets/train_timeline.dart';
 import 'package:intl/intl.dart';
+import 'package:keretaxpress/screens/payment_confirmation_screen.dart';
 
 class PassengerDataScreen extends StatefulWidget {
   final Train train;
@@ -138,13 +139,17 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
                     ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        Navigator.pushReplacementNamed(
+                        Navigator.pushReplacement(
                           context,
-                          '/payment-confirmation',
-                          arguments: {
-                            'booking': response,
-                            'train': widget.train,
-                          },
+                          MaterialPageRoute(
+                            builder: (context) => const PaymentConfirmationScreen(),
+                            settings: RouteSettings(
+                              arguments: {
+                                'booking': response,
+                                'train': widget.train,
+                              },
+                            ),
+                          ),
                         );
                       },
                       style: ElevatedButton.styleFrom(

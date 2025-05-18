@@ -5,16 +5,19 @@ import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/core/services/booking_service.dart';
 import 'package:keretaxpress/core/services/auth_service.dart';
 import 'package:keretaxpress/widgets/booking_card.dart';
+import 'package:keretaxpress/core/exceptions/api_auth_exception.dart';
+import 'package:keretaxpress/core/exceptions/api_exception.dart';
 
 class BookingHistoryScreen extends StatefulWidget {
   const BookingHistoryScreen({super.key});
 
   @override
-  _BookingHistoryScreenState createState() => _BookingHistoryScreenState();
+  BookingHistoryScreenState createState() => BookingHistoryScreenState();
 }
 
-class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
+class BookingHistoryScreenState extends State<BookingHistoryScreen> {
   late Future<List<Booking>> _futureBookings;
+  final BookingService _bookingService = BookingService();
   bool _isLoadingAction = false;
 
   @override
@@ -30,18 +33,67 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
   }
 
   Future<List<Booking>> _fetchBookings() async {
-    final bookingService = BookingService();
-    final authService = AuthService();
-    final userUuid = await authService.getUserUUID();
-    if (userUuid == null) {
+    try {
+      final authService = AuthService();
+      final userUuid = await authService.getUserUUID();
+      if (userUuid == null) {
+        throw ApiAuthException(message: "Anda harus login untuk melihat riwayat.", statusCode: 401);
+      }
+      final data = await _bookingService.getBookingHistory(userUuid);
+      if (data is List) {
+        return data.map((json) => Booking.fromJson(json)).toList();
+      }
+      return [];
+    } on ApiAuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Anda harus login untuk melihat riwayat.",
+              style: TextStyle(color: Theme.of(context).colorScheme.onError)
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            margin: const EdgeInsets.all(10),
+            action: SnackBarAction(
+              label: 'LOGIN',
+              textColor: Theme.of(context).colorScheme.onError,
+              onPressed: () {
+                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+              },
+            ),
+          ),
+        );
+      }
+      return [];
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message, style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+            backgroundColor: Theme.of(context).colorScheme.errorContainer,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            margin: const EdgeInsets.all(10),
+          ),
+        );
+      }
+      return [];
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Terjadi kesalahan tidak terduga saat memuat riwayat: ${e.toString()}', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+            backgroundColor: Theme.of(context).colorScheme.errorContainer,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            margin: const EdgeInsets.all(10),
+          ),
+        );
+      }
       return [];
     }
-    final data = await bookingService.getBookingHistory(userUuid);
-    print('Booking history API response: $data');
-    if (data is List) {
-      return data.map((json) => Booking.fromJson(json)).toList();
-    }
-    return [];
   }
 
   Future<void> _onRefresh() async {
@@ -49,11 +101,95 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
     await _futureBookings;
   }
 
-  void _uploadPaymentProof(Booking booking) {
-    // Placeholder for upload payment proof functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Upload payment proof for booking ${booking.transactionId}')),
-    );
+  void _uploadPaymentProof(Booking booking) async {
+    setState(() { _isLoadingAction = true; });
+    try {
+      await _bookingService.updateBookingStatusRemote(booking.transactionId, 'confirmed');
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Status booking ${booking.transactionId} berhasil diubah menjadi confirmed.',
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            margin: const EdgeInsets.all(10),
+          ),
+        );
+        _loadBookings();
+      }
+    } on ApiAuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message, style: TextStyle(color: Theme.of(context).colorScheme.onError)),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            margin: const EdgeInsets.all(10),
+            action: SnackBarAction(
+              label: 'LOGIN',
+              textColor: Theme.of(context).colorScheme.onError,
+              onPressed: () {
+                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+              },
+            ),
+          ),
+        );
+      }
+    } on ApiException catch (e) {
+       if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal mengubah status: ${e.message}', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+            backgroundColor: Theme.of(context).colorScheme.errorContainer,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            margin: const EdgeInsets.all(10),
+          ),
+        );
+      }
+    } catch (e) {
+       if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Terjadi kesalahan tidak terduga saat mengubah status: ${e.toString()}', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+            backgroundColor: Theme.of(context).colorScheme.errorContainer,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            margin: const EdgeInsets.all(10),
+          ),
+        );
+      }
+    }
+    finally {
+      if (mounted) {
+         setState(() { _isLoadingAction = false; });
+      }
+    }
+  }
+
+  // Public method to update booking status by transactionId (for use from other screens)
+  void updateBookingStatus(String transactionId, String newStatus) {
+    _loadBookings();
+    if (mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Memuat ulang riwayat setelah status diperbarui untuk $transactionId...',
+               style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            margin: const EdgeInsets.all(10),
+            duration: Duration(seconds: 2),
+          ),
+        );
+    }
   }
 
   void _downloadTicket(Booking booking) {

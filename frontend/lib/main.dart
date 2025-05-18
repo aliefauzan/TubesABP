@@ -34,15 +34,20 @@ class KeretaXpressApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/schedule': (context) => const ScheduleScreen(),
-        '/payment-confirmation': (context) => const PaymentConfirmationScreen(),
-        '/payment-success': (context) => const PaymentSuccessScreen(),
         '/booking-history': (context) => const BookingHistoryScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/passenger-data') {
           final Train train = settings.arguments as Train;
+          String selectedSeat = '';
+          if (settings.arguments is Map && (settings.arguments as Map).containsKey('selectedSeat')) {
+             selectedSeat = (settings.arguments as Map)['selectedSeat'] as String;
+          } else if (settings.arguments is PassengerDataScreenArguments) {
+            selectedSeat = (settings.arguments as PassengerDataScreenArguments).selectedSeat;
+          }
+
           return MaterialPageRoute(
-            builder: (context) => PassengerDataScreen(train: train, selectedSeat: '',),
+            builder: (context) => PassengerDataScreen(train: train, selectedSeat: selectedSeat),
           );
         }
         return null;
@@ -50,4 +55,11 @@ class KeretaXpressApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
     );
   }
+}
+
+class PassengerDataScreenArguments {
+  final Train train;
+  final String selectedSeat;
+
+  PassengerDataScreenArguments({required this.train, required this.selectedSeat});
 }

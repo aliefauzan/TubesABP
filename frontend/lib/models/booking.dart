@@ -63,9 +63,12 @@ class Booking {
     final departureStation = train['departure_station'] ?? {};
     final arrivalStation = train['arrival_station'] ?? {};
 
-    print('Train data from API: $train');
-    print('Departure station: $departureStation');
-    print('Arrival station: $arrivalStation');
+    // print('Train data from API: $train');
+    // print('Departure station: $departureStation');
+    // print('Arrival station: $arrivalStation');
+
+    String statusFromServer = json['status']?.toString() ?? '';
+    String displayStatus = statusFromServer.isEmpty ? 'pending' : statusFromServer;
 
     return Booking(
       transactionId: json['transaction_id']?.toString() ?? '',
@@ -80,7 +83,7 @@ class Booking {
       arrivalTime: train['arrival_time'] != null
           ? DateTime.parse(train['arrival_time']).toLocal().toString().substring(11, 16)
           : '',
-      status: json['status'] ?? '',
+      status: displayStatus,
       price: json['total_price']?.toString() ?? '',
       passengerName: json['passenger_name'] ?? '',
       passengerId: json['passenger_id_number']?.toString() ?? '',
