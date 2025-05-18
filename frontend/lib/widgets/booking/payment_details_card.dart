@@ -7,13 +7,13 @@ import 'package:keretaxpress/utils/currency_formatter.dart';
 class PaymentDetailsCard extends StatelessWidget {
   final Train train;
   final String paymentMethod; // This will be 'transfer'
-  final Function(String?) onPaymentMethodChanged; // Kept for prop compatibility, but inert
+  final Function(String?)? onPaymentMethodChanged; // Changed to optional
 
   const PaymentDetailsCard({
     Key? key,
     required this.train,
     required this.paymentMethod, // Will receive 'transfer'
-    required this.onPaymentMethodChanged,
+    this.onPaymentMethodChanged, // Changed to optional
   }) : super(key: key);
 
   @override

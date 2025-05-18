@@ -10,6 +10,7 @@ import 'package:keretaxpress/core/services/booking_service.dart';
 import 'package:keretaxpress/core/exceptions/api_auth_exception.dart';
 import 'package:keretaxpress/core/exceptions/api_exception.dart';
 import 'package:keretaxpress/utils/currency_formatter.dart';
+import 'package:intl/intl.dart';
 
 class PaymentConfirmationScreen extends StatefulWidget {
   const PaymentConfirmationScreen({super.key});
@@ -142,10 +143,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: TrainCard(
-                train: train,
-                onTap: () {}, // No action needed here
-              ),
+              child: TrainCard(train: train, onTap: () {}),
             ),
             const SizedBox(height: 20),
             const Text(
@@ -169,7 +167,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                               children: [
                                 Text(booking.passengerName, style: const TextStyle(fontWeight: FontWeight.bold)),
                                 const SizedBox(height: 4),
-                                Text('Tanggal Lahir: ${booking.passengerDob}'),
+                                Text('Tanggal Lahir: ${DateFormat('dd MMMM yyyy', 'id_ID').format(DateTime.parse(booking.passengerDob))}'),
                                 Text('Jenis Kelamin: ${booking.passengerGender}'),
                                 Text('Kursi: ${booking.seatNumber}'),
                               ],
@@ -180,7 +178,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('Status Tiket: ${booking.status}'),
-                                Text('Kelas: ${booking.seatClass}'),
+                                Text('Kelas: ${train.classType}'),
                               ],
                             ),
                           ),
@@ -191,11 +189,11 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                         children: [
                           Text(booking.passengerName, style: const TextStyle(fontWeight: FontWeight.bold)),
                           const SizedBox(height: 4),
-                          Text('Tanggal Lahir: ${booking.passengerDob}'),
+                          Text('Tanggal Lahir: ${DateFormat('dd MMMM yyyy', 'id_ID').format(DateTime.parse(booking.passengerDob))}'),
                           Text('Jenis Kelamin: ${booking.passengerGender}'),
                           Text('Kursi: ${booking.seatNumber}'),
                           Text('Status Tiket: ${booking.status}'),
-                          Text('Kelas: ${booking.seatClass}'),
+                          Text('Kelas: ${train.classType}'),
                         ],
                       );
               },

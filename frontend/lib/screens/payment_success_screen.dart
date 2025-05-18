@@ -5,6 +5,7 @@ import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/widgets/train/train_card.dart';
 import 'package:keretaxpress/utils/currency_formatter.dart';
+import 'package:intl/intl.dart';
 
 class PaymentSuccessScreen extends StatefulWidget {
   final String transactionId;
@@ -106,7 +107,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                               children: [
                                 Text(booking.passengerName, style: const TextStyle(fontWeight: FontWeight.bold)),
                                 const SizedBox(height: 4),
-                                Text('Tanggal Lahir: ${booking.passengerDob}'),
+                                Text('Tanggal Lahir: ${DateFormat('dd MMMM yyyy', 'id_ID').format(DateTime.parse(booking.passengerDob))}'),
                                 Text('Jenis Kelamin: ${booking.passengerGender}'),
                                 Text('Kursi: ${booking.seatNumber}'),
                               ],
@@ -117,7 +118,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('Status Tiket: paid'),
-                                Text('Kelas: ${booking.seatClass}'),
+                                Text('Kelas: ${train.classType}'),
                               ],
                             ),
                           ),
@@ -128,11 +129,11 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                         children: [
                           Text(booking.passengerName, style: const TextStyle(fontWeight: FontWeight.bold)),
                           const SizedBox(height: 4),
-                          Text('Tanggal Lahir: ${booking.passengerDob}'),
+                          Text('Tanggal Lahir: ${DateFormat('dd MMMM yyyy', 'id_ID').format(DateTime.parse(booking.passengerDob))}'),
                           Text('Jenis Kelamin: ${booking.passengerGender}'),
                           Text('Kursi: ${booking.seatNumber}'),
                           Text('Status Tiket: paid'),
-                          Text('Kelas: ${booking.seatClass}'),
+                          Text('Kelas: ${train.classType}'),
                         ],
                       );
               },
