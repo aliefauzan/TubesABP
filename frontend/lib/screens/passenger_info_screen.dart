@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:keretaxpress/models/train.dart';
-import 'package:keretaxpress/models/booking.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/widgets/booking/passenger_form.dart';
 import 'package:keretaxpress/screens/payment_confirmation_screen.dart';

@@ -11,9 +11,11 @@ import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/models/train.dart';
 import 'package:keretaxpress/models/booking.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id_ID', null);
   
   await dotenv.load(fileName: '.env');
   

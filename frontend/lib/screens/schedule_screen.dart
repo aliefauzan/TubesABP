@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:keretaxpress/models/train.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
-import 'package:keretaxpress/widgets/train/train_card.dart';
 import 'package:keretaxpress/screens/passenger_info_screen.dart';
 import 'package:keretaxpress/core/services/train_service.dart';
 import 'package:keretaxpress/core/services/station_service.dart';
