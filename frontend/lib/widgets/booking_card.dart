@@ -32,48 +32,73 @@ class BookingCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Passenger Name (Centered)
+            if (booking.passengerName.isNotEmpty)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0), // Increased bottom padding
+                  child: Text(
+                    booking.passengerName,
+                    style: textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center, // Ensure text itself is centered if it wraps
+                    maxLines: 2, // Allow for a slightly longer name to wrap
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+            
             // Header with train name and status
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Text(
                     booking.trainName,
-                    style: textTheme.titleLarge?.copyWith(
+                    style: textTheme.titleLarge?.copyWith( // Back to titleLarge for train name
                       fontWeight: FontWeight.bold,
                     ),
+                    maxLines: 2, // Allow train name to wrap if long
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                const SizedBox(width: 8), // Add some spacing before the status badge
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 6,
                   ),
-                    decoration: BoxDecoration(
+                  decoration: BoxDecoration(
+                    color: (booking.status == 'paid' || booking.status == 'confirmed')
+                        ? Colors.green.shade50
+                        : Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    booking.status,
+                    style: textTheme.bodySmall?.copyWith(
                       color: (booking.status == 'paid' || booking.status == 'confirmed')
-                          ? Colors.green.shade50
-                          : Colors.orange.shade50,
-                      borderRadius: BorderRadius.circular(16),
+                          ? Colors.green.shade700
+                          : Colors.orange.shade700,
+                      fontWeight: FontWeight.w600,
                     ),
-                    child: Text(
-                      booking.status,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: (booking.status == 'paid' || booking.status == 'confirmed')
-                            ? Colors.green.shade700
-                            : Colors.orange.shade700,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              booking.operator,
-              style: textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[700],
+            // Operator below train name
+            if (booking.operator.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0), // Add padding above operator
+                child: Text(
+                  booking.operator,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[700],
+                  ),
+                ),
               ),
-            ),
             const SizedBox(height: 24),
 
             // Timeline section
