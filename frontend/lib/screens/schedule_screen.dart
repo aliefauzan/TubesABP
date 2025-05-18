@@ -8,6 +8,9 @@ import 'package:keretaxpress/core/services/train_service.dart';
 import 'package:keretaxpress/core/services/station_service.dart';
 import 'package:keretaxpress/models/station.dart';
 import 'package:keretaxpress/screens/seat_selection_screen.dart';
+import 'package:keretaxpress/core/exceptions/api_exception.dart';
+import 'package:keretaxpress/core/exceptions/api_auth_exception.dart';
+import 'package:intl/intl.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -449,34 +452,105 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       child: TrainCard(
                         train: train,
                         onTap: () async {
-                          // Fetch available seats from backend
                           List<String> availableSeats = [];
+                          if (!mounted) return;
+
                           try {
+                            setState(() {
+                              // Consider adding a specific loading indicator for fetching seats if it takes time
+                            });
+                            
+                            // train.date is already a formatted YYYY-MM-DD string from the Train model
+                            final String dateForAPI = train.date; 
+
+                            final int trainIdAsInt;
+                            if (train.id is String) {
+                              trainIdAsInt = int.parse(train.id as String);
+                            } else if (train.id is int) {
+                              trainIdAsInt = train.id as int;
+                            } else {
+                              throw FormatException("Train ID ('${train.id}') is not a valid integer or string representation of an integer.");
+                            }
+
                             availableSeats = await _trainService.getAvailableSeats(
-                              trainId: train.id,
-                              date: train.date,
+                              trainId: trainIdAsInt, 
+                              date: dateForAPI, // Pass the string directly
                             );
-                          } catch (e) {
+                          } on ApiAuthException catch (e) {
+                            if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Gagal memuat kursi: $e')),
+                              SnackBar(
+                                content: Text(
+                                  'Anda harus login untuk melihat detail kursi dan melanjutkan pemesanan.',
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onError)
+                                ),
+                                backgroundColor: Theme.of(context).colorScheme.error,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                margin: const EdgeInsets.all(10),
+                                action: SnackBarAction(
+                                  label: 'LOGIN',
+                                  textColor: Theme.of(context).colorScheme.onError,
+                                  onPressed: () {
+                                    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                                  },
+                                ),
+                              ),
                             );
                             return;
+                          } on ApiException catch (e) {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Gagal memuat kursi: ${e.message}', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+                                backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                margin: const EdgeInsets.all(10),
+                              ),
+                            );
+                            return;
+                          } catch (e) {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Terjadi kesalahan saat memuat kursi: ${e.toString()}', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+                                backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                margin: const EdgeInsets.all(10),
+                              ),
+                            );
+                            return;
+                          } finally {
+                             // Consider stopping any seat-specific loading indicator here
                           }
+
+                          if (!mounted) return;
+
                           if (availableSeats.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Tidak ada kursi tersedia untuk kereta ini.')),
+                              SnackBar(
+                                content: Text(
+                                  'Tidak ada kursi tersedia untuk kereta ini.',
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer),
+                                ),
+                                backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                margin: const EdgeInsets.all(10),
+                              ),
                             );
                             return;
                           }
-                          // Navigate to seat selection screen
+                          
                           final selectedSeat = await Navigator.push<String>(
                             context,
                             MaterialPageRoute(
                               builder: (context) => SeatSelectionScreen(availableSeats: availableSeats),
                             ),
                           );
-                          if (selectedSeat != null) {
-                            // Navigate to passenger data screen with selected seat
+                          if (selectedSeat != null && mounted) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(

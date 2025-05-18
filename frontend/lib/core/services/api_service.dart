@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mime/mime.dart';
+import 'package:keretaxpress/core/exceptions/api_exception.dart';
+import 'package:keretaxpress/core/exceptions/api_auth_exception.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -139,40 +141,40 @@ class ApiService {
   }
 
   dynamic _handleResponse(http.Response response) {
-    final responseData = jsonDecode(response.body);
+    final String responseBody = response.body;
+    dynamic responseData;
+    try {
+      responseData = jsonDecode(responseBody);
+    } catch (e) {
+      responseData = {'message': responseBody.isNotEmpty ? responseBody : 'Invalid response from server'};
+    }
+
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return responseData;
+    } else if (response.statusCode == 401) {
+      throw ApiAuthException(
+        message: responseData['message'] ?? 'Sesi Anda telah berakhir atau tidak valid. Silakan login kembali.',
+        statusCode: response.statusCode,
+      );
     } else {
       throw ApiException(
-        message: responseData['message'] ?? 'Request failed',
+        message: responseData['message'] ?? 'Terjadi kesalahan. Coba beberapa saat lagi.',
         statusCode: response.statusCode,
-        errors: responseData['errors'],
+        errors: responseData['errors'] is Map<String, dynamic> ? responseData['errors'] : null,
       );
     }
   }
 
   Exception _handleError(dynamic error) {
-    if (error is ApiException) {
+    if (error is ApiException || error is ApiAuthException) {
       return error;
     }
+    if (error is SocketException) {
+        return ApiException(message: "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.", statusCode: 0);
+    }
     return ApiException(
-      message: error.toString(),
-      statusCode: 500,
+      message: "Terjadi kesalahan jaringan atau koneksi: ${error.toString()}",
+      statusCode: 500, 
     );
   }
-}
-
-class ApiException implements Exception {
-  final String message;
-  final int statusCode;
-  final Map<String, dynamic>? errors;
-
-  ApiException({
-    required this.message,
-    required this.statusCode,
-    this.errors,
-  });
-
-  @override
-  String toString() => message;
 }
