@@ -49,21 +49,21 @@ class BookingCard extends StatelessWidget {
                     horizontal: 12,
                     vertical: 6,
                   ),
-                  decoration: BoxDecoration(
-                    color: booking.status == 'Sudah dibayar'
-                        ? Colors.green.shade50
-                        : Colors.orange.shade50,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    booking.status,
-                    style: textTheme.bodySmall?.copyWith(
-                      color: booking.status == 'Sudah dibayar'
-                          ? Colors.green.shade700
-                          : Colors.orange.shade700,
-                      fontWeight: FontWeight.w600,
+                    decoration: BoxDecoration(
+                      color: (booking.status == 'paid' || booking.status == 'confirmed')
+                          ? Colors.green.shade50
+                          : Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                  ),
+                    child: Text(
+                      booking.status,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: (booking.status == 'paid' || booking.status == 'confirmed')
+                            ? Colors.green.shade700
+                            : Colors.orange.shade700,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                 ),
               ],
             ),
@@ -161,7 +161,7 @@ class BookingCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '--:--', // Arrival time if available
+                        booking.arrivalTime.isNotEmpty ? booking.arrivalTime : '--:--',
                         style: textTheme.titleMedium?.copyWith(
                           color: AppTheme.primaryColor,
                           fontWeight: FontWeight.bold,

@@ -37,6 +37,7 @@ class _BookingHistoryScreenState extends State<BookingHistoryScreen> {
       return [];
     }
     final data = await bookingService.getBookingHistory(userUuid);
+    print('Booking history API response: $data');
     if (data is List) {
       return data.map((json) => Booking.fromJson(json)).toList();
     }
