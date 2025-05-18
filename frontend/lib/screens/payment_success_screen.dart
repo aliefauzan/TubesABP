@@ -1,17 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:keretaxpress/models/train.dart';
+import 'package:keretaxpress/models/booking.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
-import 'package:keretaxpress/widgets/train_card.dart';
+import 'package:keretaxpress/widgets/train/train_card.dart';
+import 'package:keretaxpress/utils/currency_formatter.dart';
 
-class PaymentSuccessScreen extends StatelessWidget {
-  const PaymentSuccessScreen({super.key});
+class PaymentSuccessScreen extends StatefulWidget {
+  final String transactionId;
+  final void Function(String transactionId)? onStatusUpdate;
+  final Booking booking;
+  final Train train;
+
+  const PaymentSuccessScreen({
+    Key? key,
+    required this.transactionId,
+    this.onStatusUpdate,
+    required this.booking,
+    required this.train,
+  }) : super(key: key);
 
   @override
+  State<PaymentSuccessScreen> createState() => _PaymentSuccessScreenState();
+}
+
+class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
+  @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)?.settings.arguments as Map;
-    final booking = args['booking'];
-    final train = args['train'];
+    final booking = widget.booking;
+    final train = widget.train;
 
     return Scaffold(
       appBar: const CustomAppBar(),
@@ -54,7 +71,7 @@ class PaymentSuccessScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'Transaction ID: ${booking.transactionId}',
+              'Transaction ID: ${widget.transactionId}',
               style: const TextStyle(
                 color: Colors.grey,
               ),
@@ -131,7 +148,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  booking.price,
+                  currencyFormat.format(parsePrice(booking.price)),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primaryColor,
@@ -169,30 +186,8 @@ class PaymentSuccessScreen extends StatelessWidget {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () {
-                  // Download ticket functionality
-                },
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: const BorderSide(color: AppTheme.primaryColor),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'DOWNLOAD TIKET',
-                  style: TextStyle(
-                    color: AppTheme.primaryColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () {
+                  // Call the callback before navigating
+                  widget.onStatusUpdate?.call(widget.transactionId);
                   Navigator.pushNamedAndRemoveUntil(
                     context, '/', (route) => false);
                 },

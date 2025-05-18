@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/core/services/auth_service.dart';
+import 'package:keretaxpress/core/exceptions/api_exception.dart';
+import 'package:keretaxpress/core/exceptions/api_auth_exception.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -29,30 +31,49 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/home');
         }
-      } catch (e) {
+      } on ApiAuthException catch (e) {
         if (mounted) {
-          String errorMessage = 'Terjadi kesalahan jaringan. Silakan coba lagi.';
-          if (e is Map && e.containsKey('errors')) {
-            final errors = e['errors'];
-            if (errors.containsKey('password')) {
-              errorMessage = errors['password'][0];
-            } else if (errors.containsKey('email')) {
-              errorMessage = errors['email'][0];
-            }
-          } else if (e is Map && e.containsKey('message')) {
-            if (e['message'] == 'Account not found' || e['message'] == 'User not found') {
-              errorMessage = 'Akun tidak ditemukan';
-            } else if (e['message'] == 'Invalid credentials') {
-              errorMessage = 'Email atau kata sandi salah';
-            } else {
-              errorMessage = e['message'];
-            }
-          } else if (e is Exception) {
-            errorMessage = e.toString();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.message),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+        }
+      } on ApiException catch (e) {
+        if (mounted) {
+          String errorMessage = e.message;
+          if (e.errors != null && e.errors!.isNotEmpty) {
+            // If specific field errors are available, concatenate them or pick the first one.
+            // For simplicity, just showing the main message or first error.
+            errorMessage = e.errors!.entries.first.value.join(', '); // Example: picks first error of first field
+          } else if (e.message == 'Account not found' || e.message == 'User not found') {
+            errorMessage = 'Akun tidak ditemukan';
+          } else if (e.message == 'Invalid credentials') {
+            errorMessage = 'Email atau kata sandi salah';
           }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(errorMessage),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Terjadi kesalahan: ${e.toString()}'),
               backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
               margin: const EdgeInsets.all(8),

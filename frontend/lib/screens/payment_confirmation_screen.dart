@@ -3,10 +3,90 @@ import 'package:keretaxpress/models/train.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/models/booking.dart';
-import 'package:keretaxpress/widgets/train_card.dart';
+import 'package:keretaxpress/widgets/train/train_card.dart';
+import 'package:keretaxpress/screens/payment_success_screen.dart';
+import 'package:keretaxpress/screens/booking_history_screen.dart';
+import 'package:keretaxpress/core/services/booking_service.dart';
+import 'package:keretaxpress/core/exceptions/api_auth_exception.dart';
+import 'package:keretaxpress/core/exceptions/api_exception.dart';
+import 'package:keretaxpress/utils/currency_formatter.dart';
 
-class PaymentConfirmationScreen extends StatelessWidget {
+class PaymentConfirmationScreen extends StatefulWidget {
   const PaymentConfirmationScreen({super.key});
+
+  @override
+  _PaymentConfirmationScreenState createState() => _PaymentConfirmationScreenState();
+}
+
+class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
+  final BookingService _bookingService = BookingService();
+  bool _isLoading = false;
+
+  Future<void> _confirmPaymentAndNavigate(BuildContext context, Booking booking, Train train) async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _bookingService.updateBookingStatusRemote(booking.transactionId, 'confirmed');
+
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentSuccessScreen(
+            transactionId: booking.transactionId,
+            booking: booking,
+            train: train,
+            onStatusUpdate: (id) {
+              final state = context.findAncestorStateOfType<BookingHistoryScreenState>();
+              state?.updateBookingStatus(id, 'confirmed');
+            },
+          ),
+        ),
+      );
+    } on ApiAuthException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message, style: TextStyle(color: Theme.of(context).colorScheme.onError)),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          behavior: SnackBarBehavior.floating,
+          action: SnackBarAction(
+            label: 'LOGIN',
+            textColor: Theme.of(context).colorScheme.onError,
+            onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false),
+          ),
+        ),
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal mengonfirmasi pembayaran: ${e.message}', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+          backgroundColor: Theme.of(context).colorScheme.errorContainer,
+           behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Terjadi kesalahan: ${e.toString()}', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+          backgroundColor: Theme.of(context).colorScheme.errorContainer,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +140,6 @@ class PaymentConfirmationScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            // --- Train Card Section ---
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: TrainCard(
@@ -68,7 +147,6 @@ class PaymentConfirmationScreen extends StatelessWidget {
                 onTap: () {}, // No action needed here
               ),
             ),
-            // --- End Train Card Section ---
             const SizedBox(height: 20),
             const Text(
               'Detail Penumpang',
@@ -133,7 +211,7 @@ class PaymentConfirmationScreen extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  booking.price,
+                  currencyFormat.format(parsePrice(booking.price)),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primaryColor,
@@ -145,16 +223,7 @@ class PaymentConfirmationScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/payment-success',
-                    arguments: {
-                      'booking': booking,
-                      'train': train,
-                    },
-                  );
-                },
+                onPressed: _isLoading ? null : () => _confirmPaymentAndNavigate(context, booking, train),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryColor,
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -164,14 +233,20 @@ class PaymentConfirmationScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text(
-                  'UPLOAD BUKTI PEMBAYARAN',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Text(
+                        'UPLOAD BUKTI PEMBAYARAN',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
               ),
             ),
             const SizedBox(height: 10),

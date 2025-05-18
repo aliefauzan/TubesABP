@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:keretaxpress/models/train.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
-import 'package:keretaxpress/widgets/train_card.dart';
+import 'package:keretaxpress/widgets/train/train_card.dart';
 import 'package:keretaxpress/screens/passenger_data_screen.dart';
 import 'package:keretaxpress/core/services/train_service.dart';
 import 'package:keretaxpress/core/services/station_service.dart';
 import 'package:keretaxpress/models/station.dart';
 import 'package:keretaxpress/screens/seat_selection_screen.dart';
+import 'package:keretaxpress/core/exceptions/api_exception.dart';
+import 'package:keretaxpress/core/exceptions/api_auth_exception.dart';
+import 'package:intl/intl.dart';
+import 'package:keretaxpress/widgets/schedule/train_search_filter_bar.dart';
+import 'package:keretaxpress/widgets/schedule/train_list_results.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -178,12 +183,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       setState(() {
         _selectedDate = picked;
       });
-      await _fetchTrains();
     }
   }
 
   @override
-  Widget build(BuildContext context) {    final filteredTrains = _trains.where((train) {
+  Widget build(BuildContext context) {
+    final filteredTrains = _trains.where((train) {
       final query = _searchQuery.toLowerCase();
       final matchesClass = _trainClassFilter == 'Semua' || train.classType == _trainClassFilter;
       return (train.name.toLowerCase().contains(query) ||
@@ -210,178 +215,38 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Stasiun Keberangkatan & Kedatangan',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: DropdownButtonFormField<Station>(
-                              isExpanded: true,
-                              decoration: InputDecoration(
-                                labelText: 'Stasiun Keberangkatan',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                prefixIcon: const Icon(Icons.location_on),
-                              ),
-                              value: _selectedDepartureStation,
-                              items: _stations.map((station) {
-                                return DropdownMenuItem<Station>(
-                                  value: station,
-                                  child: Text(station.toString()),
-                                );
-                              }).toList(),
-                              onChanged: (Station? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    _selectedDepartureStation = newValue;
-                                  });
-                                  _fetchTrains();
-                                }
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: DropdownButtonFormField<Station>(
-                              isExpanded: true,
-                              decoration: InputDecoration(
-                                labelText: 'Stasiun Kedatangan',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                prefixIcon: const Icon(Icons.location_on),
-                              ),
-                              value: _selectedArrivalStation,
-                              items: _stations.map((station) {
-                                return DropdownMenuItem<Station>(
-                                  value: station,
-                                  child: Text(station.toString()),
-                                );
-                              }).toList(),
-                              onChanged: (Station? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    _selectedArrivalStation = newValue;
-                                  });
-                                  _fetchTrains();
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      // Train class filter dropdown
-                      DropdownButtonFormField<String>(
-                        isExpanded: true,
-                        decoration: InputDecoration(
-                          labelText: 'Kelas Kereta',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.category),
-                        ),
-                        value: _trainClassFilter,
-                        items: <String>['Semua', 'Ekonomi', 'Bisnis', 'Eksekutif']
-                            .map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            _trainClassFilter = newValue ?? 'Semua';
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () => _selectDate(context),
-                              icon: const Icon(Icons.calendar_today),
-                              label: Text(
-                                '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: _fetchAllTrains,
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: const [
-                                    Icon(Icons.train),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Semua Kereta',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: _fetchTrains,
-                              icon: const Icon(Icons.search),
-                              label: const Text('Cari Kereta'),
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+              TrainSearchFilterBar(
+                stations: _stations,
+                selectedDepartureStation: _selectedDepartureStation,
+                selectedArrivalStation: _selectedArrivalStation,
+                selectedDate: _selectedDate,
+                selectedTrainClass: _trainClassFilter,
+                isLoadingStations: _isLoading && _stations.isEmpty,
+                onDepartureStationChanged: (station) {
+                  setState(() {
+                    _selectedDepartureStation = station;
+                  });
+                },
+                onArrivalStationChanged: (station) {
+                  setState(() {
+                    _selectedArrivalStation = station;
+                  });
+                },
+                onDateChanged: (date) {
+                  setState(() {
+                    _selectedDate = date;
+                  });
+                },
+                onTrainClassChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _trainClassFilter = value;
+                    });
+                  }
+                },
+                onSearchPressed: () {
+                  _fetchTrains();
+                },
               ),
               const SizedBox(height: 20),
               TextField(
@@ -401,94 +266,120 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 },
               ),
               const SizedBox(height: 20),
-              if (_isLoading)
-                const Center(
-                  child: CircularProgressIndicator(),
-                )
-              else if (_errorMessage != null)
-                Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        color: Colors.red,
-                        size: 48,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        _errorMessage!,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontSize: 16,
+              TrainListResults(
+                trains: filteredTrains,
+                isLoading: _isLoading,
+                errorMessage: _errorMessage,
+                onRefresh: () => _initializeData(showAll: _showAllTrains),
+                onTrainTap: (train) async {
+                  List<String> availableSeats = [];
+                  if (!mounted) return;
+
+                  // Show a loading indicator while fetching seats
+                  // This could be a modal dialog or an inline indicator
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      return const Center(child: CircularProgressIndicator());
+                    },
+                  );
+
+                  try {
+                    final String dateForAPI = train.date;
+                    final int trainIdAsInt = int.parse(train.id as String);
+
+                    availableSeats = await _trainService.getAvailableSeats(
+                      trainId: trainIdAsInt,
+                      date: dateForAPI,
+                    );
+                    if (mounted) Navigator.pop(context); // Dismiss loading dialog
+
+                  } on ApiAuthException catch (e) {
+                    if (mounted) Navigator.pop(context); // Dismiss loading dialog
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Anda harus login untuk melihat detail kursi dan melanjutkan pemesanan.',
+                          style: TextStyle(color: Theme.of(context).colorScheme.onError)
+                        ),
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        margin: const EdgeInsets.all(10),
+                        action: SnackBarAction(
+                          label: 'LOGIN',
+                          textColor: Theme.of(context).colorScheme.onError,
+                          onPressed: () {
+                            Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                          },
                         ),
                       ),
-                    ],
-                  ),
-                )
-              else if (filteredTrains.isEmpty)
-                const Center(
-                  child: Text(
-                    'Tidak ada kereta yang tersedia',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
-                )
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: filteredTrains.length,
-                  itemBuilder: (context, index) {
-                    final train = filteredTrains[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: TrainCard(
-                        train: train,
-                        onTap: () async {
-                          // Fetch available seats from backend
-                          List<String> availableSeats = [];
-                          try {
-                            availableSeats = await _trainService.getAvailableSeats(
-                              trainId: train.id,
-                              date: train.date,
-                            );
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Gagal memuat kursi: $e')),
-                            );
-                            return;
-                          }
-                          if (availableSeats.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Tidak ada kursi tersedia untuk kereta ini.')),
-                            );
-                            return;
-                          }
-                          // Navigate to seat selection screen
-                          final selectedSeat = await Navigator.push<String>(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SeatSelectionScreen(availableSeats: availableSeats),
-                            ),
-                          );
-                          if (selectedSeat != null) {
-                            // Navigate to passenger data screen with selected seat
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PassengerDataScreen(train: train, selectedSeat: selectedSeat),
-                              ),
-                            );
-                          }
-                        },
+                    );
+                    return;
+                  } on ApiException catch (e) {
+                    if (mounted) Navigator.pop(context); // Dismiss loading dialog
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Gagal memuat kursi: ${e.message}', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+                        backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        margin: const EdgeInsets.all(10),
                       ),
                     );
-                  },
-                ),
+                    return;
+                  } catch (e) {
+                    if (mounted) Navigator.pop(context); // Dismiss loading dialog
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Terjadi kesalahan saat memuat kursi: ${e.toString()}', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+                        backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        margin: const EdgeInsets.all(10),
+                      ),
+                    );
+                    return;
+                  }
+
+                  if (!mounted) return;
+
+                  if (availableSeats.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Tidak ada kursi tersedia untuk kereta ini.',
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer),
+                        ),
+                        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        margin: const EdgeInsets.all(10),
+                      ),
+                    );
+                    return;
+                  }
+                  
+                  final selectedSeat = await Navigator.push<String>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SeatSelectionScreen(availableSeats: availableSeats),
+                    ),
+                  );
+                  if (selectedSeat != null && mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PassengerDataScreen(train: train, selectedSeat: selectedSeat),
+                      ),
+                    );
+                  }
+                },
+              ),
             ],
           ),
         ),

@@ -1,5 +1,3 @@
-import 'train.dart';
-
 class Booking {
   final String transactionId;
   final String trainName;
@@ -8,6 +6,7 @@ class Booking {
   final String time;
   final String departure;
   final String arrival;
+  final String arrivalTime;
   final String status;
   final String price;
   final String passengerName;
@@ -25,6 +24,7 @@ class Booking {
     required this.time,
     required this.departure,
     required this.arrival,
+    required this.arrivalTime,
     required this.status,
     required this.price,
     required this.passengerName,
@@ -44,6 +44,7 @@ class Booking {
       time: '00:15',
       departure: 'Kiaracondong',
       arrival: 'Jatinegara',
+      arrivalTime: '03:55',
       status: 'Sudah dibayar',
       price: 'Rp150.000',
       passengerName: 'Alif Lohen',
@@ -60,6 +61,9 @@ class Booking {
     final departureStation = train['departure_station'] ?? {};
     final arrivalStation = train['arrival_station'] ?? {};
 
+    String statusFromServer = json['status']?.toString() ?? '';
+    String displayStatus = statusFromServer.isEmpty ? 'pending' : statusFromServer;
+
     return Booking(
       transactionId: json['transaction_id']?.toString() ?? '',
       trainName: train['name'] ?? '',
@@ -70,7 +74,10 @@ class Booking {
           : '',
       departure: departureStation['name'] ?? '',
       arrival: arrivalStation['name'] ?? '',
-      status: json['status'] ?? '',
+      arrivalTime: train['arrival_time'] != null
+          ? DateTime.parse(train['arrival_time']).toLocal().toString().substring(11, 16)
+          : '',
+      status: displayStatus,
       price: json['total_price']?.toString() ?? '',
       passengerName: json['passenger_name'] ?? '',
       passengerId: json['passenger_id_number']?.toString() ?? '',

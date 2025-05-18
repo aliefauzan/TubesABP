@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Booking routes
     Route::post('/bookings', [BookingController::class, 'book']);
     Route::get('/bookings/history', [BookingController::class, 'history']);
+    Route::put('/bookings/{transactionId}/status', [BookingController::class, 'updateStatus']);
     
     // Payment routes
     Route::post('/payments/{id}/upload', [PaymentController::class, 'uploadProof']);

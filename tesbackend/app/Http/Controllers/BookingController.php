@@ -55,7 +55,7 @@ class BookingController extends Controller
                     'passenger_gender' => $request->passenger_gender,
                     'seat_number' => $request->seat_number,
                     'payment_method' => $request->payment_method,
-                    'status' => 'pending',
+                    'status' => '',
                     'total_price' => $train->price,
                 ]);
             });
@@ -96,5 +96,36 @@ class BookingController extends Controller
             } catch (\Exception $e) {
                 return response()->json(['message' => 'Internal server error'], 500);
             }
+    }
+
+    public function updateStatus(Request $request, $transactionId)
+    {
+        try {
+            $request->validate([
+                'status' => 'required|string|in:pending,confirmed,cancelled,paid', // Define allowed statuses
+            ]);
+
+            $booking = Booking::where('transaction_id', $transactionId)->first();
+
+            if (!$booking) {
+                return response()->json(['message' => 'Booking not found'], 404);
+            }
+
+            // Optional: Check if the authenticated user owns this booking
+            // if ($booking->user_uuid !== auth()->user()->uuid) { // Assuming user UUID is on auth()->user()
+            //     return response()->json(['message' => 'Unauthorized'], 403);
+            // }
+
+            $booking->status = $request->status;
+            $booking->save();
+
+            return response()->json($booking, 200);
+
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            Log::error('Update booking status error: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['message' => 'Internal server error during status update'], 500);
+        }
     }
 }
