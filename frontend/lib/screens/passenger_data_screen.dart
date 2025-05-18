@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:keretaxpress/models/train.dart';
-import 'package:keretaxpress/utils/theme.dart';
+import 'package:keretaxpress/models/booking.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/core/services/booking_service.dart';
+import 'package:keretaxpress/utils/theme.dart';
+import 'package:keretaxpress/widgets/booking/passenger_form.dart';
+import 'package:keretaxpress/widgets/booking/trip_details_card.dart';
+import 'package:keretaxpress/widgets/booking/payment_details_card.dart';
 import 'package:keretaxpress/core/services/auth_service.dart';
+import 'package:keretaxpress/core/exceptions/api_auth_exception.dart';
+import 'package:keretaxpress/core/exceptions/api_exception.dart';
 import 'package:keretaxpress/utils/currency_formatter.dart';
 import 'package:keretaxpress/widgets/train_timeline.dart';
 import 'package:intl/intl.dart';
@@ -233,30 +239,19 @@ class _PassengerDataScreenState extends State<PassengerDataScreen> {
                 TripDetailsCard(train: widget.train),
 
                 const SizedBox(height: 20),
-                PaymentDetailsCard(price: widget.train.price),
-
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: _paymentMethod,
-                  decoration: InputDecoration(
-                    labelText: 'Metode Pembayaran',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    prefixIcon: const Icon(Icons.payment),
-                  ),
-                  items: [
-                    DropdownMenuItem(value: 'transfer', child: Text('Transfer Bank')),
-                    // Add more payment methods here if needed
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _paymentMethod = value;
-                      });
-                    }
-                  },
+                PaymentDetailsCard(
+                  train: widget.train, 
+                  paymentMethod: _paymentMethod, 
+                  onPaymentMethodChanged: (value) {
+                    // If payment method is fixed, this callback might not be strictly necessary
+                    // or could be removed from PaymentDetailsCard if it no longer changes method.
+                    // For now, keep it, but ensure _paymentMethod remains 'transfer
+                    // setState(() {
+                    //   _paymentMethod = value ?? 'transfer'; // Ensure it defaults back or stays
+                    // });
+                  }
                 ),
+
                 const SizedBox(height: 20),
                 Row(
                   children: [

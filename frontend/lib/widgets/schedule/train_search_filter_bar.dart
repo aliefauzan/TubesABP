@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:keretaxpress/models/station.dart';
 import 'package:keretaxpress/utils/theme.dart';
+import 'package:keretaxpress/widgets/schedule/search_button.dart';
 
 class TrainSearchFilterBar extends StatelessWidget {
   final List<Station> stations;
@@ -107,11 +108,9 @@ class TrainSearchFilterBar extends StatelessWidget {
                     child: DropdownButtonFormField<Station>(
                       isExpanded: true,
                       decoration: InputDecoration(
-                        labelText: 'Stasiun Kedatangan',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        prefixIcon: const Icon(Icons.arrival_board),
+                        labelText: 'Stasiun Tujuan',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        prefixIcon: const Icon(Icons.where_to_vote),
                       ),
                       value: selectedArrivalStation,
                       items: stations.map((station) {
@@ -142,6 +141,7 @@ class TrainSearchFilterBar extends StatelessWidget {
                       ),
                       child: Text(
                         DateFormat('dd MMMM yyyy').format(selectedDate),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ),
@@ -170,19 +170,7 @@ class TrainSearchFilterBar extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: onSearchPressed,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text('CARI JADWAL', style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-            ),
+            SearchButton(onPressed: onSearchPressed),
           ],
         ),
       ),

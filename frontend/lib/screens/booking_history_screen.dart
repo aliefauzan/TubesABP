@@ -4,9 +4,10 @@ import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/core/services/booking_service.dart';
 import 'package:keretaxpress/core/services/auth_service.dart';
-import 'package:keretaxpress/widgets/booking_card.dart';
+import 'package:keretaxpress/widgets/booking/booking_card.dart';
 import 'package:keretaxpress/core/exceptions/api_auth_exception.dart';
 import 'package:keretaxpress/core/exceptions/api_exception.dart';
+import 'package:keretaxpress/models/train.dart';
 
 class BookingHistoryScreen extends StatefulWidget {
   const BookingHistoryScreen({super.key});
@@ -298,11 +299,28 @@ class BookingHistoryScreenState extends State<BookingHistoryScreen> {
                     itemCount: filteredBookings.length,
                     itemBuilder: (context, index) {
                       final booking = filteredBookings[index];
-                      return BookingCard(
-                        booking: booking,
-                        isLoadingAction: _isLoadingAction,
-                        onUploadPaymentProof: _uploadPaymentProof,
-                        onDownloadTicket: _downloadTicket,
+                      final trainForCard = Train(
+                        id: '', 
+                        name: booking.trainName,
+                        operator: booking.operator,
+                        date: booking.date,
+                        time: booking.time, 
+                        departure: booking.departure, 
+                        arrival: booking.arrival, 
+                        arrivalTime: booking.arrivalTime,
+                        duration: '', 
+                        classType: booking.seatClass, 
+                        price: booking.price, 
+                        seatsLeft: 0, 
+                      );
+
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: BookingCard(
+                          booking: booking,
+                          train: trainForCard,
+                          onUploadProof: _isLoadingAction ? null : () => _uploadPaymentProof(booking),
+                        ),
                       );
                     },
                   );

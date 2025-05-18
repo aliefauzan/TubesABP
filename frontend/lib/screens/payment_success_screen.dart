@@ -4,6 +4,7 @@ import 'package:keretaxpress/models/booking.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/widgets/train/train_card.dart';
+import 'package:keretaxpress/utils/currency_formatter.dart';
 
 class PaymentSuccessScreen extends StatefulWidget {
   final String transactionId;
@@ -147,7 +148,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                   ),
                 ),
                 Text(
-                  booking.price,
+                  currencyFormat.format(parsePrice(booking.price)),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primaryColor,

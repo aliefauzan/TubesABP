@@ -9,6 +9,7 @@ import 'package:keretaxpress/screens/booking_history_screen.dart';
 import 'package:keretaxpress/core/services/booking_service.dart';
 import 'package:keretaxpress/core/exceptions/api_auth_exception.dart';
 import 'package:keretaxpress/core/exceptions/api_exception.dart';
+import 'package:keretaxpress/utils/currency_formatter.dart';
 
 class PaymentConfirmationScreen extends StatefulWidget {
   const PaymentConfirmationScreen({super.key});
@@ -210,7 +211,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                   ),
                 ),
                 Text(
-                  booking.price,
+                  currencyFormat.format(parsePrice(booking.price)),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primaryColor,

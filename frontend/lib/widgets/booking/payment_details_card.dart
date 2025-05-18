@@ -1,67 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:keretaxpress/models/train.dart';
+import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/utils/currency_formatter.dart';
 // Potentially AppTheme if specific colors are used directly, otherwise Theme.of(context) is fine
 
 class PaymentDetailsCard extends StatelessWidget {
-  final String price;
-  // final int numberOfPassengers; // If this can vary, otherwise default to 1
+  final Train train;
+  final String paymentMethod; // This will be 'transfer'
+  final Function(String?) onPaymentMethodChanged; // Kept for prop compatibility, but inert
 
   const PaymentDetailsCard({
-    super.key,
-    required this.price,
-    // this.numberOfPassengers = 1, // Defaulting to 1 for now
-  });
+    Key? key,
+    required this.train,
+    required this.paymentMethod, // Will receive 'transfer'
+    required this.onPaymentMethodChanged,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final parsedPrice = parsePrice(price);
-    // final totalPasengers = numberOfPassengers; // If used
-
     return Card(
-      elevation: 2, // Consistent with other cards
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      margin: const EdgeInsets.symmetric(vertical: 8.0), // Standard margin
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Detail Pembayaran',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Harga tiket'),
-                Text(currencyFormat.format(parsedPrice)),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Total Penumpang'),
-                const Text('1'), // Assuming 1 passenger for now
-              ],
-            ),
-            const Divider(height: 20, thickness: 1),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+                const Text('Total Biaya', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 Text(
-                  'Total Harga',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  currencyFormat.format(parsedPrice), // Assuming price is per passenger and only 1 passenger
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  currencyFormat.format(parsePrice(train.price)), // Correctly apply formatter
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppTheme.primaryColor),
                 ),
               ],
             ),
+            const SizedBox(height: 16),
+            const Text('Metode Pembayaran:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            const Text('Transfer Bank', style: TextStyle(fontSize: 16)),
+            // RadioListTile<String>(
+            //   title: const Text('Virtual Account'),
+            //   value: 'virtual_account',
+            //   groupValue: paymentMethod,
+            //   onChanged: onPaymentMethodChanged,
+            //   activeColor: AppTheme.primaryColor,
+            // ),
+            // RadioListTile<String>(
+            //   title: const Text('Credit Card'),
+            //   value: 'credit_card',
+            //   groupValue: paymentMethod,
+            //   onChanged: onPaymentMethodChanged,
+            //   activeColor: AppTheme.primaryColor,
+            // ),
           ],
         ),
       ),
