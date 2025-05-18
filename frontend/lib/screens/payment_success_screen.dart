@@ -3,7 +3,7 @@ import 'package:keretaxpress/models/train.dart';
 import 'package:keretaxpress/models/booking.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
-import 'package:keretaxpress/widgets/train_card.dart';
+import 'package:keretaxpress/widgets/train/train_card.dart';
 
 class PaymentSuccessScreen extends StatefulWidget {
   final String transactionId;

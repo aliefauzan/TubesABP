@@ -227,4 +227,4 @@ class TrainCard extends StatelessWidget {
       return '${mins}m';
     }
   }
-}
+} 
