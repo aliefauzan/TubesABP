@@ -19,6 +19,7 @@ class BookingHistoryScreenState extends State<BookingHistoryScreen> {
   late Future<List<Booking>> _futureBookings;
   final BookingService _bookingService = BookingService();
   bool _isLoadingAction = false;
+  String _selectedStatusFilter = 'Semua';
 
   @override
   void initState() {
@@ -172,7 +173,6 @@ class BookingHistoryScreenState extends State<BookingHistoryScreen> {
     }
   }
 
-  // Public method to update booking status by transactionId (for use from other screens)
   void updateBookingStatus(String transactionId, String newStatus) {
     _loadBookings();
     if (mounted) {
@@ -186,14 +186,13 @@ class BookingHistoryScreenState extends State<BookingHistoryScreen> {
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             margin: const EdgeInsets.all(10),
-            duration: Duration(seconds: 2),
+            duration: const Duration(seconds: 2),
           ),
         );
     }
   }
 
   void _downloadTicket(Booking booking) {
-    // Placeholder for download ticket functionality
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Download ticket for booking ${booking.transactionId}')),
     );
@@ -209,7 +208,7 @@ class BookingHistoryScreenState extends State<BookingHistoryScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
                 child: Text(
@@ -217,7 +216,32 @@ class BookingHistoryScreenState extends State<BookingHistoryScreen> {
                   style: Theme.of(context).textTheme.displayMedium,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: DropdownButtonFormField<String>(
+                  value: _selectedStatusFilter,
+                  decoration: InputDecoration(
+                    labelText: 'Filter Status',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    prefixIcon: const Icon(Icons.filter_list),
+                  ),
+                  items: <String>['Semua', 'pending', 'confirmed']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value[0].toUpperCase() + value.substring(1)),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _selectedStatusFilter = newValue;
+                      });
+                    }
+                  },
+                ),
+              ),
               FutureBuilder<List<Booking>>(
                 future: _futureBookings,
                 builder: (context, snapshot) {
@@ -249,12 +273,31 @@ class BookingHistoryScreenState extends State<BookingHistoryScreen> {
                       ),
                     );
                   }
+                  
+                  List<Booking> filteredBookings = snapshot.data!;
+                  if (_selectedStatusFilter != 'Semua') {
+                    filteredBookings = snapshot.data!
+                        .where((booking) => booking.status == _selectedStatusFilter)
+                        .toList();
+                  }
+
+                  if (filteredBookings.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'Tidak ada riwayat dengan status "$_selectedStatusFilter".',
+                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    );
+                  }
+
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: snapshot.data!.length,
+                    itemCount: filteredBookings.length,
                     itemBuilder: (context, index) {
-                      final booking = snapshot.data![index];
+                      final booking = filteredBookings[index];
                       return BookingCard(
                         booking: booking,
                         isLoadingAction: _isLoadingAction,

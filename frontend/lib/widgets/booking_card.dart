@@ -241,19 +241,21 @@ class BookingCard extends StatelessWidget {
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: isLoadingAction 
-                        ? null 
-                        : () => onUploadPaymentProof(booking),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.primaryColor,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                if (booking.status != 'confirmed') // Conditionally render Upload Bukti button
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: isLoadingAction 
+                          ? null 
+                          : () => onUploadPaymentProof(booking),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: const Text('Upload Bukti'),
                     ),
-                    child: const Text('Upload Bukti'),
                   ),
-                ),
-                const SizedBox(width: 12),
+                if (booking.status != 'confirmed') // Add SizedBox only if Upload Bukti is shown
+                  const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: isLoadingAction 
