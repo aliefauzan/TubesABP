@@ -55,7 +55,7 @@ class BookingController extends Controller
                     'passenger_gender' => $request->passenger_gender,
                     'seat_number' => $request->seat_number,
                     'payment_method' => $request->payment_method,
-                    'status' => 'pending',
+                    'status' => '',
                     'total_price' => $train->price,
                 ]);
             });
