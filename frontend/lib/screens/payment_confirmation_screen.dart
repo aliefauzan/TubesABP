@@ -142,10 +142,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: TrainCard(
-                train: train,
-                onTap: () {}, // No action needed here
-              ),
+              child: TrainCard(train: train, onTap: () {}),
             ),
             const SizedBox(height: 20),
             const Text(

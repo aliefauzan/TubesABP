@@ -3,7 +3,7 @@ import 'package:keretaxpress/screens/home_screen.dart';
 import 'package:keretaxpress/screens/login_screen.dart';
 import 'package:keretaxpress/screens/register_screen.dart';
 import 'package:keretaxpress/screens/schedule_screen.dart';
-import 'package:keretaxpress/screens/passenger_data_screen.dart';
+import 'package:keretaxpress/screens/passenger_info_screen.dart';
 import 'package:keretaxpress/screens/booking_history_screen.dart';
 import 'package:keretaxpress/screens/payment_confirmation_screen.dart';
 import 'package:keretaxpress/screens/payment_success_screen.dart';
@@ -46,12 +46,11 @@ class KeretaXpressApp extends StatelessWidget {
 
             if (train != null && selectedSeat != null) {
               return MaterialPageRoute(
-                builder: (context) => PassengerDataScreen(train: train, selectedSeat: selectedSeat),
+                builder: (context) => PassengerInfoScreen(train: train, selectedSeat: selectedSeat),
               );
             }
           }
           // Fallback for incorrect arguments
-          print("Error: Invalid arguments for /passenger-data. Expected Map with 'train' and 'selectedSeat'.");
           return MaterialPageRoute(builder: (_) => const Scaffold(body: Center(child: Text("Error: Invalid arguments for page"))));
         }
         // Keep existing handlers for /payment-confirmation and /payment-success

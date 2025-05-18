@@ -3,14 +3,13 @@ import 'package:keretaxpress/models/train.dart';
 import 'package:keretaxpress/utils/theme.dart';
 import 'package:keretaxpress/widgets/app_bar.dart';
 import 'package:keretaxpress/widgets/train/train_card.dart';
-import 'package:keretaxpress/screens/passenger_data_screen.dart';
+import 'package:keretaxpress/screens/passenger_info_screen.dart';
 import 'package:keretaxpress/core/services/train_service.dart';
 import 'package:keretaxpress/core/services/station_service.dart';
 import 'package:keretaxpress/models/station.dart';
 import 'package:keretaxpress/screens/seat_selection_screen.dart';
 import 'package:keretaxpress/core/exceptions/api_exception.dart';
 import 'package:keretaxpress/core/exceptions/api_auth_exception.dart';
-import 'package:intl/intl.dart';
 import 'package:keretaxpress/widgets/schedule/train_search_filter_bar.dart';
 import 'package:keretaxpress/widgets/schedule/train_list_results.dart';
 
@@ -272,31 +271,32 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 errorMessage: _errorMessage,
                 onRefresh: () => _initializeData(showAll: _showAllTrains),
                 onTrainTap: (train) async {
-                  List<String> availableSeats = [];
-                  if (!mounted) return;
-
-                  // Show a loading indicator while fetching seats
-                  // This could be a modal dialog or an inline indicator
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (BuildContext context) {
-                      return const Center(child: CircularProgressIndicator());
-                    },
-                  );
-
                   try {
-                    final String dateForAPI = train.date;
-                    final int trainIdAsInt = int.parse(train.id as String);
-
-                    availableSeats = await _trainService.getAvailableSeats(
-                      trainId: trainIdAsInt,
-                      date: dateForAPI,
+                    final availableSeats = await _trainService.getAvailableSeats(
+                      trainId: int.parse(train.id as String),
+                      date: train.date,
                     );
-                    if (mounted) Navigator.pop(context); // Dismiss loading dialog
+                    if (!mounted) return;
 
+                    final selectedSeat = await Navigator.push<String>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SeatSelectionScreen(availableSeats: availableSeats),
+                      ),
+                    );
+
+                    if (selectedSeat != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PassengerInfoScreen(
+                            train: train,
+                            selectedSeat: selectedSeat,
+                          ),
+                        ),
+                      );
+                    }
                   } on ApiAuthException catch (e) {
-                    if (mounted) Navigator.pop(context); // Dismiss loading dialog
                     if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -317,9 +317,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         ),
                       ),
                     );
-                    return;
                   } on ApiException catch (e) {
-                    if (mounted) Navigator.pop(context); // Dismiss loading dialog
                     if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -330,9 +328,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         margin: const EdgeInsets.all(10),
                       ),
                     );
-                    return;
                   } catch (e) {
-                    if (mounted) Navigator.pop(context); // Dismiss loading dialog
                     if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -341,40 +337,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         behavior: SnackBarBehavior.floating,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         margin: const EdgeInsets.all(10),
-                      ),
-                    );
-                    return;
-                  }
-
-                  if (!mounted) return;
-
-                  if (availableSeats.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Tidak ada kursi tersedia untuk kereta ini.',
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer),
-                        ),
-                        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        margin: const EdgeInsets.all(10),
-                      ),
-                    );
-                    return;
-                  }
-                  
-                  final selectedSeat = await Navigator.push<String>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SeatSelectionScreen(availableSeats: availableSeats),
-                    ),
-                  );
-                  if (selectedSeat != null && mounted) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PassengerDataScreen(train: train, selectedSeat: selectedSeat),
                       ),
                     );
                   }
