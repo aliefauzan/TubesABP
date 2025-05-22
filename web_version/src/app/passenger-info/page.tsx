@@ -103,7 +103,7 @@ export default function PassengerInfoPage() {
       
       const booking = await bookingService.createBooking({
         user_uuid: user.uuid,
-        train_id: train.id,
+        train_id: Number(train.id),
         travel_date: travelDate,
         passenger_name: formData.passenger_name,
         passenger_id_number: formData.passenger_id_number,
@@ -170,7 +170,7 @@ export default function PassengerInfoPage() {
                 <p className="font-bold text-xl text-gray-800 mt-2">{train.name}</p>
                 <div className="flex items-center mt-1">
                   <span className="px-2 py-0.5 bg-blue-100 text-primary text-xs font-medium rounded-full">
-                    {train.class_type}
+                    {train.classType}
                   </span>
                   <span className="text-sm text-gray-500 ml-2">{train.operator}</span>
                 </div>
@@ -185,9 +185,9 @@ export default function PassengerInfoPage() {
                       <div className="w-0.5 h-10 bg-gray-300 mx-auto"></div>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Berangkat - {formatTime(train.departure_time)}</p>
-                      <p className="font-medium text-gray-800">{train.departureStation?.name}</p>
-                      <p className="text-sm text-gray-500">{train.departureStation?.city}</p>
+                      <p className="text-sm text-gray-500">Berangkat - {formatTime(train.departure)}</p>
+                      <p className="font-medium text-gray-800">{train.departureStationName}</p>
+                      <p className="text-sm text-gray-500">{train.departureStationName}</p>
                     </div>
                   </div>
                   
@@ -196,9 +196,9 @@ export default function PassengerInfoPage() {
                       <div className="w-3 h-3 rounded-full bg-secondary"></div>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Tiba - {formatTime(train.arrival_time)}</p>
-                      <p className="font-medium text-gray-800">{train.arrivalStation?.name}</p>
-                      <p className="text-sm text-gray-500">{train.arrivalStation?.city}</p>
+                      <p className="text-sm text-gray-500">Tiba - {formatTime(train.arrivalTime)}</p>
+                      <p className="font-medium text-gray-800">{train.arrivalStationName}</p>
+                      <p className="text-sm text-gray-500">{train.arrivalStationName}</p>
                     </div>
                   </div>
                 </div>
@@ -221,7 +221,7 @@ export default function PassengerInfoPage() {
                   </div>
                   <span className="font-medium text-gray-800">Kursi {selectedSeat}</span>
                 </div>
-                <p className="font-bold text-xl text-secondary mt-2">{formatCurrency(train.price)}</p>
+                <p className="font-bold text-xl text-secondary mt-2">{formatCurrency(Number(train.price))}</p>
               </div>
             </div>
           </div>
