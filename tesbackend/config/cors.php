@@ -18,24 +18,21 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'http://localhost:3000',   // Web version
-        'http://localhost:8080',   // Common Flutter web debug
-        'http://10.0.2.2:8080',    // Android emulator pointing to host
-        'capacitor://localhost',   // Capacitor
-        'ionic://localhost',       // Ionic
-        'http://localhost',        // Basic localhost
+        'http://localhost:3000',
+        'http://localhost:8080',
+        'http://localhost',
+        'https://backend-api-404674793847.asia-southeast2.run.app',
     ],
     
     'allowed_origins_patterns' => [
-        '/^http:\/\/192\.168\.\d+\.\d+:\d+$/',  // Local network IPs
-        '/^http:\/\/172\.\d+\.\d+\.\d+:\d+$/',  // Docker network
-        '/^http:\/\/10\.\d+\.\d+\.\d+:\d+$/',   // VPN/other local networks
-        '/^file:\/\/\/.*/'                      // File protocol for mobile apps
+        '/^http:\/\/192\.168\.\d+\.\d+:\d+$/',
+        '/^http:\/\/172\.\d+\.\d+\.\d+:\d+$/',
+        '/^http:\/\/10\.\d+\.\d+\.\d+:\d+$/',
     ],
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => [],
+    'exposed_headers' => ['*'],
 
     'max_age' => 0,
 
