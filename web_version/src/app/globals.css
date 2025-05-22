@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --foreground-rgb: 51, 51, 51;
+  --background-rgb: 248, 249, 250;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  font-family: 'Inter', sans-serif;
+}
+
+@layer components {
+  /* Buttons */
+  .btn-primary {
+    @apply bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:translate-y-[-1px] hover:shadow-md;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary hover:bg-secondary-dark text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:translate-y-[-1px] hover:shadow-md;
+  }
+  
+  .btn-accent {
+    @apply bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:translate-y-[-1px] hover:shadow-md;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200;
+  }
+
+  /* Form Inputs */
+  .input-field {
+    @apply border border-gray-300 rounded-lg px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-white rounded-xl shadow-card p-6 transition-shadow duration-200 hover:shadow-card-hover;
+  }
+  
+  /* Section Styling */
+  .section-title {
+    @apply text-2xl font-bold mb-6 text-text;
+  }
+  
+  /* Status Labels */
+  .status-badge {
+    @apply px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  .status-paid {
+    @apply bg-success/20 text-success;
+  }
+  
+  .status-pending {
+    @apply bg-warning/20 text-warning;
+  }
+  
+  .status-cancelled {
+    @apply bg-error/20 text-error;
+  }
+  
+  .status-confirmed {
+    @apply bg-primary/20 text-primary;
+  }
+}

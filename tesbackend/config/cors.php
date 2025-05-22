@@ -13,23 +13,29 @@ return [
     |
     | To learn more: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
     |
-    */
-
-    'paths' => ['api/*', 'login', 'register', 'sanctum/csrf-cookie'],
-
+    */    'paths' => ['api/*', 'login', 'register', 'sanctum/csrf-cookie'],
+    
     'allowed_methods' => ['*'],
 
-  //'allowed_origins' => explode(',', env('CORS_ALLOWED_ORIGINS', 'http://localhost,http://localhost:3000')),
-  'allowed_origins' => ['*'],
-  
-    'allowed_origins_patterns' => [],
+    'allowed_origins' => [
+        'http://localhost:3000',
+        'http://localhost:8080',
+        'http://localhost',
+        'https://backend-api-404674793847.asia-southeast2.run.app',
+    ],
+    
+    'allowed_origins_patterns' => [
+        '/^http:\/\/192\.168\.\d+\.\d+:\d+$/',
+        '/^http:\/\/172\.\d+\.\d+\.\d+:\d+$/',
+        '/^http:\/\/10\.\d+\.\d+\.\d+:\d+$/',
+    ],
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => [],
+    'exposed_headers' => ['*'],
 
     'max_age' => 0,
 
-    'supports_credentials' => false ,
+    'supports_credentials' => true,
 
 ];
