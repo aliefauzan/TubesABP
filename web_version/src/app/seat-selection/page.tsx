@@ -33,7 +33,7 @@ export default function SeatSelectionPage() {
     
     const fetchAvailableSeats = async () => {
       try {
-        const seats = await trainService.getAvailableSeats(parsedTrain.id, storedDate);
+        const seats = await trainService.getAvailableSeats(Number(parsedTrain.id), storedDate);
         setAvailableSeats(seats);
       } catch (error) {
         console.error('Error fetching available seats:', error);
@@ -89,13 +89,13 @@ export default function SeatSelectionPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h2 className="text-xl font-bold text-primary mb-2">{train.name}</h2>
-                <p className="text-gray-600 mb-1">{train.operator} • {train.class_type}</p>
+                <p className="text-gray-600 mb-1">{train.operator} • {train.classType}</p>
                 <p className="text-gray-600 mb-4">Tanggal: {formatDate(travelDate)}</p>
                 
                 <div className="flex items-center mb-2">
-                  <div className="w-16 font-medium text-right">{formatTime(train.departure_time)}</div>
+                  <div className="w-16 font-medium text-right">{formatTime(train.departure)}</div>
                   <div className="mx-3 w-3 h-3 bg-primary rounded-full"></div>
-                  <div>{train.departureStation?.name}, {train.departureStation?.city}</div>
+                  <div>{train.departureStationName}</div>
                 </div>
                 
                 <div className="flex items-center mb-1">
@@ -105,15 +105,15 @@ export default function SeatSelectionPage() {
                 </div>
                 
                 <div className="flex items-center">
-                  <div className="w-16 font-medium text-right">{formatTime(train.arrival_time)}</div>
+                  <div className="w-16 font-medium text-right">{formatTime(train.arrivalTime)}</div>
                   <div className="mx-3 w-3 h-3 bg-secondary rounded-full"></div>
-                  <div>{train.arrivalStation?.name}, {train.arrivalStation?.city}</div>
+                  <div>{train.arrivalStationName}</div>
                 </div>
               </div>
               
               <div className="flex flex-col justify-center md:text-right">
                 <p className="text-2xl font-bold text-secondary mb-2">
-                  {formatCurrency(train.price)}
+                  {formatCurrency(Number(train.price))}
                 </p>
                 <p className="text-gray-600">
                   {availableSeats.length} kursi tersedia

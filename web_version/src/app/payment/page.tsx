@@ -70,8 +70,8 @@ export default function PaymentPage() {
     setError(null);
     
     try {
-      await bookingService.uploadPaymentProof(booking.id, file);
-      await bookingService.updateBookingStatus(booking.transaction_id, 'paid');
+      await bookingService.uploadPaymentProof(Number(booking.transactionId), file);
+      await bookingService.updateBookingStatus(booking.transactionId, 'paid');
       
       // Navigate to success page
       router.push('/payment-success');
@@ -134,20 +134,20 @@ export default function PaymentPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
               <div>
                 <p className="text-gray-600 mb-1">ID Transaksi</p>
-                <p className="font-bold">{booking.transaction_id}</p>
+                <p className="font-bold">{booking.transactionId}</p>
               </div>
               
               <div className="md:text-right">
                 <p className="text-gray-600 mb-1">Tanggal</p>
-                <p className="font-medium">{formatDate(booking.travel_date)}</p>
+                <p className="font-medium">{formatDate(booking.date)}</p>
               </div>
             </div>
             
             <div className="border-t border-gray-200 pt-4 mb-4">
               <div className="flex items-center mb-2">
-                <div className="font-medium w-20 text-right">{formatTime(train.departure_time)}</div>
+                <div className="font-medium w-20 text-right">{formatTime(train.departure)}</div>
                 <div className="mx-3 w-3 h-3 bg-primary rounded-full"></div>
-                <div>{train.departureStation?.name}, {train.departureStation?.city}</div>
+                <div>{train.departureStationName} </div>
               </div>
               
               <div className="flex items-center mb-1">
@@ -157,9 +157,9 @@ export default function PaymentPage() {
               </div>
               
               <div className="flex items-center">
-                <div className="font-medium w-20 text-right">{formatTime(train.arrival_time)}</div>
+                <div className="font-medium w-20 text-right">{formatTime(train.arrivalTime)}</div>
                 <div className="mx-3 w-3 h-3 bg-secondary rounded-full"></div>
-                <div>{train.arrivalStation?.name}, {train.arrivalStation?.city}</div>
+                <div>{train.arrivalStationName}</div>
               </div>
             </div>
             
@@ -168,18 +168,18 @@ export default function PaymentPage() {
                 <div>
                   <p className="text-gray-600 mb-1">Kereta</p>
                   <p className="font-medium">{train.name}</p>
-                  <p className="text-sm text-gray-500">{train.operator} • {train.class_type}</p>
+                  <p className="text-sm text-gray-500">{train.operator} • {train.classType}</p>
                 </div>
                 
                 <div>
                   <p className="text-gray-600 mb-1">Penumpang</p>
-                  <p className="font-medium">{booking.passenger_name}</p>
-                  <p className="text-sm text-gray-500">Kursi {booking.seat_number}</p>
+                  <p className="font-medium">{booking.passengerName}</p>
+                  <p className="text-sm text-gray-500">Kursi {booking.seatNumber}</p>
                 </div>
                 
                 <div className="md:text-right">
                   <p className="text-gray-600 mb-1">Total Pembayaran</p>
-                  <p className="font-bold text-secondary text-xl">{formatCurrency(booking.total_price)}</p>
+                  <p className="font-bold text-secondary text-xl">{formatCurrency(Number(booking.price))}</p>
                 </div>
               </div>
             </div>
@@ -218,8 +218,8 @@ export default function PaymentPage() {
               <div className="text-sm bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
                 <p className="font-bold mb-2 text-yellow-800">Catatan Penting:</p>
                 <ul className="list-disc pl-5 space-y-1 text-yellow-800">
-                  <li>Sertakan ID Transaksi ({booking.transaction_id}) dalam referensi transfer</li>
-                  <li>Transfer jumlah yang tepat: {formatCurrency(booking.total_price)}</li>
+                  <li>Sertakan ID Transaksi ({booking.transactionId}) dalam referensi transfer</li>
+                  <li>Transfer jumlah yang tepat: {formatCurrency(Number(booking.price))}</li>
                   <li>Unggah bukti pembayaran Anda di bawah ini</li>
                 </ul>
               </div>

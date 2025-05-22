@@ -5,9 +5,8 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Button from '@/components/Button';
-import { bookingService } from '@/lib/api';
+import { bookingService } from '@/utils/api';
 import { Booking } from '@/types';
-import { formatCurrency, formatDate, formatTime } from '@/utils/format';
 
 export default function BookingsPage() {
   const router = useRouter();
@@ -39,13 +38,17 @@ export default function BookingsPage() {
   }, [router]);
 
   const getStatusClass = (status: string) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
+      case 'dikonfirmasi':
       case 'confirmed':
         return 'bg-green-100 text-green-800 border-green-300';
+      case 'sudah dibayar':
       case 'paid':
         return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'menunggu pembayaran':
       case 'pending':
         return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      case 'dibatalkan':
       case 'cancelled':
         return 'bg-red-100 text-red-800 border-red-300';
       default:
@@ -54,13 +57,15 @@ export default function BookingsPage() {
   };
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
+      case 'dikonfirmasi':
       case 'confirmed':
         return (
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500 mr-1.5" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
           </svg>
         );
+      case 'sudah dibayar':
       case 'paid':
         return (
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 mr-1.5" viewBox="0 0 20 20" fill="currentColor">
@@ -68,12 +73,14 @@ export default function BookingsPage() {
             <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" />
           </svg>
         );
+      case 'menunggu pembayaran':
       case 'pending':
         return (
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500 mr-1.5" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
           </svg>
         );
+      case 'dibatalkan':
       case 'cancelled':
         return (
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500 mr-1.5" viewBox="0 0 20 20" fill="currentColor">
@@ -140,25 +147,22 @@ export default function BookingsPage() {
         ) : (
           <div className="space-y-6">
             {bookings.map((booking) => (
-              <div key={booking.id} className="bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg">
+              <div key={booking.transactionId} className="bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg">
                 {/* Card Header */}
                 <div className="bg-gradient-to-r from-primary/10 to-white p-5 border-b">
                   <div className="flex flex-col md:flex-row md:justify-between md:items-center">
                     <div className="mb-4 md:mb-0">
                       <h3 className="text-xl font-bold text-gray-800">
-                        {booking.train?.departureStation?.city} ke {booking.train?.arrivalStation?.city}
+                        {booking.departure} ke {booking.arrival}
                       </h3>
-                      <p className="text-gray-600 mt-1">{formatDate(booking.travel_date)}</p>
+                      <p className="text-gray-600 mt-1">{booking.date}</p>
                     </div>
                     
                     <div className="flex items-center">
                       <div className={`flex items-center px-3 py-1.5 rounded-lg border ${getStatusClass(booking.status)}`}>
                         {getStatusIcon(booking.status)}
                         <span className="font-medium">
-                          {booking.status === 'confirmed' && 'Dikonfirmasi'}
-                          {booking.status === 'paid' && 'Dibayar'}
-                          {booking.status === 'pending' && 'Menunggu Pembayaran'}
-                          {booking.status === 'cancelled' && 'Dibatalkan'}
+                          {booking.status}
                         </span>
                       </div>
                     </div>
@@ -177,7 +181,7 @@ export default function BookingsPage() {
                         </div>
                         <div>
                           <p className="text-sm text-gray-500">ID Transaksi</p>
-                          <p className="font-medium">{booking.transaction_id}</p>
+                          <p className="font-medium">{booking.transactionId}</p>
                         </div>
                       </div>
                       
@@ -189,7 +193,7 @@ export default function BookingsPage() {
                         </div>
                         <div>
                           <p className="text-sm text-gray-500">Total Pembayaran</p>
-                          <p className="font-bold text-secondary">{formatCurrency(booking.total_price)}</p>
+                          <p className="font-bold text-secondary">{booking.price}</p>
                         </div>
                       </div>
                     </div>
@@ -203,8 +207,8 @@ export default function BookingsPage() {
                         </div>
                         <div>
                           <p className="text-sm text-gray-500">Kereta</p>
-                          <p className="font-medium">{booking.train?.name} ({booking.train?.class_type})</p>
-                          <p className="text-sm text-gray-500">{booking.train?.operator}</p>
+                          <p className="font-medium">{booking.trainName} ({booking.seatClass})</p>
+                          <p className="text-sm text-gray-500">{booking.operator}</p>
                         </div>
                       </div>
                       
@@ -216,8 +220,8 @@ export default function BookingsPage() {
                         </div>
                         <div>
                           <p className="text-sm text-gray-500">Penumpang</p>
-                          <p className="font-medium">{booking.passenger_name}</p>
-                          <p className="text-sm text-gray-500">Kursi {booking.seat_number}</p>
+                          <p className="font-medium">{booking.passengerName}</p>
+                          <p className="text-sm text-gray-500">Kursi {booking.seatNumber}</p>
                         </div>
                       </div>
                     </div>
@@ -235,71 +239,26 @@ export default function BookingsPage() {
                           <div>
                             <div className="mb-3">
                               <p className="text-sm text-gray-500">Berangkat</p>
-                              <p className="font-bold text-gray-800">{formatTime(booking.train?.departure_time || '')}</p>
-                              <p className="text-sm text-gray-600">{booking.train?.departureStation?.name}</p>
+                              <p className="font-bold text-gray-800">{booking.time}</p>
+                              <p className="text-sm text-gray-600">{booking.departure}</p>
                             </div>
                             <div>
                               <p className="text-sm text-gray-500">Tiba</p>
-                              <p className="font-bold text-gray-800">{formatTime(booking.train?.arrival_time || '')}</p>
-                              <p className="text-sm text-gray-600">{booking.train?.arrivalStation?.name}</p>
+                              <p className="font-bold text-gray-800">{booking.arrivalTime}</p>
+                              <p className="text-sm text-gray-600">{booking.arrival}</p>
                             </div>
                           </div>
                         </div>
                       </div>
                       
                       <div className="flex items-center justify-center">
-                        {booking.status === 'pending' && (
-                          <Button
-                            variant="primary"
-                            className="w-full"
-                            onClick={() => {
-                              // Store booking for payment page
-                              sessionStorage.setItem('currentBooking', JSON.stringify(booking));
-                              sessionStorage.setItem('selectedTrain', JSON.stringify(booking.train));
-                              router.push('/payment');
-                            }}
-                          >
-                            <div className="flex items-center justify-center">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                              </svg>
-                              <span>Bayar Sekarang</span>
-                            </div>
-                          </Button>
-                        )}
-                        
-                        {booking.status === 'confirmed' && (
-                          <div className="text-center">
-                            <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                            </div>
-                            <p className="text-gray-600">Tiket Anda telah dikonfirmasi</p>
-                          </div>
-                        )}
-                        
-                        {booking.status === 'paid' && (
-                          <div className="text-center">
-                            <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                              </svg>
-                            </div>
-                            <p className="text-gray-600">Pembayaran Anda sedang diproses</p>
-                          </div>
-                        )}
-                        
-                        {booking.status === 'cancelled' && (
-                          <div className="text-center">
-                            <div className="inline-flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mb-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </div>
-                            <p className="text-gray-600">Pemesanan ini telah dibatalkan</p>
-                          </div>
-                        )}
+                        <Button 
+                          variant="primary" 
+                          onClick={() => router.push(`/bookings/${booking.transactionId}`)}
+                          className="w-full md:w-auto"
+                        >
+                          Lihat Detail
+                        </Button>
                       </div>
                     </div>
                   </div>

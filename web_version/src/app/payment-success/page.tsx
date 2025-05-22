@@ -78,7 +78,7 @@ export default function PaymentSuccessPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                 <div>
                   <p className="text-gray-600 text-sm">ID Transaksi</p>
-                  <p className="font-bold">{booking.transaction_id}</p>
+                  <p className="font-bold">{booking.transactionId}</p>
                 </div>
                 
                 <div className="md:text-right">
@@ -104,12 +104,12 @@ export default function PaymentSuccessPage() {
                   <div>
                     <p className="text-gray-600 text-sm">Kereta</p>
                     <p className="font-medium">{train.name}</p>
-                    <p className="text-sm text-gray-500">{train.operator} • {train.class_type}</p>
+                    <p className="text-sm text-gray-500">{train.operator} • {train.classType}</p>
                   </div>
                   
                   <div className="md:text-right">
                     <p className="text-gray-600 text-sm">Tanggal Perjalanan</p>
-                    <p className="font-medium">{formatDate(booking.travel_date)}</p>
+                    <p className="font-medium">{formatDate(booking.date)}</p>
                   </div>
                 </div>
               </div>
@@ -124,9 +124,9 @@ export default function PaymentSuccessPage() {
                 </h3>
                 
                 <div className="flex items-center mb-2">
-                  <div className="font-medium w-20 text-right">{formatTime(train.departure_time)}</div>
+                  <div className="font-medium w-20 text-right">{formatTime(train.departure)}</div>
                   <div className="mx-3 w-3 h-3 bg-primary rounded-full"></div>
-                  <div>{train.departureStation?.name}, {train.departureStation?.city}</div>
+                  <div>{train.departureStationName}</div>
                 </div>
                 
                 <div className="flex items-center mb-1">
@@ -136,9 +136,9 @@ export default function PaymentSuccessPage() {
                 </div>
                 
                 <div className="flex items-center">
-                  <div className="font-medium w-20 text-right">{formatTime(train.arrival_time)}</div>
+                  <div className="font-medium w-20 text-right">{formatTime(train.arrivalTime)}</div>
                   <div className="mx-3 w-3 h-3 bg-secondary rounded-full"></div>
-                  <div>{train.arrivalStation?.name}, {train.arrivalStation?.city}</div>
+                  <div>{train.arrivalStationName}</div>
                 </div>
               </div>
               
@@ -153,12 +153,12 @@ export default function PaymentSuccessPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-gray-600 text-sm">Nama Penumpang</p>
-                    <p className="font-medium">{booking.passenger_name}</p>
+                    <p className="font-medium">{booking.passengerName}</p>
                   </div>
                   
                   <div className="md:text-right">
                     <p className="text-gray-600 text-sm">Kursi</p>
-                    <p className="font-medium">{booking.seat_number}</p>
+                    <p className="font-medium">{booking.seatNumber}</p>
                   </div>
                 </div>
               </div>
@@ -166,7 +166,7 @@ export default function PaymentSuccessPage() {
               <div className="border-t border-gray-200 pt-4 bg-gray-50 p-4 rounded-lg">
                 <div className="flex justify-between items-center">
                   <p className="font-bold">Total Pembayaran</p>
-                  <p className="font-bold text-secondary text-xl">{formatCurrency(booking.total_price)}</p>
+                  <p className="font-bold text-secondary text-xl">{formatCurrency(Number(booking.price))}</p>
                 </div>
               </div>
             </div>
