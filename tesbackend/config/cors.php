@@ -13,16 +13,25 @@ return [
     |
     | To learn more: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
     |
-    */
-
-    'paths' => ['api/*', 'login', 'register', 'sanctum/csrf-cookie'],
-
+    */    'paths' => ['api/*', 'login', 'register', 'sanctum/csrf-cookie'],
+    
     'allowed_methods' => ['*'],
 
-  //'allowed_origins' => explode(',', env('CORS_ALLOWED_ORIGINS', 'http://localhost,http://localhost:3000')),
-  'allowed_origins' => ['*'],
-  
-    'allowed_origins_patterns' => [],
+    'allowed_origins' => [
+        'http://localhost:3000',   // Web version
+        'http://localhost:8080',   // Common Flutter web debug
+        'http://10.0.2.2:8080',    // Android emulator pointing to host
+        'capacitor://localhost',   // Capacitor
+        'ionic://localhost',       // Ionic
+        'http://localhost',        // Basic localhost
+    ],
+    
+    'allowed_origins_patterns' => [
+        '/^http:\/\/192\.168\.\d+\.\d+:\d+$/',  // Local network IPs
+        '/^http:\/\/172\.\d+\.\d+\.\d+:\d+$/',  // Docker network
+        '/^http:\/\/10\.\d+\.\d+\.\d+:\d+$/',   // VPN/other local networks
+        '/^file:\/\/\/.*/'                      // File protocol for mobile apps
+    ],
 
     'allowed_headers' => ['*'],
 
@@ -30,6 +39,6 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false ,
+    'supports_credentials' => true,
 
 ];
