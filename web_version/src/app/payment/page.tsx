@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import Button from '@/components/Button';
-import { bookingService } from '@/lib/api';
+import { bookingService } from '@/utils/api';
 import { Booking, Train } from '@/types';
 import { formatCurrency, formatDate, formatTime } from '@/utils/format';
 
@@ -82,28 +80,19 @@ export default function PaymentPage() {
       setIsUploading(false);
     }
   };
-
   if (!booking || !train) {
     return (
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <main className="flex-grow container mx-auto px-4 py-8 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-lg">Memuat detail pemesanan...</p>
-          </div>
-        </main>
-        <Footer />
+      <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-lg">Memuat detail pemesanan...</p>
+        </div>
       </div>
     );
-  }
-  return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header />
-      
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center">Konfirmasi Pembayaran</h1>
+  }  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center">Konfirmasi Pembayaran</h1>
           
           {/* Timer Warning */}
           <div className={`mb-6 p-4 rounded-lg flex items-center ${
@@ -283,13 +272,9 @@ export default function PaymentPage() {
                     </div>
                   ) : 'Konfirmasi Pembayaran'}
                 </Button>
-              </div>
-            </form>
+              </div>            </form>
           </div>
         </div>
-      </main>
-      
-      <Footer />
-    </div>
+      </div>
   );
 }
