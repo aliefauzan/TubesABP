@@ -1,6 +1,5 @@
 'use client';
 
-import { formatCurrency, formatDate, formatTime } from '@/utils/format';
 import { Train } from '@/types';
 import Button from './Button';
 
@@ -10,10 +9,6 @@ interface TrainCardProps {
 }
 
 const TrainCard = ({ train, onSelect }: TrainCardProps) => {
-  // Calculate hours and minutes for duration
-  const hours = Math.floor(train.duration_minutes / 60);
-  const minutes = train.duration_minutes % 60;
-  
   return (
     <div className="bg-white shadow-lg rounded-xl overflow-hidden transition-all hover:shadow-xl">
       <div className="p-5">
@@ -23,21 +18,21 @@ const TrainCard = ({ train, onSelect }: TrainCardProps) => {
             <h3 className="text-xl font-bold text-primary">{train.name}</h3>
             <div className="flex items-center mt-1">
               <span className="px-2 py-0.5 bg-blue-100 text-primary text-xs font-medium rounded-full">
-                {train.class_type}
+                {train.classType}
               </span>
               <span className="text-sm text-gray-500 ml-2">{train.operator}</span>
             </div>
           </div>
           <div className="text-right">
             <p className="text-xl font-bold text-secondary">
-              {formatCurrency(train.price)}
+              {train.price}
             </p>
             <div className="flex items-center justify-end mt-1">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
               </svg>
               <span className="text-sm text-gray-500">
-                {train.available_seats} kursi tersedia
+                {train.seatsLeft} kursi tersedia
               </span>
             </div>
           </div>
@@ -47,16 +42,16 @@ const TrainCard = ({ train, onSelect }: TrainCardProps) => {
         <div className="grid grid-cols-1 md:grid-cols-11 gap-3 items-center">
           {/* Departure info */}
           <div className="md:col-span-4">
-            <p className="text-xl font-bold text-gray-800">{formatTime(train.departure_time)}</p>
-            <p className="font-medium text-gray-700 mt-1">{train.departureStation?.name}</p>
-            <p className="text-sm text-gray-500">{train.departureStation?.city}</p>
+            <p className="text-xl font-bold text-gray-800">{train.time}</p>
+            <p className="font-medium text-gray-700 mt-1">{train.departureStationName}</p>
+            <p className="text-sm text-gray-500">{train.departure}</p>
           </div>
           
           {/* Duration */}
           <div className="md:col-span-3">
             <div className="flex flex-col items-center">
               <p className="text-sm text-gray-500 mb-2">
-                {hours > 0 ? `${hours}j ${minutes}m` : `${minutes}m`}
+                {train.duration}
               </p>
               <div className="relative w-full">
                 <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-300 -translate-y-1/2"></div>
@@ -68,9 +63,9 @@ const TrainCard = ({ train, onSelect }: TrainCardProps) => {
           
           {/* Arrival info */}
           <div className="md:col-span-4 text-right">
-            <p className="text-xl font-bold text-gray-800">{formatTime(train.arrival_time)}</p>
-            <p className="font-medium text-gray-700 mt-1">{train.arrivalStation?.name}</p>
-            <p className="text-sm text-gray-500">{train.arrivalStation?.city}</p>
+            <p className="text-xl font-bold text-gray-800">{train.arrivalTime}</p>
+            <p className="font-medium text-gray-700 mt-1">{train.arrivalStationName}</p>
+            <p className="text-sm text-gray-500">{train.arrival}</p>
           </div>
         </div>
       </div>
