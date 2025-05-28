@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { authService } from '@/lib/api';
+import { authService } from '@/utils/api';
 import { User } from '@/types';
 
 const Header = () => {
