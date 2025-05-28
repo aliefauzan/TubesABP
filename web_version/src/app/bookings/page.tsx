@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import Button from '@/components/Button';
 import { bookingService } from '@/utils/api';
 import { Booking } from '@/types';
@@ -24,7 +22,8 @@ export default function BookingsPage() {
           return;
         }
         
-        const data = await bookingService.getBookingHistory();
+        const userData = JSON.parse(storedUser);
+        const data = await bookingService.getBookingHistory(userData.uuid || userData.id);
         setBookings(data);
       } catch (error) {
         console.error('Error fetching bookings:', error);
@@ -97,10 +96,7 @@ export default function BookingsPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header />
-      
-      <main className="flex-grow container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8">
         <div className="bg-primary/10 rounded-xl p-6 mb-8">
           <h1 className="text-3xl font-bold text-primary">Riwayat Pemesanan</h1>
           <p className="text-gray-600 mt-2">Lihat status dan detail perjalanan Anda</p>
@@ -267,9 +263,6 @@ export default function BookingsPage() {
             ))}
           </div>
         )}
-      </main>
-      
-      <Footer />
-    </div>
+      </div>
   );
 }
