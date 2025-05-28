@@ -3,11 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import Button from '@/components/Button';
 import TrainCard from '@/components/TrainCard';
-import { trainService, stationService } from '@/lib/api';
+import { trainService, stationService } from '@/utils/api';
 import { Station, Train } from '@/types';
 
 export default function SearchPage() {
@@ -47,13 +45,12 @@ export default function SearchPage() {
     e.preventDefault();
     setIsLoading(true);
     setTrains([]);
-    
-    try {
-      const data = await trainService.searchTrains(
-        parseInt(formData.departureStation),
-        parseInt(formData.arrivalStation),
-        formData.date
-      );
+      try {
+      const data = await trainService.searchTrains({
+        departure_station_id: parseInt(formData.departureStation),
+        arrival_station_id: parseInt(formData.arrivalStation),
+        date: formData.date
+      });
       setTrains(data);
       setSearchPerformed(true);
     } catch (error) {
@@ -71,12 +68,8 @@ export default function SearchPage() {
     // Navigate to seat selection page
     router.push('/seat-selection');
   };
-
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header />
-      
-      <main className="flex-grow container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8">
         <div className="bg-primary rounded-xl p-6 text-white mb-8">
           <h1 className="text-3xl font-bold mb-4 text-center">Temukan Perjalanan Anda</h1>
           <p className="text-center mb-6">Cari tiket kereta untuk perjalanan ke berbagai destinasi di Indonesia</p>
@@ -267,11 +260,7 @@ export default function SearchPage() {
                 <p className="text-gray-600 text-center">Nikmati berbagai promo dan diskon spesial untuk perjalanan Anda.</p>
               </div>
             </div>
-          </div>
-        )}
-      </main>
-      
-      <Footer />
+          </div>        )}
     </div>
   );
 }

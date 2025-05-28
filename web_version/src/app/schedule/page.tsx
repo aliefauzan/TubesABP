@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FiArrowRight, FiCalendar, FiClock, FiUsers, FiChevronRight } from 'react-icons/fi';
-import Navbar from '@/components/Navbar';
 import { trainService, stationService, authService } from '@/utils/api';
 import { Train, Station } from '@/types';
 import theme from '@/utils/theme';
@@ -104,9 +103,7 @@ export default function SchedulePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <Navbar />
-      <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Search Summary */}
         <div className="bg-white rounded-xl shadow-md p-4 mb-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
@@ -203,7 +200,6 @@ export default function SchedulePage() {
             </div>
           )}
         </div>
-      </div>
-    </main>
+    </div>
   );
 } 

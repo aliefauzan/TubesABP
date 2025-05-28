@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { FiUser, FiMail, FiLock } from 'react-icons/fi';
 import { authService } from '@/utils/api';
 import theme from '@/utils/theme';
-import Navbar from '@/components/Navbar';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -69,9 +68,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <Navbar />
-      <div className="max-w-md mx-auto mt-10 px-4 sm:px-6 pb-16">
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-md mx-auto">
         <div className="bg-white rounded-xl shadow-md overflow-hidden p-6">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold" style={{ color: theme.primaryColor }}>Daftar Akun KeretaXpress</h1>
@@ -193,6 +191,6 @@ export default function RegisterPage() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
