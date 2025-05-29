@@ -76,13 +76,12 @@ const BottomNavigation = () => {
       icon: HomeIcon,
       iconSolid: HomeIconSolid,
       isActive: isActiveRoute('/')
-    },
-    {
+    },    {
       label: 'JADWAL',
-      path: '/search',
+      path: '/schedule',
       icon: ClockIcon,
       iconSolid: ClockIconSolid,
-      isActive: isActiveRoute('/search')
+      isActive: isActiveRoute('/schedule')
     },
     {
       label: 'RIWAYAT',

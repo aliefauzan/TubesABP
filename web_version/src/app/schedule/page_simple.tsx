@@ -168,24 +168,27 @@ export default function SchedulePage() {
                          train.arrivalStationName.toLowerCase().includes(query) ||
                          train.operator.toLowerCase().includes(query);
     return matchesClass && matchesSearch;
-  });  return (
-    <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+  });
+
+  return (
+    <div className="min-h-screen bg-gray-50 pb-20">
       {/* Simple Header - Flutter style */}
-      <div className="mb-6">
+      <div className="px-4 py-6">
         <h1 className="text-xl font-bold text-center text-gray-800">
           Pilih Jadwal Keberangkatan
         </h1>
       </div>
 
       {/* Compact Search Filter - Flutter style */}
-      <div className="mb-4">
+      <div className="mx-4 mb-6">
         <div className="bg-white rounded-lg shadow-sm p-4">
-          <form onSubmit={handleSearch} className="space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">              <div>
+          <form onSubmit={handleSearch} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
                 <select
                   value={departureStationId || ''}
                   onChange={(e) => setDepartureStationId(Number(e.target.value))}
-                  className="w-full py-2.5 px-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                  className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                   required
                 >
                   <option value="">Stasiun Keberangkatan</option>
@@ -196,11 +199,12 @@ export default function SchedulePage() {
                   ))}
                 </select>
               </div>
-                <div>
+              
+              <div>
                 <select
                   value={arrivalStationId || ''}
                   onChange={(e) => setArrivalStationId(Number(e.target.value))}
-                  className="w-full py-2.5 px-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                  className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                   required
                 >
                   <option value="">Stasiun Tujuan</option>
@@ -211,22 +215,25 @@ export default function SchedulePage() {
                   ))}
                 </select>
               </div>
-            </div>            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div>                <input
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <input
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full py-2.5 px-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                  className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                   min={new Date().toISOString().split('T')[0]}
                   required
                 />
               </div>
               
-              <div>                <select
+              <div>
+                <select
                   value={trainClassFilter}
                   onChange={(e) => setTrainClassFilter(e.target.value)}
-                  className="w-full py-2.5 px-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                  className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                 >
                   <option value="Semua">Semua Kelas</option>
                   <option value="Ekonomi">Ekonomi</option>
@@ -235,10 +242,11 @@ export default function SchedulePage() {
                 </select>
               </div>
               
-              <div>                <button 
+              <div>
+                <button 
                   type="submit" 
                   disabled={isLoading || !departureStationId || !arrivalStationId || !selectedDate}
-                  className="w-full py-2.5 text-sm rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+                  className="w-full py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
                   style={{ backgroundColor: theme.primaryColor, color: 'white' }}
                 >
                   {isLoading ? 'Mencari...' : 'Cari Kereta'}
@@ -247,11 +255,13 @@ export default function SchedulePage() {
             </div>
           </form>
         </div>
-      </div>      {/* Simple Search Field - Flutter style */}
-      <div className="mb-4">
+      </div>
+
+      {/* Simple Search Field - Flutter style */}
+      <div className="mx-4 mb-6">
         <div className="relative">
           <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
             </svg>
           </div>
@@ -260,28 +270,13 @@ export default function SchedulePage() {
             placeholder="Cari Kereta..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 py-2.5 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+            className="w-full pl-10 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
           />
         </div>
-      </div>      {/* Tampilkan Semua Kereta Button */}
-      <div className="mb-4">
-        <button
-          onClick={() => {
-            setSearchQuery('');
-            setTrainClassFilter('Semua');
-            setShowAllTrains(true);
-            fetchAllTrains();
-          }}
-          className="w-full py-2.5 px-4 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
-          style={{ color: theme.primaryColor, borderColor: theme.primaryColor }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-          </svg>
-          Tampilkan Semua Kereta
-        </button>
-      </div>      {/* Simple Train List - Flutter style */}
-      <div>
+      </div>
+
+      {/* Simple Train List - Flutter style */}
+      <div className="mx-4">
         {isLoading ? (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
@@ -306,10 +301,10 @@ export default function SchedulePage() {
                 onClick={() => handleSelectTrain(train)}
               >
                 {/* Train name and class */}
-                <div className="flex justify-between items-start mb-2">
+                <div className="flex justify-between items-start mb-3">
                   <div className="flex-1">
-                    <h3 className="text-sm font-bold text-gray-800">{train.name}</h3>
-                    <p className="text-xs text-gray-600">{train.operator}</p>
+                    <h3 className="font-bold text-gray-800">{train.name}</h3>
+                    <p className="text-sm text-gray-600">{train.operator}</p>
                   </div>
                   <span 
                     className="px-2 py-1 text-xs font-semibold rounded-md"
@@ -323,41 +318,41 @@ export default function SchedulePage() {
                 </div>
 
                 {/* Time and route */}
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-3">
                   <div className="text-left">
-                    <div className="text-base font-bold" style={{ color: theme.primaryColor }}>
+                    <div className="text-lg font-bold" style={{ color: theme.primaryColor }}>
                       {train.time}
                     </div>
-                    <div className="text-xs text-gray-600 truncate">
+                    <div className="text-sm text-gray-600">
                       {train.departureStationName}
                     </div>
                   </div>
 
-                  <div className="flex-1 flex items-center justify-center px-2">
+                  <div className="flex-1 flex items-center justify-center px-4">
                     <div className="flex-1 h-px bg-gray-300"></div>
-                    <div className="mx-2 text-xs text-gray-500">{train.duration}</div>
+                    <div className="mx-2 text-sm text-gray-500">{train.duration}</div>
                     <div className="flex-1 h-px bg-gray-300"></div>
                   </div>
 
                   <div className="text-right">
-                    <div className="text-base font-bold" style={{ color: theme.primaryColor }}>
+                    <div className="text-lg font-bold" style={{ color: theme.primaryColor }}>
                       {train.arrivalTime}
                     </div>
-                    <div className="text-xs text-gray-600 truncate">
+                    <div className="text-sm text-gray-600">
                       {train.arrivalStationName}
                     </div>
                   </div>
                 </div>
 
                 {/* Price and seats */}
-                <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                  <div className="text-sm font-bold" style={{ color: theme.primaryColor }}>
+                <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                  <div className="font-bold" style={{ color: theme.primaryColor }}>
                     {train.price}
                   </div>
-                  <div className="flex items-center text-xs text-gray-500">
-                    <FiUsers className="mr-1 h-3 w-3" />
+                  <div className="flex items-center text-sm text-gray-500">
+                    <FiUsers className="mr-1 h-4 w-4" />
                     <span>{train.seatsLeft} kursi</span>
-                    <FiChevronRight className="ml-2 h-3 w-3 text-gray-400" />
+                    <FiChevronRight className="ml-2 h-4 w-4 text-gray-400" />
                   </div>
                 </div>
               </div>
