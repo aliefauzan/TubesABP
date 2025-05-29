@@ -2,60 +2,51 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import Button from '@/components/Button';
-import { bookingService } from '@/utils/api'; // Assuming a similar service structure
-import { Booking, Train } from '@/types'; // Assuming similar types
+import { bookingService } from '@/utils/api';
+import { Train } from '@/types';
 import { formatCurrency, formatDate, formatTime } from '@/utils/format';
 import { FiRefreshCw, FiFilter, FiAlertCircle, FiCheckCircle, FiClock, FiInfo } from 'react-icons/fi';
-import theme from '@/utils/theme';
 
-// Mock train data for display purposes, as the Flutter version constructs it
-const createMockTrainFromBooking = (booking: Booking): Train => {
-  const trainData = booking.train; // Access the nested train object
+// Create train display data from booking, exactly like Flutter implementation
+const createTrainFromBooking = (booking: any): Train => {
+  const train = booking.train || {};
+  const departureStation = train.departure_station || {};
+  const arrivalStation = train.arrival_station || {};
 
-  // Determine a base date string for combining with time parts
-  // Prefer trainData.departure_time (or similar) if it's a full date string, or construct from parts
-  const baseDateStr = trainData?.departure_time && !isNaN(new Date(trainData.departure_time).getTime()) 
-                      ? new Date(trainData.departure_time).toISOString().split('T')[0] // 'YYYY-MM-DD'
-                      : new Date().toISOString().split('T')[0]; // Fallback to today's date part
+  // Status handling (matching Flutter: displayStatus = statusFromServer.isEmpty ? 'pending' : statusFromServer)
+  const statusFromServer = booking.status?.toString() || '';
+  const displayStatus = statusFromServer === '' ? 'pending' : statusFromServer;
 
-  let timePart = trainData?.departure_time ? new Date(trainData.departure_time).toTimeString().split(' ')[0] : '00:00:00';
-  if (timePart.match(/^\\d{2}:\\d{2}$/)) { // If HH:mm
-    timePart += ':00'; // Append seconds
-  } else if (!timePart.match(/^\\d{2}:\\d{2}:\\d{2}$/)) { // If not HH:mm:ss
-    timePart = '00:00:00'; // Default to midnight if format is unexpected
-  }
-  
-  const trainDepartureDateTimeStr = `${baseDateStr}T${timePart}Z`; 
-  const trainArrivalDateTimeStr = trainData?.arrival_time && !isNaN(new Date(trainData.arrival_time).getTime()) 
-                                  ? trainData.arrival_time 
-                                  : trainDepartureDateTimeStr; // Fallback for arrival time
+  // Create full datetime strings for compatibility with format functions
+  const fullDepartureDateTime = train.departure_time || new Date().toISOString();
+  const fullArrivalDateTime = train.arrival_time || new Date().toISOString();
 
   return {
-    id: trainData?.id?.toString() || booking.train_id?.toString() || Math.random().toString(),
-    name: trainData?.name || 'N/A',
-    operator: trainData?.operator || 'N/A',
+    id: train.id?.toString() || booking.train_id?.toString() || Math.random().toString(),
+    name: train.name || '',
+    operator: train.operator || '',
     
-    date: trainDepartureDateTimeStr, // Used by formatDate for departure date
-    time: trainDepartureDateTimeStr, // Used by formatTime for departure time
-
-    departure: trainData?.departure_station?.name || 'N/A',
-    arrival: trainData?.arrival_station?.name || 'N/A',
-    arrivalTime: trainData?.arrival_time || 'N/A', // Raw arrival time string from backend
-    duration: trainData?.travel_time || 'N/A', 
-    classType: booking.seatClass || trainData?.classType || 'N/A', // Prefer booking specific, then train, then fallback
-    price: trainData?.price || '0', // This is TRAIN's price, booking.total_price is for the whole booking
-    seatsLeft: trainData?.available_seats || 0, 
-    departureStationName: trainData?.departure_station?.name || 'N/A', 
-    arrivalStationName: trainData?.arrival_station?.name || 'N/A', 
-    train_number: trainData?.train_number || 'N/A',
-    // Ensure all fields expected by the Train interface are covered
+    date: fullDepartureDateTime, // For formatDate function
+    time: fullDepartureDateTime, // For formatTime function
+    
+    departure: departureStation.name || '',
+    arrival: arrivalStation.name || '',
+    arrivalTime: fullArrivalDateTime,
+    duration: train.travel_time || '', 
+    classType: train.class_type || '',
+    price: train.price?.toString() || '0',
+    seatsLeft: train.available_seats || 0, 
+    departureStationName: departureStation.name || '', 
+    arrivalStationName: arrivalStation.name || '', 
+    train_number: train.train_number || '',
   };
 };
 
 export default function BookingHistoryPage() {
   const router = useRouter();
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('Semua');
@@ -65,39 +56,41 @@ export default function BookingHistoryPage() {
     setIsLoading(true);
     setError(null);
     try {
-      // In a real app, you'd get the user ID from auth state
-      // For now, let's assume the bookingService handles user context or uses a stored UUID
+      // Get user data
       const user = localStorage.getItem('user');
       if (!user) {
         setError("Anda harus login untuk melihat riwayat.");
-        // router.push('/login'); // Optional: redirect to login
         setIsLoading(false);
         return;
       }
-      const userData = JSON.parse(user);
-      const data = await bookingService.getBookingHistory(userData.uuid || userData.id); // Use UUID or ID based on your user object
       
-      // Ensure data is an array before setting state
-      if (Array.isArray(data)) {
-        setBookings(data);
+      const userData = JSON.parse(user);
+      
+      // Fetch booking history - should include nested train data like Flutter
+      const bookingData = await bookingService.getBookingHistory(userData.uuid || userData.id);
+      
+      // Log the response to debug
+      console.log('Booking history response:', bookingData);
+      
+      // Ensure data is an array
+      if (Array.isArray(bookingData)) {
+        setBookings(bookingData);
       } else {
-        console.warn('Booking history data is not an array:', data);
-        setBookings([]); // Set to empty array if data is not as expected
+        console.warn('Booking history data is not an array:', bookingData);
+        setBookings([]);
       }
     } catch (err: any) {
       console.error('Failed to fetch booking history:', err);
       if (err.response?.status === 401) {
         setError("Sesi Anda telah berakhir atau Anda tidak diautentikasi. Silakan login kembali.");
-        // Optionally, redirect to login after a delay or provide a login button
-        // setTimeout(() => router.push('/login'), 3000);
       } else {
         setError(err.message || 'Gagal memuat riwayat pemesanan.');
       }
-      setBookings([]); // Clear bookings on error
+      setBookings([]);
     } finally {
       setIsLoading(false);
     }
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     fetchBookings();
@@ -159,10 +152,13 @@ export default function BookingHistoryPage() {
     }
   };
 
-
   const filteredBookings = selectedStatusFilter === 'Semua'
     ? bookings
-    : bookings.filter(booking => booking.status.toLowerCase() === selectedStatusFilter.toLowerCase());
+    : bookings.filter(booking => {
+        const statusFromServer = booking.status?.toString() || '';
+        const displayStatus = statusFromServer === '' ? 'pending' : statusFromServer;
+        return displayStatus.toLowerCase() === selectedStatusFilter.toLowerCase();
+      });
 
   if (isLoading) {
     return (
@@ -211,11 +207,16 @@ export default function BookingHistoryPage() {
             )}
           </div>
         </div>
-      )}
-
-      {!isLoading && !error && filteredBookings.length === 0 && (
+      )}      {!isLoading && !error && filteredBookings.length === 0 && (
         <div className="text-center py-10">
-          <img src="/images/empty-box.svg" alt="Tidak ada data" className="mx-auto mb-4 w-40 h-40" />
+          <div className="mx-auto mb-4 w-40 h-40 relative">
+            <Image 
+              src="/images/empty-box.svg" 
+              alt="Tidak ada data" 
+              fill
+              className="object-contain"
+            />
+          </div>
           <p className="text-xl text-gray-500">
             {selectedStatusFilter === 'Semua'
               ? 'Tidak ada riwayat pemesanan.'
@@ -227,46 +228,52 @@ export default function BookingHistoryPage() {
              </Button>
           )}
         </div>
-      )}
-
-      {!isLoading && !error && filteredBookings.length > 0 && (
+      )}      {!isLoading && !error && filteredBookings.length > 0 && (
         <div className="space-y-6">
           {filteredBookings.map((booking) => {
-            const train = createMockTrainFromBooking(booking); // Create mock train for card
+            // Log each booking to debug
+            console.log('Processing booking:', booking);
+            
+            const train = createTrainFromBooking(booking);
+            const statusFromServer = booking.status?.toString() || '';
+            const displayStatus = statusFromServer === '' ? 'pending' : statusFromServer;
+            
             return (
-              <div key={booking.transactionId} className="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl">
-                <div className={`p-5 border-l-4 ${booking.status === 'pending' ? 'border-yellow-500' : booking.status === 'confirmed' || booking.status === 'paid' ? 'border-green-500' : 'border-red-500'}`}>
+              <div key={booking.transaction_id} className="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl">
+                <div className={`p-5 border-l-4 ${displayStatus === 'pending' ? 'border-yellow-500' : displayStatus === 'confirmed' || displayStatus === 'paid' ? 'border-green-500' : 'border-red-500'}`}>
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
                     <div>
-                      <h2 className="text-xl font-semibold text-primary">{train.name}</h2>
-                      <p className="text-sm text-gray-500">Operator: {train.operator}</p>
+                      <h2 className="text-xl font-semibold text-primary">{train.name || 'Train Name N/A'}</h2>
+                      <p className="text-sm text-gray-500">Operator: {train.operator || 'Operator N/A'}</p>
                     </div>
-                    <div className={`mt-2 sm:mt-0 px-3 py-1 rounded-full text-sm font-medium flex items-center ${getStatusColor(booking.status)}`}>
-                      {getStatusIcon(booking.status)}
-                      {booking.status ? booking.status.charAt(0).toUpperCase() + booking.status.slice(1) : 'Tidak Diketahui'}
+                    <div className={`mt-2 sm:mt-0 px-3 py-1 rounded-full text-sm font-medium flex items-center ${getStatusColor(displayStatus)}`}>
+                      {getStatusIcon(displayStatus)}
+                      {displayStatus ? displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1) : 'Tidak Diketahui'}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4 text-sm">
                     <div>
                       <p className="text-gray-500">ID Transaksi:</p>
-                      <p className="font-medium text-gray-700">{booking.transaction_id || booking.transactionId}</p>
+                      <p className="font-medium text-gray-700">{booking.transaction_id}</p>
                     </div>
                     <div>
                       <p className="text-gray-500">Tanggal:</p>
-                      <p className="font-medium text-gray-700">{formatDate(train.date)}</p>
+                      <p className="font-medium text-gray-700">{booking.travel_date || 'Tanggal tidak tersedia'}</p>
                     </div>
                     <div>
                       <p className="text-gray-500">Waktu:</p>
-                      <p className="font-medium text-gray-700">{formatTime(train.time)}</p>
+                      <p className="font-medium text-gray-700">
+                        {train.time && formatTime(train.time) !== 'Invalid Date' ? formatTime(train.time) : 'Waktu tidak tersedia'}
+                      </p>
                     </div>
                     <div>
                       <p className="text-gray-500">Rute:</p>
-                      <p className="font-medium text-gray-700">{train.departure} → {train.arrival}</p>
+                      <p className="font-medium text-gray-700">{train.departure || 'N/A'} → {train.arrival || 'N/A'}</p>
                     </div>
                     <div>
                       <p className="text-gray-500">Kelas:</p>
-                      <p className="font-medium text-gray-700">{train.classType}</p>
+                      <p className="font-medium text-gray-700">{train.classType || 'Kelas tidak tersedia'}</p>
                     </div>
                     <div>
                       <p className="text-gray-500">Total Harga:</p>
@@ -278,19 +285,19 @@ export default function BookingHistoryPage() {
                     Dipesan pada: {booking.created_at && !isNaN(new Date(booking.created_at).getTime()) ? `${formatDate(booking.created_at)} ${formatTime(booking.created_at)}` : 'Tanggal tidak tersedia'}
                   </div>
 
-                  {booking.passenger_name && ( // Changed from passengerId to passenger_name for display
+                  {booking.passenger_name && (
                     <div className="mb-4">
                       <p className="text-sm font-medium text-gray-700 mb-1">Penumpang:</p>
                       <ul className="list-disc list-inside text-sm text-gray-600">
-                        <li>{booking.passenger_name} (ID: {booking.passenger_id_card || 'N/A'}, Kursi: {booking.seat_number || 'N/A'})</li>
+                        <li>{booking.passenger_name} (ID: {booking.passenger_id_number || 'N/A'}, Kursi: {booking.seat_number || 'N/A'})</li>
                       </ul>
                     </div>
                   )}
 
                   <div className="flex flex-col sm:flex-row items-center justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-3 border-t border-gray-200">
-                    {booking.status.toLowerCase() === 'pending' && (
+                    {displayStatus.toLowerCase() === 'pending' && (
                       <Button 
-                        onClick={() => router.push(`/payment?bookingId=${booking.transaction_id || booking.transactionId}`)} 
+                        onClick={() => router.push(`/payment?bookingId=${booking.transaction_id}`)} 
                         variant="primary"
                         size="sm"
                         disabled={isLoadingAction}
@@ -298,16 +305,15 @@ export default function BookingHistoryPage() {
                         Lanjutkan Pembayaran
                       </Button>
                     )}
-                     {(booking.status.toLowerCase() === 'confirmed' || booking.status.toLowerCase() === 'paid') && (
+                     {(displayStatus.toLowerCase() === 'confirmed' || displayStatus.toLowerCase() === 'paid') && (
                        <Button 
-                        onClick={() => alert(`Fitur download tiket untuk ${booking.transaction_id || booking.transactionId} belum tersedia.`)} 
+                        onClick={() => alert(`Fitur download tiket untuk ${booking.transaction_id} belum tersedia.`)} 
                         variant="outline"
                         size="sm"
                       >
                         Download Tiket
                       </Button>
                     )}
-                    {/* Placeholder for other actions like cancel, rebook, etc. */}
                   </div>
                 </div>
               </div>
