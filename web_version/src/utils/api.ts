@@ -297,9 +297,7 @@ export const trainService = {
   getAllTrains: async () => {
     try {
       const response = await api.get('/trains/all');
-      if (Array.isArray(response.data)) {
-        return response.data.map(train => transformTrainData(train));
-      }
+      // Return raw data for manual processing
       return response.data;
     } catch (error) {
       console.error('Error fetching all trains:', error);
@@ -347,9 +345,7 @@ export const bookingService = {
   getBookingHistory: async (userUuid: string) => {
     try {
       const response = await api.get(`/bookings/history?user_uuid=${userUuid}`);
-      if (Array.isArray(response.data)) {
-        return response.data.map(booking => transformBookingData(booking));
-      }
+      // Return raw data for manual processing on frontend
       return response.data;
     } catch (error) {
       console.error('Error fetching booking history:', error);
