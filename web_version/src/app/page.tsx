@@ -283,15 +283,17 @@ export default function Home() {
                   </div>
                 </div>
                 
-                {/* Enhanced Swap Button */}
+                {/* Swap Button - Match /schedule page style */}
                 <div className="flex justify-center lg:col-span-1">
                   <button
                     onClick={swapStations}
                     disabled={!selectedDepartureStation || !selectedArrivalStation}
-                    className="p-3 bg-blue-50 hover:bg-blue-100 disabled:bg-gray-100 disabled:cursor-not-allowed rounded-full transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500 group"
+                    className="w-12 h-12 rounded-full bg-secondary hover:bg-secondary/90 disabled:bg-gray-100 disabled:cursor-not-allowed flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-secondary group mt-4"
                     title="Tukar stasiun"
                   >
-                    <FiRefreshCcw className="text-blue-600 text-lg group-hover:rotate-180 transition-transform duration-300 disabled:text-gray-400" />
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white group-disabled:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m-4 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
                   </button>
                 </div>
                 
