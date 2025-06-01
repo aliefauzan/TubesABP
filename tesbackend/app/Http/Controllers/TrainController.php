@@ -115,9 +115,8 @@ class TrainController extends Controller
         if (!$date) {
             return response()->json(['error' => 'Date is required'], 400);
         }
-        // Example: 40 seats, A1-A40
-        $allSeats = collect(range(1, 40))->map(fn(
-          $n) => 'A' . $n)->toArray();
+        // Generate seats from 1 to the train's total available_seats count
+        $allSeats = range(1, $train->available_seats); 
         $bookedSeats = \App\Models\Booking::where('train_id', $id)
             ->where('travel_date', $date)
             ->pluck('seat_number')
