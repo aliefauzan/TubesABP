@@ -302,7 +302,7 @@ export default function SchedulePage() {
             {filteredTrains.map((train) => (
               <div 
                 key={train.id} 
-                className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-100 hover:border-blue-200" 
+                className="bg-white rounded-lg shadow-card p-4 hover:shadow-card-hover transition-all duration-200 cursor-pointer border border-gray-100 hover:border-blue-200" 
                 onClick={() => handleSelectTrain(train)}
               >
                 {/* Train name and class */}

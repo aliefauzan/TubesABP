@@ -101,15 +101,14 @@ const BottomNavigation = () => {
   ];
 
   return (
-    <>
-      {/* Account Dialog/Modal */}
+    <>      {/* Account Dialog/Modal */}
       {showAccountDialog && user && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-sm">
-            <div className="text-center mb-4">
-              <UserCircleIconSolid className="w-16 h-16 mx-auto text-primary mb-2" />
-              <h3 className="text-lg font-semibold text-gray-800">{user.name}</h3>
-              <p className="text-gray-600">{user.email}</p>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl transform transition-all duration-200 animate-scale-in">
+            <div className="text-center mb-6">
+              <UserCircleIconSolid className="w-16 h-16 mx-auto text-primary mb-3" />
+              <h3 className="text-lg font-semibold text-gray-800 truncate">{user.name}</h3>
+              <p className="text-gray-600 text-sm truncate">{user.email}</p>
             </div>
             <div className="space-y-3">
               <button
@@ -136,10 +135,8 @@ const BottomNavigation = () => {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+      )}      {/* Bottom Navigation Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-t border-gray-200/50 shadow-lg z-40">
         <div className="flex justify-around items-center py-2 px-4">
           {navItems.map((item) => {
             const IconComponent = item.isActive ? item.iconSolid : item.icon;

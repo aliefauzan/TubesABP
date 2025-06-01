@@ -1,14 +1,62 @@
-# KeretaXpress Web
+# 🚄 KeretaXpress - Modern Train Booking Platform
 
-A modern train booking web application built with Next.js, connecting to a Laravel backend API.
+<div align="center">
 
-## Features
+![KeretaXpress Logo](https://img.shields.io/badge/KeretaXpress-Train%20Booking-blue?style=for-the-badge)
+![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=nextdotjs)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue?style=for-the-badge&logo=typescript)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4-38BDF8?style=for-the-badge&logo=tailwindcss)
+
+*A beautiful, modern, and feature-rich train booking platform built with Next.js and TypeScript*
+
+</div>
+
+## 🌟 Enhanced Features
+
+### 🎨 **Modern UI/UX Design**
+- Beautiful dark blue gradient background with animated SVG patterns
+- Responsive design that works on all devices
+- Smooth animations and micro-interactions
+- Professional component library with consistent design language
+
+### 🔍 **Advanced Search System**
+- Intelligent search suggestions with keyboard navigation
+- Search history with localStorage persistence
+- Popular routes and recent destinations
+- Real-time form validation and feedback
+
+### 📱 **Progressive Web App (PWA)**
+- Native app installation prompts
+- Offline-ready architecture
+- Push notifications support
+- App-like user experience
+
+### 🔔 **Real-Time Notifications**
+- Centralized notification center
+- Toast notifications with multiple types
+- Booking reminders and price alerts
+- Badge system with unread counters
+
+### 🎫 **Comprehensive Booking Flow**
+- Multi-step booking confirmation process
+- Quick booking widget for popular routes
+- Dynamic pricing display
+- Payment integration ready
+
+### 📊 **Interactive Dashboard**
+- Animated statistics with trend indicators
+- Customer testimonials carousel
+- Promotional offers with countdown timers
+- User feedback system with star ratings
+
+## 🚀 Core Features
 
 - User authentication (login/register)
-- Train schedule search
-- Seat selection
-- Booking management
+- Train schedule search with advanced filtering
+- Seat selection with real-time availability
+- Booking management and history
 - Payment confirmation process
+- Real-time notifications and updates
 
 ## Getting Started
 

@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import EnhancedNavbar from '@/components/EnhancedNavbar';
 import BottomNavigation from '@/components/BottomNavigation';
-import EnhancedFooter from '@/components/EnhancedFooter';
+import Footer from '@/components/Footer';
 import SvgPatternBackground from '@/components/SvgPatternBackground';
 import { ToastProvider } from '@/components/Toast';
 
@@ -28,7 +28,7 @@ export default function RootLayout({
             <main className="min-h-screen pb-20 pt-20 relative z-10">
               {children}
             </main>
-            <EnhancedFooter />
+            <Footer />
             <BottomNavigation />
           </SvgPatternBackground>
         </ToastProvider>

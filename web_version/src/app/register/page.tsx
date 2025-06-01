@@ -70,7 +70,7 @@ export default function RegisterPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-md mx-auto">
-        <div className="bg-white rounded-xl shadow-md overflow-hidden p-6">
+        <div className="bg-white rounded-xl shadow-card overflow-hidden p-6">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold" style={{ color: theme.primaryColor }}>Daftar Akun KeretaXpress</h1>
             <p className="text-gray-600 mt-2">Buat akun untuk memesan tiket kereta</p>
