@@ -239,7 +239,7 @@ export default function BookingHistoryPage() {
             const displayStatus = statusFromServer === '' ? 'pending' : statusFromServer;
             
             return (
-              <div key={booking.transaction_id} className="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl">
+              <div key={booking.transaction_id} className="bg-white rounded-xl shadow-card overflow-hidden transition-all hover:shadow-card-hover">
                 <div className={`p-5 border-l-4 ${displayStatus === 'pending' ? 'border-yellow-500' : displayStatus === 'confirmed' || displayStatus === 'paid' ? 'border-green-500' : 'border-red-500'}`}>
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
                     <div>

@@ -112,9 +112,8 @@ export default function SeatsPage() {
             </div>
           </div>
         ) : train ? (
-          <>
-            {/* Train Info */}
-            <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+          <>            {/* Train Info */}
+            <div className="bg-white rounded-xl shadow-card p-6 mb-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div className="mb-3 md:mb-0">
                   <h1 className="text-xl font-bold">{train.name}</h1>
@@ -136,9 +135,8 @@ export default function SeatsPage() {
                 </div>
               </div>
             </div>
-            
-            {/* Seat Selection */}
-            <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+              {/* Seat Selection */}
+            <div className="bg-white rounded-xl shadow-card overflow-hidden mb-6">
               <div className="p-4 border-b">
                 <h2 className="text-lg font-bold">Pilih Kursi</h2>
                 <p className="text-sm text-gray-600">Silakan pilih kursi yang tersedia</p>

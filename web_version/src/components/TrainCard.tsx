@@ -10,7 +10,7 @@ interface TrainCardProps {
 
 const TrainCard = ({ train, onSelect }: TrainCardProps) => {
   return (
-    <div className="bg-white shadow-lg rounded-xl overflow-hidden transition-all hover:shadow-xl">
+    <div className="bg-white shadow-card rounded-xl overflow-hidden transition-all hover:shadow-card-hover">
       <div className="p-5">
         {/* Train header */}
         <div className="flex flex-col md:flex-row justify-between mb-4">

@@ -22,7 +22,7 @@ export default function PaymentPage() {
     const storedTrain = sessionStorage.getItem('selectedTrain');
     
     if (!storedBooking || !storedTrain) {
-      router.push('/search');
+      router.push('/schedule');
       return;
     }
     
@@ -110,9 +110,8 @@ export default function PaymentPage() {
               <p className="text-sm">Reservasi Anda akan dibatalkan jika pembayaran tidak diselesaikan tepat waktu.</p>
             </div>
           </div>
-          
-          {/* Booking Summary */}
-          <div className="bg-white p-6 rounded-xl shadow-md mb-8">
+            {/* Booking Summary */}
+          <div className="bg-white p-6 rounded-xl shadow-card mb-8">
             <h2 className="text-xl font-bold mb-4 flex items-center">
               <svg className="w-5 h-5 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -173,9 +172,8 @@ export default function PaymentPage() {
               </div>
             </div>
           </div>
-          
-          {/* Payment Instructions */}
-          <div className="bg-white p-6 rounded-xl shadow-md mb-8">
+            {/* Payment Instructions */}
+          <div className="bg-white p-6 rounded-xl shadow-card mb-8">
             <h2 className="text-xl font-bold mb-4 flex items-center">
               <svg className="w-5 h-5 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />

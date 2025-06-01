@@ -17,7 +17,7 @@ export default function PaymentSuccessPage() {
     const storedTrain = sessionStorage.getItem('selectedTrain');
     
     if (!storedBooking || !storedTrain) {
-      router.push('/search');
+      router.push('/schedule');
       return;
     }
     
@@ -52,7 +52,7 @@ export default function PaymentSuccessPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-3xl mx-auto">
-        <div className="bg-white p-8 rounded-xl shadow-md">
+        <div className="bg-white p-8 rounded-xl shadow-card">
           <div className="text-center mb-8">
             <div className="bg-green-100 text-green-700 rounded-full p-5 w-24 h-24 mx-auto mb-5 flex items-center justify-center shadow-inner">
               <svg className="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
