@@ -8,6 +8,7 @@ import { MdSwapVert, MdOutlineCompareArrows } from 'react-icons/md';
 import { trainService, stationService, authService } from '@/utils/api';
 import { Train, Station } from '@/types';
 import theme from '@/utils/theme';
+import ScheduleSkeleton from '@/components/skeletons/ScheduleSkeleton';
 
 export default function SchedulePage() {
   const router = useRouter();
@@ -48,8 +49,7 @@ export default function SchedulePage() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await trainService.getAllTrains();
-      if (response && response.trains && Array.isArray(response.trains)) {
+      const response = await trainService.getAllTrains();      if (response && response.trains && Array.isArray(response.trains)) {
         const transformedTrains = response.trains.map((train: any) => ({
           id: train.id,
           name: train.name || '',
@@ -59,6 +59,9 @@ export default function SchedulePage() {
           seatsLeft: train.available_seats || 0,
           time: train.departure_time ? new Date(train.departure_time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) : '',
           arrivalTime: train.arrival_time ? new Date(train.arrival_time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) : '',
+          // Preserve raw time fields for format functions
+          departure_time: train.departure_time || '',
+          arrival_time: train.arrival_time || '',
           departureStationName: train.departure_station?.name || '',
           arrivalStationName: train.arrival_station?.name || '',
           departure: train.departure_station?.name || '',
@@ -90,9 +93,7 @@ export default function SchedulePage() {
         departure_station_id: departureId,
         arrival_station_id: arrivalId,
         date: formattedDate,
-      });
-
-      if (response && response.trains && Array.isArray(response.trains)) {
+      });      if (response && response.trains && Array.isArray(response.trains)) {
         const transformedTrains = response.trains.map((train: any) => ({
           id: train.id,
           name: train.name || '',
@@ -102,6 +103,9 @@ export default function SchedulePage() {
           seatsLeft: train.available_seats || 0,
           time: train.departure_time ? new Date(train.departure_time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) : '',
           arrivalTime: train.arrival_time ? new Date(train.arrival_time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) : '',
+          // Preserve raw time fields for format functions
+          departure_time: train.departure_time || '',
+          arrival_time: train.arrival_time || '',
           departureStationName: train.departure_station?.name || '',
           arrivalStationName: train.arrival_station?.name || '',
           departure: train.departure_station?.name || '',
@@ -158,7 +162,6 @@ export default function SchedulePage() {
       setArrivalStationId(stations[1].id);
     }
   }, [stations, searchParams, departureStationId, arrivalStationId]);
-
   const handleSelectTrain = (train: Train) => {
     const isLoggedIn = authService.isLoggedIn();
     
@@ -167,7 +170,12 @@ export default function SchedulePage() {
       return;
     }
     
-    router.push(`/seats?train_id=${train.id}&date=${selectedDate}`);
+    // Store train data and travel date in session storage
+    sessionStorage.setItem('selectedTrain', JSON.stringify(train));
+    sessionStorage.setItem('travelDate', selectedDate);
+    
+    // Navigate to seat selection page
+    router.push('/seat-selection');
   };
   // Enhanced filtering and sorting functionality
   const filteredAndSortedTrains = trains
@@ -608,42 +616,10 @@ export default function SchedulePage() {
             } ({sortOrder === 'asc' ? 'naik' : 'turun'})
           </div>
         </div>
-      )}
-
-      {/* Enhanced Train List */}
+      )}      {/* Enhanced Train List */}
       <div>
         {isLoading ? (
-          <div className="space-y-4">
-            {/* Loading Skeletons */}
-            {[...Array(5)].map((_, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-sm p-6 animate-pulse">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-                  </div>
-                  <div className="h-6 bg-gray-200 rounded w-16"></div>
-                </div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="text-left">
-                    <div className="h-6 bg-gray-200 rounded w-16 mb-1"></div>
-                    <div className="h-3 bg-gray-200 rounded w-20"></div>
-                  </div>
-                  <div className="flex-1 flex items-center justify-center px-4">
-                    <div className="h-px bg-gray-200 w-full"></div>
-                  </div>
-                  <div className="text-right">
-                    <div className="h-6 bg-gray-200 rounded w-16 mb-1"></div>
-                    <div className="h-3 bg-gray-200 rounded w-20"></div>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center pt-4 border-t border-gray-100">
-                  <div className="h-4 bg-gray-200 rounded w-24"></div>
-                  <div className="h-4 bg-gray-200 rounded w-20"></div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ScheduleSkeleton />
         ) : error ? (
           <div className="py-12 text-center">
             <div className="mx-auto w-24 h-24 mb-4 text-red-400">
