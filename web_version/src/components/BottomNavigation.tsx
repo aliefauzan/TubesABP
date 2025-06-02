@@ -135,8 +135,24 @@ const BottomNavigation = () => {
             </div>
           </div>
         </div>
-      )}      {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-t border-gray-200/50 shadow-lg z-40">
+      )}      {/* Wave Divider */}
+      <div className="fixed bottom-16 left-0 right-0 z-40 pointer-events-none">
+        <svg
+          className="w-full h-20"
+          viewBox="0 0 1440 100"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0,20 C150,60 350,0 500,20 C650,60 850,0 1000,20 C1150,60 1350,0 1440,20 L1440,100 L0,100 Z"
+            fill="white"
+            className="drop-shadow-md"
+          />
+        </svg>
+      </div>
+
+      {/* Bottom Navigation Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-lg z-50">
         <div className="flex justify-around items-center py-2 px-4">
           {navItems.map((item) => {
             const IconComponent = item.isActive ? item.iconSolid : item.icon;
