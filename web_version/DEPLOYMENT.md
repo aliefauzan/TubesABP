@@ -1,30 +1,104 @@
 # 🚀 KeretaXpress Deployment Guide
 
 ## Overview
-This guide covers deploying the KeretaXpress web application to various platforms including Vercel, Netlify, and traditional hosting providers.
+This guide covers deploying the KeretaXpress web application to various platforms including Google Cloud Run, Vercel, Netlify, and traditional hosting providers.
 
-## 📋 Pre-Deployment Checklist
+## 🏗️ Google Cloud Run (Production Ready)
 
-### ✅ Code Quality
-- [ ] All TypeScript errors resolved
-- [ ] ESLint warnings addressed
-- [ ] Build process completes successfully
-- [ ] All components render without errors
-- [ ] Mobile responsiveness verified
+### Prerequisites
+- Google Cloud Project: `tubesabp-459213`
+- Google Cloud SDK installed and configured
+- Docker installed locally (for testing)
+- Artifact Registry enabled
+- Cloud Run API enabled
+- Cloud Build API enabled
 
-### ✅ Environment Configuration
-- [ ] Environment variables configured
-- [ ] API endpoints updated for production
-- [ ] HTTPS enabled for all external resources
-- [ ] Analytics tracking codes added (if applicable)
+### Deployment Files
+The following files are pre-configured for Google Cloud Run deployment:
 
-### ✅ Performance Optimization
-- [ ] Images optimized and properly sized
-- [ ] Unused code removed
-- [ ] Bundle size analyzed and optimized
-- [ ] Loading performance tested
+#### 1. `Dockerfile`
+- Multi-stage Node.js 18 Alpine build
+- Optimized for Next.js standalone output
+- Production-ready with security best practices
+- Non-root user configuration
+- Port 3000 exposed
 
-## 🌐 Deployment Platforms
+#### 2. `cloudbuild.yaml`
+- Automated CI/CD pipeline
+- Builds Docker image
+- Pushes to Artifact Registry
+- Deploys to Cloud Run
+- Configured with proper resource limits:
+  - Memory: 1Gi
+  - CPU: 1
+  - Min instances: 0
+  - Max instances: 10
+  - Port: 3000
+
+#### 3. `.dockerignore`
+- Optimized build context
+- Excludes development files and dependencies
+
+### Quick Deployment Steps
+
+1. **Build and Test Locally**
+   ```bash
+   # Test the build
+   npm run build
+   
+   # Test Docker build (optional)
+   docker build -t keretaxpress-test .
+   docker run -p 3000:3000 keretaxpress-test
+   ```
+
+2. **Deploy via Cloud Build**
+   ```bash
+   # Ensure you're in the web_version directory
+   cd web_version
+   
+   # Submit build to Cloud Build
+   gcloud builds submit --config cloudbuild.yaml .
+   ```
+
+3. **Manual Deployment (Alternative)**
+   ```bash
+   # Build and push image
+   docker build -t asia-southeast2-docker.pkg.dev/tubesabp-459213/cloud-run-source-deploy/keretaxpress-frontend .
+   docker push asia-southeast2-docker.pkg.dev/tubesabp-459213/cloud-run-source-deploy/keretaxpress-frontend
+   
+   # Deploy to Cloud Run
+   gcloud run deploy keretaxpress-frontend \
+     --image=asia-southeast2-docker.pkg.dev/tubesabp-459213/cloud-run-source-deploy/keretaxpress-frontend \
+     --region=asia-southeast2 \
+     --platform=managed \
+     --port=3000 \
+     --memory=1Gi \
+     --cpu=1 \
+     --min-instances=0 \
+     --max-instances=10 \
+     --allow-unauthenticated
+   ```
+
+### Configuration Details
+
+- **Project ID**: `tubesabp-459213`
+- **Region**: `asia-southeast2` (Jakarta)
+- **Service Name**: `keretaxpress-frontend`
+- **Artifact Registry**: `cloud-run-source-deploy`
+- **Public Access**: Enabled (--allow-unauthenticated)
+
+### Monitoring and Logs
+- **Cloud Console**: https://console.cloud.google.com/run
+- **Logs**: `gcloud logs read --service=keretaxpress-frontend`
+- **Metrics**: Available in Cloud Monitoring
+
+### Environment Variables (Optional)
+Add environment variables via Cloud Run console or CLI:
+```bash
+gcloud run services update keretaxpress-frontend \
+  --set-env-vars="NODE_ENV=production,NEXT_PUBLIC_API_URL=https://your-api-url.com" \
+  --region=asia-southeast2
+```
 
 ### 1. Vercel (Recommended)
 
