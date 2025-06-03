@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { FiCalendar, FiRefreshCcw, FiSearch } from 'react-icons/fi';
 import { FaTrain, FaUsers } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
@@ -21,8 +20,6 @@ import EnhancedStatsSection from '@/components/EnhancedStatsSection';
 import PromoCarousel from '@/components/PromoCarousel';
 import TestimonialSection from '@/components/TestimonialSection';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
-import BookingConfirmationModal from '@/components/BookingConfirmationModal';
-import RealTimeNotifications from '@/components/RealTimeNotifications';
 
 export default function Home() {
   const router = useRouter();
@@ -38,10 +35,7 @@ export default function Home() {
   const [showSearchHistory, setShowSearchHistory] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [showQuickBooking, setShowQuickBooking] = useState(false);
-  const [showBookingConfirmation, setShowBookingConfirmation] = useState(false);
-  const [selectedBookingDetails, setSelectedBookingDetails] = useState<any>(null);
+
 
   useEffect(() => {
     checkLoginStatus();
@@ -170,33 +164,6 @@ export default function Home() {
       type: 'success',
       title: 'Terima Kasih!',
       message: 'Feedback Anda sangat berharga untuk kami'
-    });
-  };
-
-  const handleQuickBookingSelect = (route: any) => {
-    const bookingDetails = {
-      departure: route.from,
-      arrival: route.to,
-      date: selectedDate.toLocaleDateString('id-ID'),
-      time: route.nextDeparture,
-      passengers: passengerCount,
-      trainClass: 'Executive',
-      price: route.price * passengerCount,
-      duration: route.duration
-    };
-    
-    setSelectedBookingDetails(bookingDetails);
-    setShowQuickBooking(false);
-    setShowBookingConfirmation(true);
-  };
-
-  const handleBookingConfirm = () => {
-    setShowBookingConfirmation(false);
-    setSelectedBookingDetails(null);
-    showToast({
-      type: 'success',
-      title: 'Pemesanan Berhasil!',
-      message: 'Tiket Anda telah berhasil dipesan. Cek email untuk detail.'
     });
   };
 
@@ -549,7 +516,7 @@ export default function Home() {
             {/* Quick Actions Menu */}
             <div className="absolute bottom-16 right-0 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 space-y-2">
               <button 
-                onClick={() => setShowQuickBooking(true)}
+                onClick={() => searchFormRef.current?.scrollIntoView({ behavior: 'smooth' })}
                 className="flex items-center gap-2 bg-white text-gray-800 px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 whitespace-nowrap"
               >
                 <FaTrain className="w-4 h-4" />

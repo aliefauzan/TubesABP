@@ -128,11 +128,9 @@ const TestimonialSection: React.FC = () => {
                   {/* Quote Icon */}
                   <div className="mb-4">
                     <FaQuoteLeft className="text-blue-300 text-2xl opacity-50" />
-                  </div>
-
-                  {/* Comment */}
+                  </div>                  {/* Comment */}
                   <p className="text-blue-100 text-sm leading-relaxed mb-6 line-clamp-4">
-                    "{testimonial.comment}"
+                    &quot;{testimonial.comment}&quot;
                   </p>
 
                   {/* Rating */}

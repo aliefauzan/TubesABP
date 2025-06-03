@@ -1,14 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FiArrowRight, FiCheck } from 'react-icons/fi';
 import { trainService, stationService } from '@/utils/api';
 import { Train, Station } from '@/types';
-import { formatCurrency } from '@/utils/format';
 import theme from '@/utils/theme';
 
-export default function SeatsPage() {
+function SeatsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [train, setTrain] = useState<Train | null>(null);
@@ -64,22 +63,20 @@ export default function SeatsPage() {
     }
   };
   
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
 
   const handleSelectSeat = (seat: string) => {
     setSelectedSeat(seat);
   };
-
   const handleContinue = () => {
     if (!train || !selectedSeat) return;
     
-    router.push(`/passenger-data?train_id=${train.id}&seat=${selectedSeat}&date=${searchParams.get('date')}`);
+    // Store train data and seat selection in session storage
+    sessionStorage.setItem('selectedTrain', JSON.stringify(train));
+    sessionStorage.setItem('travelDate', searchParams.get('date') || '');
+    sessionStorage.setItem('selectedSeat', selectedSeat);
+    
+    // Navigate to passenger information page
+    router.push('/passenger-info');
   };
   
   const getDepartureStationName = () => {
@@ -216,4 +213,12 @@ export default function SeatsPage() {
           </>        ) : null}
     </div>
   );
-} 
+}
+
+export default function SeatsPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div></div>}>
+      <SeatsPageContent />
+    </Suspense>
+  );
+}
