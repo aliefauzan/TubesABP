@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FiTrendingUp, FiClock, FiUsers, FiMapPin } from 'react-icons/fi';
 import { FaTrain } from 'react-icons/fa';
 
@@ -16,17 +16,8 @@ interface StatsCardProps {
 const StatsCard: React.FC<StatsCardProps> = ({ icon, title, value, trend, color, delay = 0 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [animatedValue, setAnimatedValue] = useState('0');
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-      animateValue();
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [delay]);
-
-  const animateValue = () => {
+  
+  const animateValue = useCallback(() => {
     const numericValue = parseInt(value.replace(/\D/g, ''));
     const duration = 2000;
     const steps = 60;
@@ -51,7 +42,16 @@ const StatsCard: React.FC<StatsCardProps> = ({ icon, title, value, trend, color,
         setAnimatedValue(Math.floor(current).toString());
       }
     }, duration / steps);
-  };
+  }, [value]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+      animateValue();
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [delay, animateValue]);
 
   return (
     <div 

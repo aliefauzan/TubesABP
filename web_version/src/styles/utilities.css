@@ -1,0 +1,138 @@
+/* Custom utility classes for the KeretaXpress application */
+
+/* Theme-based utilities */
+.text-primary {
+  color: rgb(var(--primary-rgb));
+}
+
+.bg-primary {
+  background-color: rgb(var(--primary-rgb));
+}
+
+.border-primary {
+  border-color: rgb(var(--primary-rgb));
+}
+
+.text-primary-light {
+  color: rgb(var(--primary-light-rgb));
+}
+
+.bg-primary-light {
+  background-color: rgb(var(--primary-light-rgb));
+}
+
+.text-primary-dark {
+  color: rgb(var(--primary-dark-rgb));
+}
+
+.bg-primary-dark {
+  background-color: rgb(var(--primary-dark-rgb));
+}
+
+/* Loading spinner with primary color */
+.spinner-primary {
+  border-color: rgb(var(--primary-rgb));
+  border-top-color: transparent;
+}
+
+/* Animation delays */
+.animate-delay-500 {
+  animation-delay: 0.5s;
+}
+
+.animate-delay-1000 {
+  animation-delay: 1s;
+}
+
+.animate-delay-1500 {
+  animation-delay: 1.5s;
+}
+
+/* Custom button variants */
+.btn-primary {
+  background-color: rgb(var(--primary-rgb));
+  color: white;
+  border: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+  background-color: rgb(var(--primary-dark-rgb));
+}
+
+.btn-primary:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-primary-outline {
+  background-color: transparent;
+  color: rgb(var(--primary-rgb));
+  border: 2px solid rgb(var(--primary-rgb));
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-primary-outline:hover {
+  background-color: rgb(var(--primary-rgb));
+  color: white;
+}
+
+/* Train card animations */
+.train-card {
+  transition: all 0.3s ease-in-out;
+}
+
+.train-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Form input focus states */
+.input-primary:focus {
+  border-color: rgb(var(--primary-rgb));
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+/* Seat selection styles */
+.seat-available {
+  background-color: #f3f4f6;
+  border: 2px solid #d1d5db;
+  color: #6b7280;
+}
+
+.seat-selected {
+  background-color: rgb(var(--primary-rgb));
+  color: white;
+  border: 2px solid rgb(var(--primary-dark-rgb));
+}
+
+.seat-occupied {
+  background-color: #fca5a5;
+  color: #991b1b;
+  border: 2px solid #dc2626;
+  cursor: not-allowed;
+}
+
+/* Status badges */
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-confirmed {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-cancelled {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Responsive utilities */
+@media (max-width: 640px) {
+  .mobile-padding {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}

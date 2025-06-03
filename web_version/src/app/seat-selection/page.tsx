@@ -2,10 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Button from '@/components/Button';
+import TripSummaryCard from '@/components/TripSummaryCard';
 import { trainService } from '@/utils/api';
 import { Train } from '@/types';
-import { formatCurrency, formatDate, formatTime } from '@/utils/format';
+import SeatSelectionSkeleton from '@/components/skeletons/SeatSelectionSkeleton';
+import SeatLegend from '@/components/seat-selection/SeatLegend';
+import SeatMap from '@/components/seat-selection/SeatMap';
+import SelectionSummary from '@/components/seat-selection/SelectionSummary';
+import NoSeatsAvailable from '@/components/seat-selection/NoSeatsAvailable';
+import TrainNotFound from '@/components/seat-selection/TrainNotFound';
 
 export default function SeatSelectionPage() {
   const router = useRouter();
@@ -13,35 +18,62 @@ export default function SeatSelectionPage() {
   const [travelDate, setTravelDate] = useState<string>('');
   const [availableSeats, setAvailableSeats] = useState<string[]>([]);
   const [selectedSeat, setSelectedSeat] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading true
 
   useEffect(() => {
-    // Retrieve train data from sessionStorage
-    const storedTrain = sessionStorage.getItem('selectedTrain');
+    const storedTrainJSON = sessionStorage.getItem('selectedTrain');
     const storedDate = sessionStorage.getItem('travelDate');
     
-    if (!storedTrain || !storedDate) {
+    if (!storedTrainJSON || !storedDate) {
+      console.warn("Missing train data or date in session storage. Redirecting to schedule.");
       router.push('/schedule');
       return;
     }
     
-    const parsedTrain: Train = JSON.parse(storedTrain);
-    setTrain(parsedTrain);
+    let parsedTrainData: Train | null = null;
+    try {
+      parsedTrainData = JSON.parse(storedTrainJSON);
+    } catch (e) {
+      console.error("Failed to parse train data from session storage:", e);
+      router.push('/schedule');
+      return;
+    }
+
+    if (!parsedTrainData || !parsedTrainData.id) {
+        console.error("Parsed train data is invalid or missing ID. Redirecting to schedule.");
+        setTrain(null); 
+        setTravelDate('');
+        setAvailableSeats([]);
+        // setIsLoading(false); // Not strictly needed if redirecting immediately
+        router.push('/schedule');
+        return;
+    }
+
+    setTrain(parsedTrainData);
     setTravelDate(storedDate);
     
-    const fetchAvailableSeats = async () => {
+    const fetchSeatsForTrain = async (trainId: string, date: string) => {
+      // setIsLoading(true); // isLoading is already true from initial state
       try {
-        const seats = await trainService.getAvailableSeats(Number(parsedTrain.id), storedDate);
-        setAvailableSeats(seats);
+        const seats = await trainService.getAvailableSeats(Number(trainId), date);
+        if (Array.isArray(seats)) {
+          setAvailableSeats(seats);
+        } else {
+          console.warn('Available seats response is not an array:', seats);
+          setAvailableSeats([]);
+        }
       } catch (error) {
         console.error('Error fetching available seats:', error);
+        setAvailableSeats([]);
       } finally {
         setIsLoading(false);
       }
     };
     
-    fetchAvailableSeats();
-  }, [router]);
+    fetchSeatsForTrain(parsedTrainData.id, storedDate);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Changed dependency array to [] for mount-only effect
 
   const handleSeatClick = (seat: string) => {
     setSelectedSeat(seat);
@@ -59,145 +91,50 @@ export default function SeatSelectionPage() {
     // Navigate to passenger information page
     router.push('/passenger-info');
   };
-
   if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-lg">Memuat kursi yang tersedia...</p>
-        </div>
-      </div>
-    );
+    return <SeatSelectionSkeleton />;
   }
-
   if (!train) {
-    return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <h1 className="text-2xl font-bold text-red-600 mb-4">Data Tidak Ditemukan</h1>
-        <p className="text-gray-600 mb-6">Data kereta tidak ditemukan. Silakan pilih kereta terlebih dahulu.</p>
-        <Button onClick={() => router.push('/schedule')}>
-          Kembali ke Pencarian
-        </Button>
-      </div>
-    );
+    return <TrainNotFound onBackToSchedule={() => router.push('/schedule')} />;
   }
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center">Pilih Kursi Anda</h1>
-          {/* Train Information Card */}
+        <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center text-white drop-shadow-lg">Pilih Kursi Anda</h1>          {/* Trip Summary Card */}
+        <TripSummaryCard 
+          train={train} 
+          travelDate={travelDate} 
+          selectedSeat={selectedSeat}
+          showSeat={true}
+          className="mb-8"
+        />          {/* Seat Selection */}
         <div className="bg-white p-6 rounded-xl shadow-card mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h2 className="text-xl font-bold text-primary mb-2">{train.name}</h2>
-              <p className="text-gray-600 mb-1">{train.operator} • {train.classType}</p>
-              <p className="text-gray-600 mb-4">Tanggal: {formatDate(travelDate)}</p>
-              
-              <div className="flex items-center mb-2">
-                <div className="w-16 font-medium text-right">{formatTime(train.departure)}</div>
-                <div className="mx-3 w-3 h-3 bg-primary rounded-full"></div>
-                <div>{train.departureStationName}</div>
-              </div>
-              
-              <div className="flex items-center mb-1">
-                <div className="w-16 font-medium text-right"></div>
-                <div className="mx-3 border-l-2 border-dashed border-gray-300 h-8"></div>
-                <div></div>
-              </div>
-              
-              <div className="flex items-center">
-                <div className="w-16 font-medium text-right">{formatTime(train.arrivalTime)}</div>
-                <div className="mx-3 w-3 h-3 bg-secondary rounded-full"></div>
-                <div>{train.arrivalStationName}</div>
-              </div>
-            </div>
-            
-            <div className="flex flex-col justify-center md:text-right">
-              <p className="text-2xl font-bold text-secondary mb-2">
-                {formatCurrency(Number(train.price))}
-              </p>
-              <p className="text-gray-600">
-                {availableSeats.length} kursi tersedia
-              </p>
-            </div>
-          </div>
-        </div>
-          {/* Seat Selection */}
-        <div className="bg-white p-6 rounded-xl shadow-card mb-8">
-          <h3 className="text-xl font-bold mb-6 text-center">Pilih Kursi Anda</h3>
-          
           {availableSeats.length === 0 ? (
-            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-lg">
-              <p className="text-center">Tidak ada kursi yang tersedia untuk kereta ini. Silakan pilih kereta lain.</p>
-            </div>
+            <NoSeatsAvailable />
           ) : (
             <>
-              <div className="mb-6">
-                <div className="flex items-center justify-center gap-6 mb-4">
-                  <div className="flex items-center">
-                    <div className="w-6 h-6 bg-gray-200 rounded-md mr-2"></div>
-                    <span className="text-sm">Tersedia</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-6 h-6 bg-primary rounded-md mr-2"></div>
-                    <span className="text-sm">Dipilih</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-6 h-6 bg-gray-400 rounded-md mr-2"></div>
-                    <span className="text-sm">Tidak Tersedia</span>
-                  </div>
-                </div>
-                
-                <div className="border-t border-b border-gray-200 py-4 mb-4">
-                  <div className="flex justify-center mb-4">
-                    <div className="w-2/3 h-10 bg-gray-300 rounded-t-lg text-center flex items-center justify-center text-gray-600 font-medium">
-                      DEPAN KERETA
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-4 md:grid-cols-10 gap-3 mb-6 max-w-3xl mx-auto">
-                    {availableSeats.map((seat) => (
-                      <button
-                        key={seat}
-                        className={`p-2 border rounded-md text-center transition-all transform hover:scale-105 ${
-                          selectedSeat === seat
-                            ? 'bg-primary text-white border-primary shadow-md'
-                            : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-primary/20'
-                        }`}
-                        onClick={() => handleSeatClick(seat)}
-                      >
-                        {seat}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  <div className="flex justify-center">
-                    <div className="w-2/3 h-10 bg-gray-300 rounded-b-lg text-center flex items-center justify-center text-gray-600 font-medium">
-                      BELAKANG KERETA
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <SeatLegend 
+                availableCount={Math.min(
+                  Array.isArray(availableSeats) 
+                    ? availableSeats.filter(seat => {
+                        const seatNum = parseInt(seat.substring(1));
+                        return seat.startsWith('A') && !isNaN(seatNum) && seatNum <= 100;
+                      }).length 
+                    : 0, 
+                  100
+                )} 
+              />
               
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                <div>
-                  {selectedSeat && (
-                    <p className="font-medium text-center md:text-left">
-                      Kursi Dipilih: <span className="text-primary font-bold">{selectedSeat}</span>
-                    </p>
-                  )}
-                </div>
-                <Button
-                  variant="primary"
-                  onClick={handleContinue}
-                  disabled={!selectedSeat}
-                  className="w-full md:w-auto"
-                >
-                  Lanjutkan
-                </Button>
-              </div>
+              <SeatMap
+                availableSeats={availableSeats}
+                selectedSeat={selectedSeat}
+                onSeatClick={handleSeatClick}
+              />
+              
+              <SelectionSummary
+                selectedSeat={selectedSeat}
+                onContinue={handleContinue}
+              />
             </>
           )}
         </div>

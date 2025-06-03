@@ -95,7 +95,7 @@ const BottomNavigation = () => {
       path: '#',
       icon: UserCircleIcon,
       iconSolid: UserCircleIconSolid,
-      isActive: showAccountDialog || isActiveRoute('/profile'),
+      isActive: showAccountDialog,
       onClick: handleAccountClick
     }
   ];
@@ -111,15 +111,6 @@ const BottomNavigation = () => {
               <p className="text-gray-600 text-sm truncate">{user.email}</p>
             </div>
             <div className="space-y-3">
-              <button
-                onClick={() => {
-                  setShowAccountDialog(false);
-                  router.push('/profile');
-                }}
-                className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-              >
-                Profil Saya
-              </button>
               <button
                 onClick={handleLogout}
                 className="w-full py-2 px-4 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition-colors"

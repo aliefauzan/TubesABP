@@ -24,7 +24,7 @@ const TrainCard = ({ train, onSelect }: TrainCardProps) => {
             </div>
           </div>
           <div className="text-right">
-            <p className="text-xl font-bold text-secondary">
+            <p className="text-xl font-bold text-green-600">
               {train.price}
             </p>
             <div className="flex items-center justify-end mt-1">

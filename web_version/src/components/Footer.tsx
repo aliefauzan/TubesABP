@@ -11,42 +11,41 @@ const Footer: React.FC = () => {
   };
 
   const currentYear = new Date().getFullYear();
-
   const footerLinks = [
     {
       title: 'Layanan',
       links: [
         { name: 'Pesan Tiket', href: '#search' },
         { name: 'Cek Jadwal', href: '/schedule' },
-        { name: 'Riwayat Pemesanan', href: '/history' },
-        { name: 'Refund & Reschedule', href: '/refund' }
+        { name: 'Riwayat Pemesanan', href: '/booking-history' },
+        { name: 'Pilih Kursi', href: '/seat-selection' }
       ]
     },
     {
-      title: 'Bantuan',
+      title: 'Akun',
       links: [
-        { name: 'FAQ', href: '/faq' },
-        { name: 'Panduan Booking', href: '/guide' },
-        { name: 'Customer Service', href: '/support' },
-        { name: 'Live Chat', href: '/chat' }
+        { name: 'Masuk', href: '/login' },
+        { name: 'Daftar', href: '/register' },
+        { name: 'Info Penumpang', href: '/passenger-info' },
+        { name: 'Pembayaran', href: '/payment' }
       ]
     },
     {
       title: 'Perusahaan',
       links: [
-        { name: 'Tentang Kami', href: '/about' },
-        { name: 'Karir', href: '/careers' },
-        { name: 'Press Release', href: '/press' },
-        { name: 'Partnership', href: '/partnership' }
+        { name: 'Tentang Kami', href: '#about' },
+        { name: 'Fitur Unggulan', href: '#features' },
+        { name: 'Testimoni', href: '#testimonials' },
+        { name: 'Kontak', href: '#contact' }
       ]
     },
     {
-      title: 'Legal',
+      title: 'Bantuan',
       links: [
-        { name: 'Syarat & Ketentuan', href: '/terms' },
-        { name: 'Kebijakan Privasi', href: '/privacy' },
-        { name: 'Kebijakan Cookie', href: '/cookies' },
-        { name: 'Disclaimer', href: '/disclaimer' }
+        { name: 'Panduan Booking', href: '#guide' },
+        { name: 'Customer Service', href: '#contact' },
+        { name: 'Lapor Masalah', href: '#feedback' },
+        { name: 'Tips Perjalanan', href: '#tips' }
       ]
     }
   ];

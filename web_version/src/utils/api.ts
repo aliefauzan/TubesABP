@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { Train, Booking, BookingDisplay, Station } from '@/types';
+import { Train, BookingDisplay } from '@/types';
+import { formatCurrency } from '@/utils/format';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
@@ -51,8 +52,8 @@ const transformTrainData = (train: any): Train => {
     arrivalStationName = train.arrival_station.name;
   }
   
-  // Format price as string with Rp prefix
-  const priceStr = train.price ? `Rp${train.price.toLocaleString('id-ID')}` : '';
+  // Format price using standardized formatCurrency function
+  const priceStr = train.price ? formatCurrency(Number(train.price)) : '';
   
   return {
     id: train.id ? train.id.toString() : '',
@@ -109,8 +110,8 @@ const transformBookingData = (booking: any): BookingDisplay => {
   
   const displayStatus = statusMap[booking.status] || booking.status || 'Menunggu Pembayaran';
   
-  // Format price as string with Rp prefix
-  const priceStr = booking.total_price ? `Rp${booking.total_price.toLocaleString('id-ID')}` : '';
+  // Format price using standardized formatCurrency function
+  const priceStr = booking.total_price ? formatCurrency(Number(booking.total_price)) : '';
   
   return {
     transactionId: booking.transaction_id || '',
@@ -322,7 +323,7 @@ export const trainService = {
     try {
       const params = date ? { date } : {};
       const response = await api.get(`/trains/${trainId}/available-seats`, { params });
-      return response.data;
+      return response.data.available_seats || [];
     } catch (error) {
       console.error('Error fetching available seats:', error);
       throw error;
@@ -335,7 +336,8 @@ export const bookingService = {
   createBooking: async (bookingData: any) => {
     try {
       const response = await api.post('/bookings', bookingData);
-      return transformBookingData(response.data);
+      // Return raw booking data, not transformed
+      return response.data;
     } catch (error) {
       console.error('Error creating booking:', error);
       throw error;
@@ -357,7 +359,7 @@ export const bookingService = {
     try {
       const response = await api.put(`/bookings/${transactionId}/status`, { status });
       return transformBookingData(response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating booking status:', error);
       throw error;
     }
@@ -366,14 +368,14 @@ export const bookingService = {
   uploadPaymentProof: async (bookingId: number, file: File) => {
     try {
       const formData = new FormData();
-      formData.append('payment_proof', file);
+      formData.append('proof', file);
       
-      const response = await api.post(`/bookings/${bookingId}/upload-payment`, formData, {
+      const response = await api.post(`/payments/${bookingId}/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
-      return transformBookingData(response.data);
+      return response.data;
     } catch (error) {
       console.error('Error uploading payment proof:', error);
       throw error;
