@@ -195,10 +195,9 @@ export const bookingService = {
   async updateBookingStatus(transactionId: string, status: string): Promise<Booking> {
     return apiRequest<Booking>(`/bookings/${transactionId}/status`, 'PUT', { status });
   },
-
   async uploadPaymentProof(bookingId: number, file: File): Promise<Booking> {
     const formData = new FormData();
-    formData.append('payment_proof', file);
+    formData.append('proof', file);
     
     return apiRequest<Booking>(`/payments/${bookingId}/upload`, 'POST', formData, {}, true);
   },
