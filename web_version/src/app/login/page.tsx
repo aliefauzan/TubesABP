@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FiUser, FiLock } from 'react-icons/fi';
-import { authService } from '@/utils/api';
+import { useAuth } from '@/contexts/AuthContext';
 import theme from '@/utils/theme';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,14 +26,15 @@ export default function LoginPage() {
 
     try {
       setIsLoading(true);
-      await authService.login(email, password);
-      router.push('/'); // Redirect to home page after successful login
-    } catch (err: any) {
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
+      const result = await login(email, password);
+      
+      if (result.success) {
+        router.push('/'); // Redirect to home page after successful login
       } else {
-        setError('Login gagal, silakan coba lagi');
+        setError(result.message || 'Login gagal, silakan coba lagi');
       }
+    } catch (err: any) {
+      setError('Login gagal, silakan coba lagi');
     } finally {
       setIsLoading(false);
     }

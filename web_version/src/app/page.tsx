@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { authService, stationService } from '@/utils/api';
+import { stationService } from '@/utils/api';
+import { useAuth } from '@/contexts/AuthContext';
 import { Station } from '@/types';
 import { useToast } from '@/components/Toast';
 import FeedbackModal from '@/components/FeedbackModal';
@@ -20,8 +21,8 @@ import AuthButtons from '@/components/home/AuthButtons';
 export default function Home() {
   const router = useRouter();
   const { showToast } = useToast();
+  const { user } = useAuth();
   const searchFormRef = useRef<HTMLDivElement>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [stations, setStations] = useState<Station[]>([]);
   const [selectedDepartureStation, setSelectedDepartureStation] = useState<Station | null>(null);
   const [selectedArrivalStation, setSelectedArrivalStation] = useState<Station | null>(null);
@@ -32,16 +33,12 @@ export default function Home() {
   const [isSearching, setIsSearching] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
 
+  const isLoggedIn = !!user;
+
 
   useEffect(() => {
-    checkLoginStatus();
     fetchStations();
   }, []);
-
-  const checkLoginStatus = () => {
-    const loggedIn = authService.isLoggedIn();
-    setIsLoggedIn(loggedIn);
-  };
 
   const fetchStations = async () => {
     setIsLoadingStations(true);

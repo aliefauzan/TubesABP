@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { authService } from '@/utils/api';
-import { User } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   HomeIcon, 
   ClockIcon, 
@@ -19,36 +18,16 @@ import {
 } from '@heroicons/react/24/solid';
 
 const BottomNavigation = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, logout } = useAuth();
   const [showAccountDialog, setShowAccountDialog] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  
-  useEffect(() => {
-    // Check if user is logged in
-    if (typeof window !== 'undefined') {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch (e) {
-          console.error('Error parsing user data:', e);
-          localStorage.removeItem('user');
-        }
-      }
-      setIsLoading(false);
-    }
-  }, []);
 
   const handleLogout = async () => {
     try {
-      await authService.logout();
-      setUser(null);
+      await logout();
       setShowAccountDialog(false);
       router.push('/');
-      // Refresh the page to clear any user-specific state
-      window.location.reload();
     } catch (error) {
       console.error('Logout error:', error);
     }

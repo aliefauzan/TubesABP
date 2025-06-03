@@ -6,6 +6,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import Footer from '@/components/Footer';
 import SvgPatternBackground from '@/components/SvgPatternBackground';
 import { ToastProvider } from '@/components/Toast';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,16 +23,18 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body className={inter.className}>
-        <ToastProvider>
-          <SvgPatternBackground className="min-h-screen">
-            <EnhancedNavbar />
-            <main className="min-h-screen pb-20 pt-20 relative z-10">
-              {children}
-            </main>
-            <Footer />
-            <BottomNavigation />
-          </SvgPatternBackground>
-        </ToastProvider>
+        <AuthProvider>
+          <ToastProvider>
+            <SvgPatternBackground className="min-h-screen">
+              <EnhancedNavbar />
+              <main className="min-h-screen pb-20 pt-20 relative z-10">
+                {children}
+              </main>
+              <Footer />
+              <BottomNavigation />
+            </SvgPatternBackground>
+          </ToastProvider>
+        </AuthProvider>
       </body>
     </html>
   );

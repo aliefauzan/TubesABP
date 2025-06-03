@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import NavbarLogo from './navbar/NavbarLogo';
 import QuickActions from './navbar/QuickActions';
 import UserMenu from './navbar/UserMenu';
@@ -22,25 +23,17 @@ const EnhancedNavbar: React.FC<EnhancedNavbarProps> = ({
   onHistoryClick,
   onNotificationsClick,
   isLoggedIn: propIsLoggedIn
-}) => {  const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+}) => {
+  const router = useRouter();
+  const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [notifications, setNotifications] = useState(3);
   const [showAccountDialog, setShowAccountDialog] = useState(false);
 
+  // Use AuthContext user state or prop fallback
+  const isLoggedIn = propIsLoggedIn !== undefined ? propIsLoggedIn : !!user;
   useEffect(() => {
-    const checkLoginStatus = () => {
-      // Simple login check without authService dependency
-      if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('token');
-        const loggedIn = propIsLoggedIn !== undefined ? propIsLoggedIn : !!token;
-        setIsLoggedIn(loggedIn);
-      }
-    };
-
-    checkLoginStatus();
-
     // Handle scroll effect
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -48,7 +41,7 @@ const EnhancedNavbar: React.FC<EnhancedNavbarProps> = ({
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [propIsLoggedIn]);
+  }, []);
   // Handlers with router functionality
   const handleSearchClick = () => {
     if (onSearchClick) {
@@ -72,14 +65,8 @@ const EnhancedNavbar: React.FC<EnhancedNavbarProps> = ({
     } else {
       console.log('Notifications clicked');
     }
-  };
-  const handleLogout = () => {
-    // Simple logout without authService dependency
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-    }
-    setIsLoggedIn(false);
+  };  const handleLogout = async () => {
+    await logout();
     setIsMobileMenuOpen(false);
     router.push('/');
   };

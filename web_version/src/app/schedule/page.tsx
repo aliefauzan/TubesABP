@@ -5,7 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { FiUsers, FiChevronRight, FiFilter, FiRefreshCw, FiMapPin, FiClock, FiStar, FiCalendar } from 'react-icons/fi';
 import { FaTrain } from 'react-icons/fa';
 import { MdOutlineCompareArrows } from 'react-icons/md';
-import { trainService, stationService, authService } from '@/utils/api';
+import { trainService, stationService } from '@/utils/api';
+import { useAuth } from '@/contexts/AuthContext';
 import { Train, Station } from '@/types';
 import { formatCurrency } from '@/utils/format';
 import theme from '@/utils/theme';
@@ -19,6 +20,7 @@ import RecentSearches from '@/components/schedule/RecentSearches';
 function SchedulePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [trains, setTrains] = useState<Train[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
@@ -165,9 +167,8 @@ function SchedulePageContent() {
       setDepartureStationId(stations[0].id);
       setArrivalStationId(stations[1].id);
     }
-  }, [stations, searchParams, departureStationId, arrivalStationId]);
-  const handleSelectTrain = (train: Train) => {
-    const isLoggedIn = authService.isLoggedIn();
+  }, [stations, searchParams, departureStationId, arrivalStationId]);  const handleSelectTrain = (train: Train) => {
+    const isLoggedIn = !!user;
     
     if (!isLoggedIn) {
       router.push('/login');

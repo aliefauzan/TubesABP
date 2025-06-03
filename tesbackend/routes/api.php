@@ -18,6 +18,7 @@ Route::get('/stations', [StationController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
     // Auth routes
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/refresh', [AuthController::class, 'refresh']);
     Route::get('/user/{id?}', [AuthController::class, 'user']);
     
     // Train routes
