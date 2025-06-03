@@ -1,5 +1,13 @@
 steps:
-  # 1. Install dependencies and build the Next.js application
+  # 1. Ambil .env dari Secret Manager
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'fetch-env'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud secrets versions access latest --secret="envweb" > web_version/.env.local
+  # 2. Install dependencies and build the Next.js application
   - name: 'node:18-alpine'
     id: 'install-and-build'
     entrypoint: 'sh'
@@ -10,7 +18,7 @@ steps:
         npm ci
         npm run build
 
-  # 2. Build Docker image
+  # 3. Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
     id: 'build-image'
     args:
@@ -21,14 +29,14 @@ steps:
       - web_version/Dockerfile
       - web_version
 
-  # 3. Push image to Artifact Registry
+  # 4. Push image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-image'
     args:
       - push
       - ${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/${_SERVICE_NAME}:$COMMIT_SHA
 
-  # 4. Deploy image to Cloud Run
+  # 5. Deploy image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'deploy-to-cloudrun'
     entrypoint: gcloud
