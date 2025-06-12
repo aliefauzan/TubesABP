@@ -22,6 +22,7 @@ return [
         'http://localhost:8080',
         'http://localhost',
         'https://backend-api-404674793847.asia-southeast2.run.app',
+        'https://keretaxpress-frontend-404674793847.asia-southeast2.run.app'
     ],
     
     'allowed_origins_patterns' => [

@@ -1,8 +1,6 @@
-import axios from 'axios';
+import apiClient from '@/utils/apiClient';
 import { Train, BookingDisplay } from '@/types';
 import { formatCurrency } from '@/utils/format';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
 // Helper functions to transform data between backend and frontend formats
 const transformTrainData = (train: any): Train => {
@@ -133,79 +131,32 @@ const transformBookingData = (booking: any): BookingDisplay => {
   };
 };
 
-// Create axios instance
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  },
-  timeout: 10000, // 10 seconds timeout
-});
-
-// Request interceptor for adding auth token
-api.interceptors.request.use(
-  (config) => {
-    // Only access localStorage in browser environment
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error) => {
-    console.error('Request error:', error);
-    return Promise.reject(error);
-  }
-);
-
-// Response interceptor for handling token expiration
-api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    // Handle network errors
-    if (!error.response) {
-      console.error('Network error:', error.message);
-      return Promise.reject({
-        message: 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.',
-        statusCode: 0
-      });
-    }
-    
-    // Handle 401 Unauthorized errors
-    if (error.response && error.response.status === 401) {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-      }
-      return Promise.reject({
-        message: error.response.data.message || 'Sesi Anda telah berakhir. Silakan login kembali.',
-        statusCode: 401
-      });
-    }
-    
-    return Promise.reject(error);
-  }
-);
-
-// Auth services
+// Auth services - Updated to work with AuthContext
 export const authService = {
   login: async (email: string, password: string) => {
     try {
-      const response = await api.post('/login', { email, password });
-      if (response.data.token && typeof window !== 'undefined') {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+      const response = await apiClient.post('/login', { email, password });
+      
+      if (response.token && response.user && typeof window !== 'undefined') {
+        // Save auth data using the enhanced storage method
+        const expiresAt = Date.now() + (2 * 60 * 60 * 1000); // 2 hours
+        const authData = {
+          token: response.token,
+          user: response.user,
+          refreshToken: response.refreshToken,
+          expiresAt
+        };
         
-        // Set cookie for middleware
-        document.cookie = `token=${response.data.token}; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 days
+        localStorage.setItem('auth_data', JSON.stringify(authData));
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        
+        // Set cookie for middleware (7 days)
+        const cookieExpiry = 7 * 24 * 60 * 60;
+        document.cookie = `token=${response.token}; path=/; max-age=${cookieExpiry}; secure; samesite=strict`;
       }
-      return response.data;
+      
+      return response;
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -214,13 +165,13 @@ export const authService = {
   
   register: async (name: string, email: string, password: string, password_confirmation: string) => {
     try {
-      const response = await api.post('/register', { 
+      const response = await apiClient.post('/register', { 
         name, 
         email, 
         password, 
         password_confirmation 
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
@@ -229,41 +180,33 @@ export const authService = {
   
   logout: async () => {
     try {
-      await api.post('/logout');
+      await apiClient.post('/logout');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
       // Always remove token and user data even if API call fails
       if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth_data');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        sessionStorage.removeItem('backup_token');
         
         // Remove cookie
-        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict';
       }
     }
   },
   
   getCurrentUser: () => {
-    if (typeof window !== 'undefined') {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        try {
-          return JSON.parse(userStr);
-        } catch (e) {
-          console.error('Error parsing user data:', e);
-          return null;
-        }
-      }
-    }
-    return null;
+    return apiClient.getCurrentUser();
   },
   
   isLoggedIn: () => {
-    if (typeof window !== 'undefined') {
-      return !!localStorage.getItem('token');
-    }
-    return false;
+    return apiClient.isAuthenticated();
+  },
+
+  refreshToken: async () => {
+    return apiClient.forceRefreshToken();
   }
 };
 
@@ -271,8 +214,7 @@ export const authService = {
 export const stationService = {
   getAllStations: async () => {
     try {
-      const response = await api.get('/stations');
-      return response.data;
+      return await apiClient.get('/stations');
     } catch (error) {
       console.error('Network or API error when fetching stations:', error);
       throw error;
@@ -284,11 +226,11 @@ export const stationService = {
 export const trainService = {
   searchTrains: async (params: any) => {
     try {
-      const response = await api.get('/trains/search', { params });
-      if (Array.isArray(response.data)) {
-        return response.data.map(train => transformTrainData(train));
+      const response = await apiClient.get('/trains/search', { params });
+      if (Array.isArray(response)) {
+        return response.map((train: any) => transformTrainData(train));
       }
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error searching trains:', error);
       throw error;
@@ -297,9 +239,7 @@ export const trainService = {
 
   getAllTrains: async () => {
     try {
-      const response = await api.get('/trains/all');
-      // Return raw data for manual processing
-      return response.data;
+      return await apiClient.get('/trains/all');
     } catch (error) {
       console.error('Error fetching all trains:', error);
       throw error;
@@ -308,11 +248,11 @@ export const trainService = {
   
   getPromoTrains: async () => {
     try {
-      const response = await api.get('/trains/promo');
-      if (Array.isArray(response.data)) {
-        return response.data.map(train => transformTrainData(train));
+      const response = await apiClient.get('/trains/promo');
+      if (Array.isArray(response)) {
+        return response.map((train: any) => transformTrainData(train));
       }
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error fetching promo trains:', error);
       throw error;
@@ -322,8 +262,8 @@ export const trainService = {
   getAvailableSeats: async (trainId: number, date?: string) => {
     try {
       const params = date ? { date } : {};
-      const response = await api.get(`/trains/${trainId}/available-seats`, { params });
-      return response.data.available_seats || [];
+      const response = await apiClient.get(`/trains/${trainId}/available-seats`, { params });
+      return response.available_seats || [];
     } catch (error) {
       console.error('Error fetching available seats:', error);
       throw error;
@@ -335,9 +275,7 @@ export const trainService = {
 export const bookingService = {
   createBooking: async (bookingData: any) => {
     try {
-      const response = await api.post('/bookings', bookingData);
-      // Return raw booking data, not transformed
-      return response.data;
+      return await apiClient.post('/bookings', bookingData);
     } catch (error) {
       console.error('Error creating booking:', error);
       throw error;
@@ -346,9 +284,7 @@ export const bookingService = {
   
   getBookingHistory: async (userUuid: string) => {
     try {
-      const response = await api.get(`/bookings/history?user_uuid=${userUuid}`);
-      // Return raw data for manual processing on frontend
-      return response.data;
+      return await apiClient.get(`/bookings/history?user_uuid=${userUuid}`);
     } catch (error) {
       console.error('Error fetching booking history:', error);
       throw error;
@@ -357,8 +293,8 @@ export const bookingService = {
   
   updateBookingStatus: async (transactionId: string, status: string) => {
     try {
-      const response = await api.put(`/bookings/${transactionId}/status`, { status });
-      return transformBookingData(response.data);
+      const response = await apiClient.put(`/bookings/${transactionId}/status`, { status });
+      return transformBookingData(response);
     } catch (error: any) {
       console.error('Error updating booking status:', error);
       throw error;
@@ -370,12 +306,11 @@ export const bookingService = {
       const formData = new FormData();
       formData.append('proof', file);
       
-      const response = await api.post(`/payments/${bookingId}/upload`, formData, {
+      return await apiClient.post(`/payments/${bookingId}/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
-      return response.data;
     } catch (error) {
       console.error('Error uploading payment proof:', error);
       throw error;
@@ -387,12 +322,11 @@ export const bookingService = {
 export const paymentService = {
   uploadPaymentProof: async (bookingId: number, formData: FormData) => {
     try {
-      const response = await api.post(`/payments/${bookingId}/upload`, formData, {
+      return await apiClient.post(`/payments/${bookingId}/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
-      return response.data;
     } catch (error) {
       console.error('Error uploading payment proof:', error);
       throw error;
@@ -400,4 +334,5 @@ export const paymentService = {
   }
 };
 
-export default api;
+// Legacy axios instance for backward compatibility
+export default apiClient.getAxiosInstance();

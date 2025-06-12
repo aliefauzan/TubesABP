@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FiUser, FiMail, FiLock } from 'react-icons/fi';
-import { authService } from '@/utils/api';
+import { useAuth } from '@/contexts/AuthContext';
 import theme from '@/utils/theme';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -43,15 +44,19 @@ export default function RegisterPage() {
 
     try {
       setIsLoading(true);
-      await authService.register(
+      const result = await register(
         formData.name,
         formData.email,
         formData.password,
         formData.password_confirmation
       );
       
-      // Redirect to login page after successful registration
-      router.push('/login?registered=true');
+      if (result.success) {
+        // Redirect to home page after successful registration and auto-login
+        router.push('/');
+      } else {
+        setError(result.message || 'Registrasi gagal, silakan coba lagi');
+      }
     } catch (err: any) {
       if (err.response?.data?.message) {
         setError(err.response.data.message);

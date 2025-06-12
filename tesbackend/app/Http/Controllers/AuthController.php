@@ -82,9 +82,7 @@ class AuthController extends Controller
             ]);
             return response()->json(['message' => 'Internal server error'], 500);
         }
-    }
-
-    public function logout(Request $request)
+    }    public function logout(Request $request)
     {
         try {
             $request->user()->currentAccessToken()->delete();
@@ -95,6 +93,34 @@ class AuthController extends Controller
                 'stack' => $e->getTraceAsString()
             ]);
             return response()->json(['message' => 'Internal server error'], 500);
+        }
+    }
+
+    public function refresh(Request $request)
+    {
+        try {
+            $user = $request->user();
+            
+            // Delete current token
+            $request->user()->currentAccessToken()->delete();
+            
+            // Create new token with extended expiration
+            $token = $user->createToken('auth_token')->plainTextToken;
+            
+            // Add UUID to user object
+            $user->uuid = $user->uuid ?? null;
+            
+            return response()->json([
+                'user' => $user,
+                'token' => $token,
+                'message' => 'Token refreshed successfully'
+            ]);
+        } catch (Exception $e) {
+            // Log the exception with detailed information
+            Log::error('Token refresh error: ' . $e->getMessage(), [
+                'stack' => $e->getTraceAsString()
+            ]);
+            return response()->json(['message' => 'Token refresh failed'], 401);
         }
     }
 
