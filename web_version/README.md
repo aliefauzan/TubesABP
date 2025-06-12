@@ -99,51 +99,122 @@
 - **Caching Strategy**: Efficient API caching and state management
 - **SEO Optimization**: Meta tags, structured data, and semantic HTML
 
-## 📁 Project Structure
+## 📁 Detailed Project Structure
 
 ```
 web_version/
 ├── src/
-│   ├── app/                    # Next.js 15 App Router pages
-│   │   ├── booking-history/    # Booking history management
-│   │   ├── login/             # User authentication
-│   │   ├── register/          # User registration
-│   │   ├── schedule/          # Train schedule search
-│   │   ├── seat-selection/    # Interactive seat selection
-│   │   ├── passenger-info/    # Passenger details form
-│   │   ├── payment/           # Payment confirmation
-│   │   ├── payment-success/   # Payment success page
-│   │   └── page.tsx           # Homepage with features
+│   ├── app/                           # Next.js 15 App Router pages
+│   │   ├── booking-history/           # Booking history management
+│   │   │   └── page.tsx              # Booking history page
+│   │   ├── login/                    # User authentication
+│   │   │   └── page.tsx              # Login page
+│   │   ├── register/                 # User registration
+│   │   │   └── page.tsx              # Registration page
+│   │   ├── schedule/                 # Train schedule search
+│   │   │   └── page.tsx              # Schedule search page
+│   │   ├── seat-selection/           # Interactive seat selection
+│   │   │   └── page.tsx              # Seat selection page
+│   │   ├── passenger-info/           # Passenger details form
+│   │   │   └── page.tsx              # Passenger info page
+│   │   ├── payment/                  # Payment confirmation
+│   │   │   └── page.tsx              # Payment page
+│   │   ├── payment-success/          # Payment success page
+│   │   │   └── page.tsx              # Success confirmation
+│   │   ├── layout.tsx                # Root layout component
+│   │   ├── loading.tsx               # Global loading component
+│   │   ├── error.tsx                 # Global error component
+│   │   ├── not-found.tsx             # 404 page
+│   │   └── page.tsx                  # Homepage with features
 │   │
-│   ├── components/            # Reusable React components
-│   │   ├── auth/             # Authentication components
-│   │   ├── booking/          # Booking-related components
-│   │   ├── home/             # Homepage components
-│   │   ├── navigation/       # Navigation and layout
-│   │   ├── payment/          # Payment components
-│   │   ├── schedule/         # Schedule and search components
-│   │   ├── skeletons/        # Loading skeleton components
-│   │   └── ui/               # Generic UI components
+│   ├── components/                   # Reusable React components
+│   │   ├── auth/                     # Authentication components
+│   │   │   ├── AuthButtons.tsx       # Login/Register buttons
+│   │   │   └── ProtectedRoute.tsx    # Route protection wrapper
+│   │   ├── booking/                  # Booking-related components
+│   │   │   ├── BookingCard.tsx       # Individual booking display
+│   │   │   ├── BookingHistory.tsx    # History list component
+│   │   │   └── BookingStatus.tsx     # Status indicator
+│   │   ├── home/                     # Homepage components
+│   │   │   ├── HeroSection.tsx       # Hero banner
+│   │   │   ├── SearchForm.tsx        # Main search form
+│   │   │   ├── FeaturesSection.tsx   # Features showcase
+│   │   │   ├── PopularRoutes.tsx     # Popular routes display
+│   │   │   └── FloatingActionButton.tsx # Quick actions
+│   │   ├── navigation/               # Navigation and layout
+│   │   │   ├── EnhancedNavbar.tsx    # Main navigation
+│   │   │   ├── BottomNavigation.tsx  # Mobile bottom nav
+│   │   │   └── navbar/               # Navbar sub-components
+│   │   │       ├── NavbarLogo.tsx
+│   │   │       ├── UserMenu.tsx
+│   │   │       ├── AuthButtons.tsx
+│   │   │       ├── QuickActions.tsx
+│   │   │       ├── MobileMenu.tsx
+│   │   │       ├── MobileMenuToggle.tsx
+│   │   │       └── AccountDialog.tsx
+│   │   ├── payment/                  # Payment components
+│   │   │   ├── PaymentForm.tsx       # Payment proof upload
+│   │   │   └── PaymentConfirmation.tsx # Payment confirmation
+│   │   ├── schedule/                 # Schedule and search components
+│   │   │   ├── ScheduleFilters.tsx   # Advanced filters
+│   │   │   ├── ScheduleControls.tsx  # Sort and view controls
+│   │   │   ├── TrainList.tsx         # Train results list
+│   │   │   ├── TrainCard.tsx         # Individual train card
+│   │   │   ├── ResultsSummary.tsx    # Search results summary
+│   │   │   └── RecentSearches.tsx    # Recent search history
+│   │   ├── skeletons/                # Loading skeleton components
+│   │   │   ├── ScheduleSkeleton.tsx  # Schedule loading state
+│   │   │   └── CardSkeleton.tsx      # Generic card skeleton
+│   │   ├── ui/                       # Generic UI components
+│   │   │   ├── Toast.tsx             # Notification system
+│   │   │   ├── Modal.tsx             # Modal dialogs
+│   │   │   └── Button.tsx            # Reusable buttons
+│   │   ├── PromoCarousel.tsx         # Promotional carousel
+│   │   ├── TestimonialSection.tsx    # Customer testimonials
+│   │   ├── FeedbackModal.tsx         # User feedback form
+│   │   └── PWAInstallPrompt.tsx      # PWA install prompt
 │   │
-│   ├── types/                # TypeScript type definitions
-│   │   └── index.ts          # Main type declarations
+│   ├── contexts/                     # React Context providers
+│   │   └── AuthContext.tsx           # Authentication context
 │   │
-│   ├── utils/                # Utility functions
-│   │   ├── api.ts            # API service layer
-│   │   └── format.ts         # Data formatting utilities
+│   ├── types/                        # TypeScript type definitions
+│   │   └── index.ts                  # Main type declarations
 │   │
-│   ├── constants/            # Application constants
-│   ├── hooks/                # Custom React hooks
-│   ├── lib/                  # External library configurations
-│   └── styles/               # Global styles and themes
+│   ├── utils/                        # Utility functions
+│   │   ├── api.ts                    # API service layer
+│   │   ├── api_new.ts                # Enhanced API services
+│   │   ├── api_backup.ts             # Backup API implementation
+│   │   ├── apiClient.ts              # API client configuration
+│   │   ├── format.ts                 # Data formatting utilities
+│   │   └── theme.ts                  # Theme configuration
+│   │
+│   ├── constants/                    # Application constants
+│   │   └── index.ts                  # App-wide constants
+│   ├── hooks/                        # Custom React hooks
+│   │   └── index.ts                  # Custom hooks collection
+│   ├── lib/                          # External library configurations
+│   │   └── utils.ts                  # Library utility functions
+│   └── styles/                       # Global styles and themes
+│       └── globals.css               # Global CSS styles
 │
-├── public/                   # Static assets (icons, images)
-├── .env.local               # Environment variables
-├── next.config.js           # Next.js configuration
-├── tailwind.config.js       # Tailwind CSS configuration
-├── tsconfig.json            # TypeScript configuration
-├── Dockerfile              # Docker containerization
-└── package.json            # Dependencies and scripts
+├── public/                           # Static assets (icons, images)
+│   ├── favicon.ico                   # App favicon
+│   ├── logo/                         # Logo assets
+│   └── icons/                        # App icons for PWA
+├── .env.local                        # Environment variables
+├── .env.example                      # Environment template
+├── next.config.js                    # Next.js configuration
+├── tailwind.config.js                # Tailwind CSS configuration
+├── tsconfig.json                     # TypeScript configuration
+├── Dockerfile                        # Docker containerization
+├── docker-compose.yml                # Docker compose for local dev
+├── cloudbuild.yaml                   # Google Cloud Build config
+├── middleware.ts                     # Next.js middleware
+├── start-app.ps1                     # Windows startup script
+├── verify-deployment.ps1             # Deployment verification
+├── DEPLOYMENT.md                     # Deployment documentation
+├── FEATURES.md                       # Feature documentation
+└── package.json                      # Dependencies and scripts
 ```
 
 ## 🚀 Getting Started
@@ -211,23 +282,88 @@ This web application connects to a Laravel backend API that provides:
 - **Bookings**: Create, read, update booking status
 - **Payments**: Payment proof upload and confirmation
 
+### **Base URL Configuration**
+
+**Development:**
+```
+http://localhost:8000/api
+```
+
+**Production:**
+```
+https://your-backend-domain.com/api
+```
+
 ### **Key API Endpoints**
+
+#### 🔓 Public Endpoints (No Authentication Required)
 ```typescript
 // Authentication
 POST /api/register    # User registration
 POST /api/login       # User login
-POST /api/logout      # User logout
 
 // Public Data
 GET /api/stations     # Get all stations
 GET /api/trains/all   # Get all trains
+```
 
-// Protected Routes (requires Bearer token)
-GET /api/trains/search           # Search trains
-POST /api/bookings              # Create booking
-GET /api/bookings/history       # Get booking history
+#### 🔒 Protected Endpoints (Requires Bearer Token)
+```typescript
+// Authentication
+POST /api/logout      # User logout
+GET /api/user/{id?}   # Get user profile
+
+// Train Management
+GET /api/trains/search           # Search trains by route and date
+GET /api/trains/promo           # Get promotional trains
+GET /api/trains/{id}/available-seats # Get available seats
+
+// Booking Management
+POST /api/bookings              # Create new booking
+GET /api/bookings/history       # Get user booking history
 PUT /api/bookings/{id}/status   # Update booking status
+
+// Payment Management
 POST /api/payments/{id}/upload  # Upload payment proof
+```
+
+### **Authentication Implementation**
+```typescript
+// Example authentication flow
+const loginUser = async (email: string, password: string) => {
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    
+    const data = await response.json();
+    if (data.token) {
+      // Store token for subsequent requests
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+    }
+    return data;
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
+  }
+};
+
+// Use token for protected routes
+const fetchProtectedData = async () => {
+  const token = localStorage.getItem('token');
+  
+  const response = await fetch('/api/bookings/history', {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  
+  return response.json();
+};
 ```
 
 ### **API Configuration**
@@ -259,6 +395,56 @@ The application is optimized for deployment on:
 - **Netlify**
 - **Google Cloud Run**
 - **AWS Lambda** (with serverless-nextjs)
+
+#### **Vercel Deployment (Recommended)**
+```powershell
+# Install Vercel CLI
+npm i -g vercel
+
+# Login to Vercel
+vercel login
+
+# Deploy from project directory
+vercel
+
+# Set environment variables
+vercel env add NEXT_PUBLIC_API_URL production
+vercel env add NEXTAUTH_SECRET production
+```
+
+#### **Google Cloud Run Deployment**
+```powershell
+# Prerequisites: Install Google Cloud CLI and login
+gcloud auth login
+gcloud config set project your-project-id
+
+# Build and deploy using Cloud Build
+gcloud builds submit --config cloudbuild.yaml
+
+# Or build locally and deploy
+docker build -t gcr.io/your-project-id/keretaxpress-web .
+docker push gcr.io/your-project-id/keretaxpress-web
+
+# Deploy to Cloud Run
+gcloud run deploy keretaxpress-web \
+  --image gcr.io/your-project-id/keretaxpress-web \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --set-env-vars="NEXT_PUBLIC_API_URL=https://your-backend-url.com/api"
+```
+
+#### **Netlify Deployment**
+```powershell
+# Install Netlify CLI
+npm install -g netlify-cli
+
+# Login to Netlify
+netlify login
+
+# Deploy from project directory
+netlify deploy --prod --dir=.next
+```
 
 ## 🔒 Security Features
 
